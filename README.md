@@ -1,10 +1,19 @@
-This is the main Redrose Linux repo.
+<small>This repo uses busybox.</small>
 
-The binaries from this repo are from Toybox.
+To build Redrose Linux, first build a Linux kernel.
+- clone the source
+- `make defconfig`
+- `make -j$(nproc)`
+- move the generated kernel image to ./linuxImage.
 
-Build .iso:
+Now run:
+
 ```
-grub-mkrescue -o redrose.iso .
+make initramfs
 ```
 
-WIP.
+and:
+
+```
+make iso
+```
