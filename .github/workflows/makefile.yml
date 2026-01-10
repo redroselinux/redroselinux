@@ -14,8 +14,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install xorriso
-      run: sudo apt update && sudo apt install -y xorriso
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          xorriso \
+          grub-pc-bin \
+          grub-common \
+          mtools \
+          make
+
 
     - name: Make initramfs
       run: make initramfs
