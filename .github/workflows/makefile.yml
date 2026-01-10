@@ -1,0 +1,40 @@
+name: Make .iso
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            xorriso \
+            grub-pc-bin \
+            grub-common \
+            mtools \
+            make
+
+      - name: Make initramfs
+        run: make initramfs
+
+      - name: Make .iso
+        run: make iso
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redrose-linux-iso
+          path: redrose_linux.iso

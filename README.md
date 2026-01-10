@@ -1,4 +1,4 @@
-<small>This repo uses busybox.</small>
+*this repo uses busybox. **the linuxImage file is here solely for the CI***
 
 To build Redrose Linux, first build a Linux kernel.
 - clone the source
