@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Mount essential filesystems
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+
+# Set up PATH
+export PATH=/bin
+
+# Increase stack size to unlimited
+ulimit -s unlimited
+
+# Enable core dumps
+ulimit -c unlimited
+
+# Welcome message
+echo "Welcome to Redrose Linux!"
+echo "Running /bin/car..."
+
+# Run the binary
+/bin/car
+if [ $? -ne 0 ]; then
+    echo "Binary crashed. Check dependencies or stack size."
+    ls -l /lib /lib64 /lib/x86_64-linux-gnu
+    ldd /bin/car
+fi
+
+# Launch a shell
+exec /bin/sh
