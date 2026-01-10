@@ -1,0 +1,27 @@
+name: Make .iso
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Make initramfs
+      run: make initramfs
+
+    - name: Make .iso
+      run: make iso
+
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: redrose-linux-iso
+        path: redrose_linux.iso
