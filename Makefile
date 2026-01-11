@@ -8,11 +8,10 @@ INITRAMFS_CPIO = $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
-all: clean initramfs iso vm
+all: clean installer initramfs iso vm
 
 initramfs:
 	@echo "[*] Building initramfs..."
-	mkdir -p $(INITRAMFS_DIR)/{bin,dev,etc,lib,lib64,mnt,proc,root,run,sbin,sys,tmp,usr,var}
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
 	gzip $(INITRAMFS_CPIO)
@@ -23,9 +22,16 @@ iso:
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR)
 
+installer:
+	gcc src/installer/main.c -o initramfs/bin/install -static
+
+run-installer:
+	initramfs/bin/install
+
 clean:
 	@echo "[*] Cleaning..."
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
+	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage
 
 vm:
 	@echo "[*] Running in VM..."
