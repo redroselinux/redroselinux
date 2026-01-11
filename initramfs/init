@@ -1,12 +1,14 @@
 #!/bin/sh
 
 # Mount essential filesystems
+echo "[*] Mounting essential filesystems"
 mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t devtmpfs none /dev
 
 # Set up PATH
+echo "[*] Setting up PATH"
 export PATH=/bin
 
-# Launch a shell
-exec /bin/sh
+# Launch installer
+exec /bin/install

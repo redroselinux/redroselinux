@@ -2,11 +2,11 @@ name: Make .iso
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
 
@@ -26,6 +26,9 @@ jobs:
             grub-common \
             mtools \
             make
+
+      - name: Build installer
+        run: make installer
 
       - name: Make initramfs
         run: make initramfs
