@@ -8,7 +8,7 @@ INITRAMFS_CPIO = $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
-all: clean initramfs iso
+all: clean initramfs iso vm
 
 initramfs:
 	@echo "[*] Building initramfs..."
@@ -32,9 +32,10 @@ iso:
 
 clean:
 	@echo "[*] Cleaning..."
-	rm -rf $(FS_DIR)
-	rm -rf $(INITRAMFS_DIR)
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 
-.PHONY: all initramfs iso clean
+vm:
+	@echo "[*] Running in VM..."
+	qemu-system-x86_64 -cdrom $(ISO)
 
+.PHONY: all initramfs iso clean vm
