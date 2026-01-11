@@ -5,6 +5,7 @@ To build Redrose Linux, first build a Linux kernel.
 - `make defconfig`
 - `make -j$(nproc)`
 - move the generated kernel image to ./linuxImage.
+- this repo has a precompiled kernel image FOR THE CI.
 
 Now run:
 
