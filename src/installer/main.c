@@ -21,6 +21,11 @@ int main() {
     char* time = timezone();
     enter_continue();
 
+    // disk
+    clear();
+    disk_header();
+    enter_continue();
+
     // finish and shutdown
     shutdown_computer();
 

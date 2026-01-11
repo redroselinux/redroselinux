@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "backend.c"
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -139,6 +140,16 @@ char* disk_header() {
     "|_ _|_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __   |  _ \\ _ __(_)_   _____\n"
     " | || '_ \\/ __| __/ _` | | |/ _` | __| |/ _ \\| '_ \\  | | | | '__| \\ \\ / / _ \\\n"
     " | || | | \\__ \\ || (_| | | | (_| | |_| | (_) | | | | | |_| | |  | |\\ V /  __/\n"
-    "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___|\n");
+    "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___|\n\n");
     blue_text_end();
+    separator();
+    printf("\nPlease be extremely careful with what you are picking\nright now. This operation is NOT reversible!\n");
+    printf("\nChoices:\n");
+    separator();
+    list_dev();
+    separator();
+    printf("Your choice: ");
+    static char drive[100];
+    fgets(drive, sizeof(drive), stdin);
+    return drive;
 }
