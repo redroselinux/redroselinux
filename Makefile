@@ -19,15 +19,8 @@ initramfs:
 
 iso:
 	@echo "[*] Building ISO..."
-	mkdir -p $(FS_DIR)/boot/grub
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
-	echo 'set default=0' > $(FS_DIR)/boot/grub/grub.cfg
-	echo 'set timeout=5' >> $(FS_DIR)/boot/grub/grub.cfg
-	echo 'menuentry "Boot Redrose Linux" {' >> $(FS_DIR)/boot/grub/grub.cfg
-	echo '    linux /boot/linuxImage' >> $(FS_DIR)/boot/grub/grub.cfg
-	echo '    initrd /boot/initramfs.cpio.gz' >> $(FS_DIR)/boot/grub/grub.cfg
-	echo '}' >> $(FS_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) $(FS_DIR)
 
 clean:
