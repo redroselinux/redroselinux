@@ -3,6 +3,16 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+// this file includes functions for TUI and some
+// TUI parts for main.c. The tui functions:
+// blue_text, blue_text_end, red_text, red_text_end
+// yellow_text, yellow_text_end, clear, separator,
+// enter_continue. the other functions are tui but
+// they are not like a libary or something
+//
+// was ai used in this file? yes, but only for minor assistance
+//      (escape codes like \033[94m, prinf-ing the figlet text)
+
 void blue_text() {
     printf("\033[94m");
     fflush(stdout);
@@ -38,7 +48,11 @@ void clear() {
 }
 
 void enter_continue() {
-    printf("Press ENTER to continue...");
+    printf("Press");
+    blue_text();
+    printf(" ENTER ");
+    blue_text_end();
+    printf("to continue...");
     getchar();
     clear();
 }
@@ -152,4 +166,65 @@ char* disk_header() {
     static char drive[100];
     fgets(drive, sizeof(drive), stdin);
     return drive;
+}
+
+char* user_creation() {
+    static char username[100];
+    printf("step 4/6");
+    yellow_text();
+    printf(
+    "                ____                _   _\n"
+    "| | | |___  ___ _ __   / ___|_ __ ___  __ _| |_(_) ___  _ __\n"
+    "| | | / __|/ _ \\ '__| | |   | '__/ _ \\/ _` | __| |/ _ \\| '_ \\\n"
+    "| |_| \\__ \\  __/ |    | |___| | |  __/ (_| | |_| | (_) | | | |\n"
+    " \\___/|___/\\___|_|     \\____|_|  \\___|\\__,_|\\__|_|\\___/|_| |_|\n\n"
+    );
+    yellow_text_end();
+    separator();
+    printf("\nSet up the user. Make a memorizable password or leave blank\n");
+    printf("for the defaults.\n\n");
+    separator();
+    printf("Your username [redrose]: ");
+    fgets(username, sizeof(username), stdin);
+    return username;
+}
+
+char* user_password() {
+    static char password[100];
+    printf("Password to this account [redrose]: ");
+    fgets(password, sizeof(password), stdin);
+    return password;
+}
+
+char* root_password() {
+    static char password[100];
+    printf("Password to root [redrose]: ");
+    fgets(password, sizeof(password), stdin);
+    return password;
+}
+
+char* hostname() {
+    static char password[100];
+    printf("Hostname [iuseredrosebtw]: ");
+    fgets(password, sizeof(password), stdin);
+    return password;
+}
+
+char* propiertary_enable() {
+    static char enable[4];
+    printf("BTW, enable propiertary software? (y/n) [n]: ");
+    fgets(enable, sizeof(enable), stdin);
+    return enable;
+}
+
+void installing_header() {
+    printf("step 5/6");
+    red_text();
+    printf("       _        _ _ _\n");
+    printf("|_ _|_ __  ___| |_ __ _| | (_)_ __   __ _\n");
+    printf(" | || '_ \\/ __| __/ _` | | | | '_ \\ / _` |\n");
+    printf(" | || | | \\__ \\ || (_| | | | | | | | (_| |\n");
+    printf("|___|_| |_|___/\\__\\__,_|_|_|_|_| |_|\\__, |\n");
+    printf("                                    |___/\n");
+    red_text_end();
 }
