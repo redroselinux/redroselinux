@@ -4,16 +4,14 @@ GREEN="\033[1;32m"
 RESET="\033[0m"
 
 # Mount essential filesystems
-printf "%s[*]%s Mounting essential filesystems\n" "$GREEN" "$RESET"
+echo "[*] Mounting essential filesystems"
 mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t devtmpfs none /dev
 
 # Set up PATH
-printf "%s[*]%s Setting up PATH\n" "$GREEN" "$RESET"
+echo "[*] Setting up PATH"
 export PATH=/bin
-
-sleep 0.25
 
 # Launch installer
 exec /bin/install
