@@ -1,5 +1,8 @@
 #!/bin/sh
 
+GREEN="\033[1;32m"
+RESET="\033[0m"
+
 # Mount essential filesystems
 echo "[*] Mounting essential filesystems"
 mount -t proc none /proc
