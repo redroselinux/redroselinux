@@ -1,5 +1,3 @@
-# Redrose Linux Makefile
-
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs
 OUTPUT_DIR = .
@@ -11,6 +9,8 @@ ISO = $(OUTPUT_DIR)/redrose_linux.iso
 all: clean installer initramfs iso vm
 
 initramfs:
+	@echo "[*] Downloading sgdisk"
+	curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	@echo "[*] Building initramfs..."
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
@@ -31,7 +31,7 @@ run-installer:
 clean:
 	@echo "[*] Cleaning..."
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
-	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage
+	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk
 
 vm:
 	@echo "[*] Running in VM..."
