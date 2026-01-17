@@ -2,11 +2,9 @@
 #include <dirent.h>
 #include <string.h>
 
-// this file will be later used as the main installer.
-// currently, it has this function as its useful in
-// both the outside and this one file, later.
+// backend for installer.
 //
-// was ai used in this file? yes
+// was ai used in this file? yes (functions: list_dev)
 
 void list_dev(void) {
     DIR *dir = opendir("/dev");
@@ -35,4 +33,12 @@ void list_dev(void) {
     if (!found) {
         printf("No drives found!\n");
     }
+}
+
+int wipe_drive(char* drive) {
+    char command[40]; // should be fine with 30, some space to make sure
+    snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
+    printf("> %s", command);
+    int exitcode = system(command);
+    return exitcode;
 }

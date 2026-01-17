@@ -29,14 +29,33 @@ int main() {
 
     // disk
     clear();
-    disk_header();
+    char* drive = disk_header();
+    while (drive[0] == '\n') {  // check if first character is newline
+        clear();
+        red_text();
+        printf("YOU MUST PICK A DRIVE!\n");
+        red_text_end();
+        drive = disk_header();
+    }
     enter_continue();
 
     // user creation
     clear();
     char* username = user_creation();
     char* userpassword = user_password();
+    if (userpassword[0] == '\n' || userpassword[0] == '\0') {
+        red_text();
+        printf("REMEMBER THE DEFAULT PASSWORD ABOVE!\n");
+        red_text_end();
+    }
+
     char* rootpassword = root_password();
+    if (rootpassword[0] == '\n' || rootpassword[0] == '\0') {
+        red_text();
+        printf("REMEMBER THE DEFAULT PASSWORD ABOVE!\n");
+        red_text_end();
+    }
+
     char* host_name = hostname();
     char* propiertary = propiertary_enable();
     enter_continue();
@@ -47,6 +66,20 @@ int main() {
     printf("\n");
     separator();
     printf("\nAre you sure? (y/n) [y]: ");
+
+    // todo: improve the color functions. we could do %s and for example:
+    // printf("this is%s red%s", red, red);
+    // or something similar to that.
+    printf("\nDestructive operations have a ");
+    red_text();
+    printf("red");
+    red_text_end();
+    printf(" asterisk (*) next to them while others have a ");
+    blue_text();
+    printf("blue");
+    blue_text_end();
+    printf(" one.\n");
+
     char confirm[4];
     fgets(confirm, sizeof(confirm), stdin);
 
@@ -57,43 +90,23 @@ int main() {
         separator();
         printf("\n");
 
-        printf("Installing... (this is all a placeholder!)\n");
+        red_text();
+        printf("* ");
+        red_text_end();
+        printf("Wiping the drive!\n");
         fflush(stdout);
-        sleep(1);
-
-        printf("Preparing system image...\n");
-        fflush(stdout);
-        sleep(2);
-
-        printf("Setting up user...\n");
-        fflush(stdout);
-        sleep(1);
-
-        printf("Setting up timezone, language and keyboard...\n");
-        fflush(stdout);
-        sleep(1);
-
-        printf("Preparing to install desktop, etc...\n");
-        fflush(stdout);
-        sleep(1);
-
-        clear();
-        installing_header();
-        printf("\n");
-        separator();
-        printf("\n");
-
-        printf("Setting up bootloader...\n");
-        fflush(stdout);
-        sleep(4);
-
-        printf("Installing packages [i3, i4dots, polybar, i4settings, xorg]...\n");
-        fflush(stdout);
-        sleep(7);
-
-        printf("Setting up login screen...\n");
-        fflush(stdout);
-        sleep(4);
+        if (wipe_drive(drive) != 1) {
+            red_text();
+            printf("\nInstallation has failed. ");
+            red_text_end();
+            printf("Please report the error at our Github Issues: ");
+            blue_text();
+            printf("https://github.com/redroselinux/redroselinux/issues\n");
+            blue_text_end();
+            printf("\n");
+            enter_continue();
+            shutdown_computer();
+        }
 
         printf("\nInstallation complete! The computer will now reboot.\n");
         enter_continue();

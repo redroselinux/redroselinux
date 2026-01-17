@@ -11,6 +11,7 @@ all: clean installer initramfs iso vm
 initramfs:
 	@echo "[*] Downloading sgdisk"
 	curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
+	chmod +x $(INITRAMFS_DIR)/bin/sgdisk
 	@echo "[*] Building initramfs..."
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
