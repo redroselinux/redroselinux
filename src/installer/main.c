@@ -95,7 +95,7 @@ int main() {
         red_text_end();
         printf("Wiping the drive!\n");
         fflush(stdout);
-        if (wipe_drive(drive) != 1) {
+        if (wipe_drive(drive) != 0) {
             red_text();
             printf("\nInstallation has failed. ");
             red_text_end();

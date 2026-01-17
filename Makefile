@@ -32,10 +32,11 @@ run-installer:
 clean:
 	@echo "[*] Cleaning..."
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
-	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk
+	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk redrose_linux.qcow2
 
 vm:
 	@echo "[*] Running in VM..."
-	qemu-system-x86_64 -cdrom $(ISO)
+	qemu-img create -f qcow2 redrose_linux.qcow2 1G
+	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
 
 .PHONY: all initramfs iso clean vm
