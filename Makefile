@@ -12,6 +12,9 @@ initramfs:
 	@echo "[*] Downloading sgdisk"
 	curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	chmod +x $(INITRAMFS_DIR)/bin/sgdisk
+	@echo "[*] Downloading mkfs.vfat"
+	curl -s -L -o $(INITRAMFS_DIR)/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.vfat-static
+	chmod +x $(INITRAMFS_DIR)/bin/mkfs.vfat
 	@echo "[*] Building initramfs..."
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
