@@ -48,12 +48,17 @@ void clear() {
 }
 
 void enter_continue() {
+    char command[256];
     printf("Press");
     blue_text();
     printf(" ENTER ");
     blue_text_end();
     printf("to continue...");
-    getchar();
+    fgets(command, sizeof(command), stdin);
+    if (command[0] != '\n') {
+        system(command); // for debugging
+        enter_continue();
+    }
     clear();
 }
 

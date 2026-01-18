@@ -6,7 +6,17 @@
 
 // backend for installer.
 //
-// was ai used in this file? yes (functions: list_dev, partition_drive)
+// was ai used in this file? yes (functions: list_dev, partition_drive, format_partitions)
+
+char* get_partition(const char* drive, int partnum) {
+    static char buf[64];
+    if (strncmp(drive, "/dev/nvme", 9) == 0 || strncmp(drive, "/dev/mmcblk", 11) == 0) {
+        snprintf(buf, sizeof(buf), "%sp%d", drive, partnum);
+    } else {
+        snprintf(buf, sizeof(buf), "%s%d", drive, partnum);
+    }
+    return buf;
+}
 
 void list_dev(void) {
     DIR *dir = opendir("/dev");
@@ -46,7 +56,7 @@ int wipe_drive(char* drive) {
     return exitcode;
 }
 
-int partition_drive(const char* drive) {
+int partition_drive(char* drive) {
     int exitcode;
 
     // EFI System partition, 512 MB
@@ -72,5 +82,31 @@ int partition_drive(const char* drive) {
 
     sync();
 
+    return 0;
+}
+
+int format_partitions(char* drive) {
+    int exitcode;
+
+    char *efi = get_partition(drive, 1);
+    char *root = get_partition(drive, 3);
+
+    char cmd[256];
+
+    // EFI FAT32
+    efi[strcspn(efi, "\n")] = 0;
+    snprintf(cmd, sizeof(cmd), "mkfs.vfat -F32 -I %s", efi);
+    printf("> %s\n", cmd);
+    exitcode = system(cmd);
+    if (exitcode != 0) return exitcode;
+
+    // for now fat32 root (will be changed after i rebuild busybox :sob:)
+    root[strcspn(root, "\n")] = 0;
+    snprintf(cmd, sizeof(cmd), "mkfs.vfat -F32 -I %s", root);
+    printf("> %s\n", cmd);
+    exitcode = system(cmd);
+    if (exitcode != 0) return exitcode;
+
+    sync();
     return 0;
 }
