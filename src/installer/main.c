@@ -114,7 +114,7 @@ int main() {
             separator();
             printf("\n");
         }
-        if (partition_drive(drive) != 0) {
+        if (dd_drive(drive) != 0) {
             red_text();
             printf("\nInstallation has failed. ");
             red_text_end();
@@ -127,36 +127,15 @@ int main() {
             shutdown_computer();
         }
         else {
-            clear();
-            installing_header();
-            printf("\n");
-            separator();
-            printf("\n");
-        }
-        if (format_partitions(drive) != 0) {
-            red_text();
-            printf("\nInstallation has failed. ");
-            red_text_end();
-            printf("Please report the error at our Github Issues: ");
-            blue_text();
-            printf("https://github.com/redroselinux/redroselinux/issues\n");
-            blue_text_end();
-            printf("\n");
             enter_continue();
-            shutdown_computer();
-        }
-        else {
             clear();
             installing_header();
             printf("\n");
             separator();
             printf("\n");
         }
-
-        printf("\nInstallation complete! The computer will now reboot.\n");
-        enter_continue();
     }
-
+    enter_continue();
     // finish and shutdown
     shutdown_computer();
 

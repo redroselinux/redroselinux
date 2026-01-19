@@ -12,16 +12,21 @@ initramfs:
 	@echo "[*] Downloading sgdisk"
 	curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	chmod +x $(INITRAMFS_DIR)/bin/sgdisk
-	@echo "[*] Downloading mkfs.vfat"
-	curl -s -L -o $(INITRAMFS_DIR)/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.vfat-static
-	chmod +x $(INITRAMFS_DIR)/bin/mkfs.vfat
-	@echo "[*] Building initramfs..."
+	@echo "[*] Building installer initramfs..."
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
-	gzip $(INITRAMFS_CPIO)
+	gzip -f $(INITRAMFS_CPIO)
+
+	@echo "[*] Building rootfs initramfs..."
+	cd rootfs/filesystem && find . -print | cpio -H newc -o > ../../initramfs_rootfs.cpio
+	gzip -f initramfs_rootfs.cpio
+	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
 
 iso:
 	@echo "[*] Building ISO..."
+	cp linuxImage rootfs/filesystem/boot/
+	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
+	grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR)
@@ -34,8 +39,10 @@ run-installer:
 
 clean:
 	@echo "[*] Cleaning..."
-	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
-	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk redrose_linux.qcow2
+	@rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
+	@rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk redrose_linux.qcow2
+	@rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
+	@rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio
 
 vm:
 	@echo "[*] Running in VM..."

@@ -1,0 +1,9 @@
+initramfs.*
+redrose_linux.qcow2
+redrose_linux.iso
+filesystem/boot/initramfs.cpio.gz
+filesystem/boot/linuxImage
+initramfs/bin/install
+initramfs/bin/sgdisk
+
+.vscode

@@ -56,57 +56,12 @@ int wipe_drive(char* drive) {
     return exitcode;
 }
 
-int partition_drive(char* drive) {
-    int exitcode;
-
-    // EFI System partition, 512 MB
-    char cmd1[100];
-    snprintf(cmd1, sizeof(cmd1), "sgdisk -n 1:0:+512M -t 1:EF00 %s", drive);
-    printf("> %s\n", cmd1);
-    exitcode = system(cmd1);
-    if (exitcode != 0) return exitcode;
-
-    // BIOS Boot partition, 2 MB
-    char cmd2[100];
-    snprintf(cmd2, sizeof(cmd2), "sgdisk -n 2:0:+2M -t 2:EF02 %s", drive);
-    printf("> %s\n", cmd2);
-    exitcode = system(cmd2);
-    if (exitcode != 0) return exitcode;
-
-    // Root partition, rest of disk
-    char cmd3[100];
-    snprintf(cmd3, sizeof(cmd3), "sgdisk -n 3:0:0 -t 3:8300 %s", drive);
-    printf("> %s\n", cmd3);
-    exitcode = system(cmd3);
-    if (exitcode != 0) return exitcode;
-
-    sync();
-
-    return 0;
-}
-
-int format_partitions(char* drive) {
-    int exitcode;
-
-    char *efi = get_partition(drive, 1);
-    char *root = get_partition(drive, 3);
-
-    char cmd[256];
-
-    // EFI FAT32
-    efi[strcspn(efi, "\n")] = 0;
-    snprintf(cmd, sizeof(cmd), "mkfs.vfat -F32 -I %s", efi);
-    printf("> %s\n", cmd);
-    exitcode = system(cmd);
-    if (exitcode != 0) return exitcode;
-
-    // for now fat32 root (will be changed after i rebuild busybox :sob:)
-    root[strcspn(root, "\n")] = 0;
-    snprintf(cmd, sizeof(cmd), "mkfs.vfat -F32 -I %s", root);
-    printf("> %s\n", cmd);
-    exitcode = system(cmd);
-    if (exitcode != 0) return exitcode;
-
-    sync();
-    return 0;
+int dd_drive(char* drive) {
+    fflush(stdout);
+    char command[100]; // should be fine with 80, some space to make sure
+    snprintf(command, sizeof(command), "dd if=redroselinux_rootfs.iso of=%s bs=4M status=progress conv=fsync", drive);
+    printf("> %s", command);
+    int exitcode = system(command);
+    
+    return exitcode;
 }
