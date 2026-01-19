@@ -30,6 +30,9 @@ iso:
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR)
+	cp linuxImage rootfs/filesystem/boot/
+	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
+	grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
 
 installer:
 	gcc src/installer/main.c -o initramfs/bin/install -static
