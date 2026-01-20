@@ -18,7 +18,7 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 	@echo "[*] Building rootfs initramfs..."
-	cd rootfs/filesystem && find . -print | cpio -H newc -o > ../../initramfs_rootfs.cpio
+	cd rootfs/initramfs && find . -print | cpio -H newc -o > ../../initramfs_rootfs.cpio
 	gzip -f initramfs_rootfs.cpio
 	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
 
