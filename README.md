@@ -10,6 +10,18 @@ This repo contains some prebuilts, as mentioned in below sections.
 
 Go to Actions, pick the latest run and download the artifact.
 
+Once downloaded, navigate to the directory where you downloaded it and
+
+```
+unzip redrose-linux-iso.zip # filename might be different in the future
+```
+
+Now you can use tools like `virt-manager` to use it. Or just purely use
+
+```
+qemu-system-x86_64 -cdrom redrose_linux.iso
+```
+
 ## Development
 *this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the car-coreutils-repo and downloaded in the Makefile.
 
