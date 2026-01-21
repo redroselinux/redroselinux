@@ -13,6 +13,7 @@
 // was ai used in this file? yes, but only for minor assistance
 //      (escape codes like \033[94m, prinf-ing the figlet text)
 
+// todo: move into a func like set_text_color(BLUE)
 void blue_text() {
     printf("\033[94m");
     fflush(stdout);
@@ -39,6 +40,16 @@ void yellow_text() {
 }
 
 void yellow_text_end() {
+    printf("\033[0m");
+    fflush(stdout);
+}
+
+void green_text() {
+    printf("\033[92m");
+    fflush(stdout);
+}
+
+void green_text_end() {
     printf("\033[0m");
     fflush(stdout);
 }
@@ -97,7 +108,7 @@ void main_header() {
     printf("\n");
 
     printf("Welcome to the Redrose Linux Installer!\n");
-    printf("Please note that Redrose is still in beta.\n");
+    printf("Please note that Redrose is still in alpha (you are using alpha-0.2).\n");
     printf("You can report bugs at ");
     blue_text();
     printf("https://github.com/redroselinux/redroselinux/issues");
@@ -232,4 +243,29 @@ void installing_header() {
     printf("|___|_| |_|___/\\__\\__,_|_|_|_|_| |_|\\__, |\n");
     printf("                                    |___/\n");
     red_text_end();
+}
+
+void installed_header() {
+    printf("step 6/6");
+    green_text();
+    printf("       _        _ _          _ \n");
+    printf("|_ _|_ __  ___| |_ __ _| | | ___  __| |\n");
+    printf(" | || '_ \\/ __| __/ _` | | |/ _ \\/ _` |\n");
+    printf(" | || | | \\__ \\ || (_| | | |  __/ (_| |\n");
+    printf("|___|_| |_|___/\\__\\__,_|_|_|\\___|\\__,_|\\n");
+    green_text_end();
+    separator();
+    printf("\n");
+}
+
+void install_failed() {
+    red_text();
+    printf(" _____     _ _          _ \n");
+    printf("|  ___|_ _(_) | ___  __| |\n");
+    printf("| |_ / _` | | |/ _ \\/ _` |\n");
+    printf("|  _| (_| | | |  __/ (_| |\n");
+    printf("|_|  \\__,_|_|_|\\___|\\__,_|\n\n");
+    red_text_end();
+    separator();
+    printf("\n");
 }

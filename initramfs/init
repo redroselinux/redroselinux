@@ -11,4 +11,5 @@ echo "[*] Setting up PATH"
 export PATH=/bin
 
 # Launch installer
-exec /bin/install
+/bin/install
+exec /bin/sh

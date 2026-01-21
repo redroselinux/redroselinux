@@ -7,6 +7,20 @@ INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
 all: clean installer initramfs iso vm
+no-vm: clean installer initramfs iso
+help:
+	@echo "\033[90m-----------------------------------------------------------------------\033[0m"
+	@echo "\033[90m|\033[0m  - \033[33mMakefile targets\033[0m                                                  \033[90m|\033[0m"
+	@echo "\033[90m-----------------------------------------------------------------------\033[0m "
+	@echo "\033[90m|\033[0m  all        \033[90m|\033[0m Build everything and run in VM                         \033[90m|\033[0m  "
+	@echo "\033[90m|\033[0m  no-vm      \033[90m|\033[0m Build everything without running in VM                 \033[90m|\033[0m  "
+	@echo "\033[90m-----------------------------------------------------------------------\033[0m "
+	@echo "\033[90m|\033[0m  installer  \033[90m|\033[0m Build the installer binary                             \033[90m|\033[0m  "
+	@echo "\033[90m|\033[0m  initramfs  \033[90m|\033[0m Build the initramfs images                             \033[90m|\033[0m  "
+	@echo "\033[90m|\033[0m  iso        \033[90m|\033[0m Build the ISO image                                    \033[90m|\033[0m  "
+	@echo "\033[90m|\033[0m  clean      \033[90m|\033[0m Clean up build artifacts                               \033[90m|\033[0m  "
+	@echo "\033[90m|\033[0m  vm         \033[90m|\033[0m Run the built ISO in a QEMU VM                         \033[90m|\033[0m  "
+	@echo "\033[90m-----------------------------------------------------------------------\033[0m "
 
 initramfs:
 	@echo "[*] Downloading sgdisk"
@@ -24,14 +38,14 @@ initramfs:
 
 iso:
 	@echo "[*] Building ISO..."
-	cp linuxImage rootfs/filesystem/boot/
-	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
+	@cp linuxImage rootfs/filesystem/boot/
+	@cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
 	grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
-	cp linuxImage $(FS_DIR)/boot/
-	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
+	@cp linuxImage $(FS_DIR)/boot/
+	@cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR)
-	cp linuxImage rootfs/filesystem/boot/
-	cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
+	@cp linuxImage rootfs/filesystem/boot/
+	@cp initramfs_rootfs.cpio.gz rootfs/filesystem/boot/
 	grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
 
 installer:
@@ -41,7 +55,6 @@ run-installer:
 	initramfs/bin/install
 
 clean:
-	@echo "[*] Cleaning..."
 	@rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 	@rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage initramfs/bin/sgdisk redrose_linux.qcow2
 	@rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
