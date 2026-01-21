@@ -36,6 +36,16 @@ void set_text_color(int color) {
     }
 }
 
+void green_text() {
+    printf("\033[92m");
+    fflush(stdout);
+}
+
+void green_text_end() {
+    printf("\033[0m");
+    fflush(stdout);
+}
+
 void clear() {
     printf("\033[2J\033[H");
 }

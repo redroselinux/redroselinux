@@ -10,18 +10,9 @@ This repo contains some prebuilts, as mentioned in below sections.
 
 ## Download
 
-Go to Actions, pick the latest run and download the artifact.
-
-Once downloaded, navigate to the directory where you downloaded it and
-
-```
-unzip redrose-linux-iso.zip # filename might be different in the future
-```
-
-Now you can use tools like `virt-manager` to use it. Or just purely use
-
-```
-qemu-system-x86_64 -cdrom redrose_linux.iso
+We made a launcher to launch Redrose in QEMU. To run it, paste this into your terminal:
+```bash
+curl -sSSL https://raw.githubusercontent.com/redroselinux/redroselinux/refs/heads/main/src/redrose-launcher/main.py | python3
 ```
 
 ## Development
