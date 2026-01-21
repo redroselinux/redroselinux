@@ -1,0 +1,1 @@
+This is a tool to try Redrose Linux. It automatically downloads the latest release, or latest nightly build and runs it in qemu.
