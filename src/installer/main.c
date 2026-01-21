@@ -33,9 +33,9 @@ int main() {
     char* drive = disk_header();
     while (drive[0] == '\n') {  // check if first character is newline
         clear();
-        red_text();
+        set_text_color(RED);
         printf("YOU MUST PICK A DRIVE!\n");
-        red_text_end();
+        set_text_color(RESET);
         drive = disk_header();
     }
     enter_continue();
@@ -45,16 +45,16 @@ int main() {
     char* username = user_creation();
     char* userpassword = user_password();
     if (userpassword[0] == '\n' || userpassword[0] == '\0') {
-        red_text();
+        set_text_color(RED);
         printf("REMEMBER THE DEFAULT PASSWORD ABOVE!\n");
-        red_text_end();
+        set_text_color(RESET);
     }
 
     char* rootpassword = root_password();
     if (rootpassword[0] == '\n' || rootpassword[0] == '\0') {
-        red_text();
+        set_text_color(RED);
         printf("REMEMBER THE DEFAULT PASSWORD ABOVE!\n");
-        red_text_end();
+        set_text_color(RESET);
     }
 
     char* host_name = hostname();
@@ -72,13 +72,13 @@ int main() {
     // printf("this is%s red%s", red, red);
     // or something similar to that.
     printf("\nDestructive operations have a ");
-    red_text();
+    set_text_color(RED);
     printf("red");
-    red_text_end();
+    set_text_color(RESET);
     printf(" asterisk (*) next to them while others have a ");
-    blue_text();
+    set_text_color(BLUE);
     printf("blue");
-    blue_text_end();
+    set_text_color(RESET);
     printf(" one.\n");
 
     char confirm[4];
@@ -91,20 +91,20 @@ int main() {
         separator();
         printf("\n");
 
-        red_text();
+        set_text_color(RED);
         printf("* ");
-        red_text_end();
+        set_text_color(RESET);
         printf("Preparing the drive!\n");
         fflush(stdout);
         if (wipe_drive(drive) != 0) {
             install_failed();
-            red_text();
+            set_text_color(RED);
             printf("\nInstallation has failed. ");
-            red_text_end();
+            set_text_color(RESET);
             printf("Please report the error at our Github Issues: ");
-            blue_text();
+            set_text_color(BLUE);
             printf("https://github.com/redroselinux/redroselinux/issues\n");
-            blue_text_end();
+            set_text_color(RESET);
             printf("\n");
             enter_continue();
             shutdown_computer();
@@ -118,13 +118,13 @@ int main() {
         }
         if (dd_drive(drive) != 0) {
             install_failed();
-            red_text();
+            set_text_color(RED);
             printf("\nInstallation has failed. ");
-            red_text_end();
+            set_text_color(RESET);
             printf("Please report the error at our Github Issues: ");
-            blue_text();
+            set_text_color(BLUE);
             printf("https://github.com/redroselinux/redroselinux/issues\n");
-            blue_text_end();
+            set_text_color(RESET);
             printf("\n");
             enter_continue();
             shutdown_computer();
@@ -141,9 +141,9 @@ int main() {
         printf("\n");
         separator();
         printf("\n");
-        blue_text();
+        set_text_color(BLUE);
         printf("* ");
-        blue_text_end();
+        set_text_color(RESET);
         printf("Generating post-installation scripts...\n");
         fflush(stdout);
         if (gen_postinst_scripts(
@@ -154,13 +154,13 @@ int main() {
             host_name
         ) != 0) {
             install_failed();
-            red_text();
+            set_text_color(RED);
             printf("\nInstallation has failed. ");
-            red_text_end();
+            set_text_color(RESET);
             printf("Please report the error at our Github Issues: ");
-            blue_text();
+            set_text_color(BLUE);
             printf("https://github.com/redroselinux/redroselinux/issues\n");
-            blue_text_end();
+            set_text_color(RESET);
             printf("\n");
             enter_continue();
             shutdown_computer();
