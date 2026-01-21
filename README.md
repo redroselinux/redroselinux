@@ -1,5 +1,7 @@
 # Redrose Linux
 
+[![CI](https://github.com/redroselinux/redroselinux/actions/workflows/makefile.yml/badge.svg)](https://github.com/redroselinux/redroselinux/actions/workflows/makefile.yml)
+
 The repositories for Car or the website are available to view on this Github organization.
 This repo contains some prebuilts, as mentioned in below sections.
 

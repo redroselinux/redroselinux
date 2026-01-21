@@ -1,4 +1,4 @@
-name: Make .iso
+name: builds
 
 on:
   push:
