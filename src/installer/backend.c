@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include <dirent.h>
+#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
 
 // backend for installer.
 //
@@ -18,11 +18,39 @@ char* get_partition(const char* drive, int partnum) {
     return buf;
 }
 
+
 void list_dev(void) {
     DIR *dir = opendir("/dev");
     if (!dir) {
         perror("opendir /dev");
         return;
+    }
+
+    struct stat st;
+    unsigned int cur_maj = 0, cur_min = 0;
+    if (stat(".", &st) == 0) {
+        cur_maj = major(st.st_dev);
+        cur_min = minor(st.st_dev);
+    }
+
+    char cur_dev[128] = {0};
+    FILE *fp = fopen("/proc/self/mountinfo", "r");
+    if (fp) {
+        char line[512];
+        while (fgets(line, sizeof(line), fp)) {
+            unsigned int maj, min;
+            char dev[128];
+
+            if (sscanf(line,
+                       "%*d %*d %u:%u %*s %*s %*[^-]- %127s",
+                       &maj, &min, dev) == 3) {
+                if (maj == cur_maj && min == cur_min) {
+                    strncpy(cur_dev, dev, sizeof(cur_dev) - 1);
+                    break;
+                }
+            }
+        }
+        fclose(fp);
     }
 
     struct dirent *entry;
@@ -31,20 +59,22 @@ void list_dev(void) {
     while ((entry = readdir(dir)) != NULL) {
         const char *name = entry->d_name;
 
-        // Only include real block devices (SATA/SCSI, NVMe, eMMC/SD)
-        if (strncmp(name, "sd", 2) == 0 ||      // SATA/SCSI drives
-            strncmp(name, "nvme", 4) == 0 ||    // NVMe drives
-            strncmp(name, "mmcblk", 6) == 0) {  // eMMC/SD card
-            printf("- %s\n", name);
-            found = 1;
-        }
+        if (!(strncmp(name, "sd", 2) == 0 ||
+              strncmp(name, "nvme", 4) == 0 ||
+              strncmp(name, "mmcblk", 6) == 0))
+            continue;
+
+        if (cur_dev[0] && strstr(cur_dev, name))
+            continue;
+
+        printf("- %s\n", name);
+        found = 1;
     }
 
     closedir(dir);
 
-    if (!found) {
+    if (!found)
         printf("No drives found!\n");
-    }
 }
 
 int wipe_drive(char* drive) {

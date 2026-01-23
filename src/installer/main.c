@@ -15,6 +15,44 @@ void shutdown_computer() {
     reboot(RB_POWER_OFF);
 }
 
+void print_error_and_exit() {
+    set_text_color(RED);
+    printf("\nInstallation has failed. ");
+    set_text_color(RESET);
+    printf("Please report the error at our Github Issues: ");
+    set_text_color(BLUE);
+    printf("https://github.com/redroselinux/redroselinux/issues\n");
+    set_text_color(RESET);
+    printf("\n");
+    enter_continue();
+    shutdown_computer();
+}
+
+void print_step_header() {
+    clear();
+    installing_header();
+    printf("\n");
+    separator();
+    printf("\n");
+}
+
+int run_installation_step(int (*operation)(char*), char* arg, const char* step_name, int is_destructive) {
+    set_text_color(is_destructive ? RED : BLUE);
+    printf("* ");
+    set_text_color(RESET);
+    printf("%s\n", step_name);
+    fflush(stdout);
+    
+    if (operation(arg) != 0) {
+        install_failed();
+        print_error_and_exit();
+        return -1;
+    }
+    
+    print_step_header();
+    return 0;
+}
+
 int main() {
     // show main header
     clear();
@@ -31,12 +69,16 @@ int main() {
     // disk
     clear();
     char* drive = disk_header();
-    while (drive[0] == '\n') {  // check if first character is newline
-        clear();
-        set_text_color(RED);
-        printf("YOU MUST PICK A DRIVE!\n");
-        set_text_color(RESET);
-        drive = disk_header();
+    while (!(drive[0] == '/' &&
+        drive[1] == 'd' &&
+        drive[2] == 'e' &&
+        drive[3] == 'v' &&
+        drive[4] == '/')) {
+            clear();
+            set_text_color(RED);
+            printf("Pick a drive that starts with /dev/(your drive)\n");
+            set_text_color(RESET);
+            drive = disk_header();
     }
     enter_continue();
 
@@ -67,10 +109,6 @@ int main() {
     printf("\n");
     separator();
     printf("\nAre you sure? (y/n) [y]: ");
-
-    // todo: improve the color functions. we could do %s and for example:
-    // printf("this is%s red%s", red, red);
-    // or something similar to that.
     printf("\nDestructive operations have a ");
     set_text_color(RED);
     printf("red");
@@ -85,97 +123,29 @@ int main() {
     fgets(confirm, sizeof(confirm), stdin);
 
     if (confirm[0] == 'y' || confirm[0] == '\n') {
-        clear();
-        installing_header();
-        printf("\n");
-        separator();
-        printf("\n");
-
-        set_text_color(RED);
-        printf("* ");
-        set_text_color(RESET);
-        printf("Preparing the drive!\n");
-        fflush(stdout);
-        if (wipe_drive(drive) != 0) {
+        print_step_header();
+        
+        if (run_installation_step(wipe_drive, drive, "Preparing the drive!", 1) < 0) return 0;
+        if (run_installation_step(dd_drive, drive, "Writing ISO to drive!", 1) < 0) return 0;
+        
+        print_step_header();
+        if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {
             install_failed();
-            set_text_color(RED);
-            printf("\nInstallation has failed. ");
-            set_text_color(RESET);
-            printf("Please report the error at our Github Issues: ");
-            set_text_color(BLUE);
-            printf("https://github.com/redroselinux/redroselinux/issues\n");
-            set_text_color(RESET);
-            printf("\n");
-            enter_continue();
-            shutdown_computer();
+            print_error_and_exit();
         }
         else {
-            clear();
-            installing_header();
-            printf("\n");
-            separator();
-            printf("\n");
-        }
-        if (dd_drive(drive) != 0) {
-            install_failed();
-            set_text_color(RED);
-            printf("\nInstallation has failed. ");
-            set_text_color(RESET);
-            printf("Please report the error at our Github Issues: ");
-            set_text_color(BLUE);
-            printf("https://github.com/redroselinux/redroselinux/issues\n");
-            set_text_color(RESET);
-            printf("\n");
-            enter_continue();
-            shutdown_computer();
-        }
-        else {
-            clear();
-            installing_header();
-            printf("\n");
-            separator();
-            printf("\n");
-        }
-        clear();
-        installing_header();
-        printf("\n");
-        separator();
-        printf("\n");
-        set_text_color(BLUE);
-        printf("* ");
-        set_text_color(RESET);
-        printf("Generating post-installation scripts...\n");
-        fflush(stdout);
-        if (gen_postinst_scripts(
-            drive,
-            username,
-            userpassword,
-            rootpassword,
-            host_name
-        ) != 0) {
-            install_failed();
-            set_text_color(RED);
-            printf("\nInstallation has failed. ");
-            set_text_color(RESET);
-            printf("Please report the error at our Github Issues: ");
-            set_text_color(BLUE);
-            printf("https://github.com/redroselinux/redroselinux/issues\n");
-            set_text_color(RESET);
-            printf("\n");
-            enter_continue();
-            shutdown_computer();
-        }
-        else {
-            clear();
-            installing_header();
-            printf("\n");
-            separator();
-            printf("\n");
+            print_step_header();
         }
     }
     installed_header();
     printf("Now, we will reboot the computer and run some post-installation scripts. These scripts are autogenerated and will set up your system based on your preferences.\n");
-    printf("After the system powers off, turn it on after removing the installation media.\n");
+    printf("After the system powers off, turn it on after removing the installation media.\n\n");
+    printf("Please report errors at our Github Issues: ");
+    set_text_color(BLUE);
+    printf("https://github.com/redroselinux/redroselinux/issues\n\n");
+    set_text_color(RESET);
+    separator();
+    printf("\n");
     enter_continue();
     // finish and shutdown
     shutdown_computer();

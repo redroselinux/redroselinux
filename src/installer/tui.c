@@ -9,11 +9,15 @@
 // was ai used in this file? yes, but only for minor assistance
 //      (escape codes like \033[94m, prinf-ing the figlet text)
 
+// ansi color codes
 #define BLUE 94
 #define RED 91
 #define YELLOW 93
 #define GREEN 92
 #define RESET 0
+
+// function to set text color from ansi codes
+// that are defined above (lines 12-17)
 void set_text_color(int color) {
     switch (color) {
     case BLUE:
@@ -80,11 +84,11 @@ void main_header() {
     printf(
     "       _                      _     _                  \n"
     "|  _ \\ ___  __| |_ __ ___  ___  ___  | |   (_)_ __  _   ___  __\n"
-    "| |_) / _ \\/ _` | '__/ _ \/ __|/ _ \ | |   | | '_ \| | | \ \/ /\n"
+    "| |_) / _ \\/ _` | '__/ _ \\/ __|/ _ \\ | |   | | '_ \\| | | \\ \\/ /\n"
     "|  _ <  __/ (_| | | | (_) \\__ \\  __/ | |___| | | | | |_| |>  < \n"
     "|_| \\_\\___|\\__,_|_|  \\___/|___/\\___| |_____|_|_| |_|\\__,_/_/\\_\\\n"
-    );
-    set_text_color(RESET);
+    );set_text_color(RESET);
+    
     set_text_color(YELLOW);
     printf(
     " ___           _        _ _           \n"
@@ -93,8 +97,7 @@ void main_header() {
     " | || | | \\__ \\ || (_| | | |  __/ |   \n"
     "|___|_| |_|___/\\__\\__,_|_|_|\\___|_|   \n"
     "                                      \n"
-    );
-    set_text_color(RESET);
+    );set_text_color(RESET);
 
     separator();
     printf("\n");
@@ -238,13 +241,14 @@ void installing_header() {
 }
 
 void installed_header() {
+    clear();
     printf("step 6/6");
     set_text_color(GREEN);
     printf("       _        _ _          _ \n");
     printf("|_ _|_ __  ___| |_ __ _| | | ___  __| |\n");
     printf(" | || '_ \\/ __| __/ _` | | |/ _ \\/ _` |\n");
     printf(" | || | | \\__ \\ || (_| | | |  __/ (_| |\n");
-    printf("|___|_| |_|___/\\__\\__,_|_|_|\\___|\\__,_|\\n");
+    printf("|___|_| |_|___/\\__\\__,_|_|_|\\___|\\__,_|\n\n");
     set_text_color(RESET);
     separator();
     printf("\n");
