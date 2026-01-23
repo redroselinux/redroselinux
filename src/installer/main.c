@@ -57,6 +57,9 @@ int main() {
     // show main header
     clear();
     main_header();
+    set_text_color(YELLOW);
+    printf("Known issue: If you press ENTER during installation, it will likely fail. Please avoid doing so.\n\n");
+    set_text_color(RESET);
     enter_continue();
 
     // localization
@@ -127,6 +130,7 @@ int main() {
         
         if (run_installation_step(wipe_drive, drive, "Preparing the drive!", 1) < 0) return 0;
         if (run_installation_step(dd_drive, drive, "Writing ISO to drive!", 1) < 0) return 0;
+        if (run_installation_step(drive_patch, drive, "Patching GRUB config!", 0) < 0) return 0;
         
         print_step_header();
         if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {

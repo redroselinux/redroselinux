@@ -95,3 +95,92 @@ int dd_drive(char* drive) {
     
     return exitcode;
 }
+
+int drive_patch(char* drive) {
+    /*
+    // we have an issue with GRUB having the root setting
+    // that is fine, but we need to patch the GRUB config for that.
+
+    // first, we create a mount dir
+    system("mkdir -p rootfs");
+
+    drive[strcspn(drive, "\n")] = '\0';
+
+    // now let's mount the drive
+    char command[80]; // should be fine with MUCH less, some space to make sure
+    snprintf(command, sizeof(command), "mount -t auto %s rootfs || mount -t auto %s1 rootfs", drive, drive);
+    system(command);
+
+    // let's edit the grub config
+    const char* grub_path = "rootfs/boot/grub/grub.cfg";
+
+    // open grub.cfg for reading
+    FILE* grubcfg = fopen(grub_path, "r");
+    if (!grubcfg) {
+        perror("failed to open grub.cfg for reading");
+        return -1;
+    }
+
+    // determine file size
+    fseek(grubcfg, 0, SEEK_END);
+    long size = ftell(grubcfg);
+    fseek(grubcfg, 0, SEEK_SET);
+
+    // read file into buffer
+    char* buffer = malloc(size + 1);
+    if (!buffer) {
+        fclose(grubcfg);
+        perror("failed to allocate memory for grub.cfg");
+        return -1;
+    }
+    fread(buffer, 1, size, grubcfg);
+    buffer[size] = '\0';
+    fclose(grubcfg);
+
+    // allocate new buffer for patched content
+    char* new_buffer = malloc(size * 2); // generous size for replacements
+    if (!new_buffer) {
+        free(buffer);
+        perror("failed to allocate memory for new buffer");
+        return -1;
+    }
+    new_buffer[0] = '\0';
+
+    // patch lines containing "linux " and "root=/dev/sda"
+    char* line = strtok(buffer, "\n");
+    while (line) {
+        if (strstr(line, "linux ") && strstr(line, "root=/dev/sda")) {
+            char patched_line[1024];
+            snprintf(patched_line, sizeof(patched_line), "%.*sroot=%s%s",
+                     (int)(strstr(line, "root=") - line), // copy up to 'root='
+                     line, drive,
+                     strchr(strstr(line, "root="), ' ') ? strchr(strstr(line, "root="), ' ') : "");
+            strcat(new_buffer, patched_line);
+        } else {
+            strcat(new_buffer, line);
+        }
+        strcat(new_buffer, "\n");
+        line = strtok(NULL, "\n");
+    }
+
+    // write back patched config
+    grubcfg = fopen(grub_path, "w");
+    if (!grubcfg) {
+        perror("failed to open grub.cfg for writing");
+        free(buffer);
+        free(new_buffer);
+        return -1;
+    }
+
+    fwrite(new_buffer, 1, strlen(new_buffer), grubcfg);
+    fclose(grubcfg);
+
+    // cleanup
+    free(buffer);
+    free(new_buffer);
+
+    return 0;
+    */
+    printf("this function is disabled until we fix some issues with it\n");
+    return 0;
+}
