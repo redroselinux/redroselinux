@@ -1,0 +1,1 @@
+import os; os.system("mv Makefile.bak Makefile")
