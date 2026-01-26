@@ -6,4 +6,6 @@ filesystem/boot/linuxImage
 initramfs/bin/install
 initramfs/bin/sgdisk
 
+# code editor
 .vscode
+redroselinux.code-workspace
