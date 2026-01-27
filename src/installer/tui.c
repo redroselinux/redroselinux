@@ -40,16 +40,6 @@ void set_text_color(int color) {
     }
 }
 
-void green_text() {
-    printf("\033[92m");
-    fflush(stdout);
-}
-
-void green_text_end() {
-    printf("\033[0m");
-    fflush(stdout);
-}
-
 void clear() {
     printf("\033[2J\033[H");
 }
@@ -84,7 +74,7 @@ void main_header() {
     printf(
     "       _                      _     _                  \n"
     "|  _ \\ ___  __| |_ __ ___  ___  ___  | |   (_)_ __  _   ___  __\n"
-    "| |_) / _ \\/ _` | '__/ _ \/ __|/ _ \ | |   | | '_ \| | | \ \/ /\n"
+    "| |_) / _ \\/ _` | '__/ _ \\/ __|/ _ \\ | |   | | '_ \\| | | \\ \\/ /\n"
     "|  _ <  __/ (_| | | | (_) \\__ \\  __/ | |___| | | | | |_| |>  < \n"
     "|_| \\_\\___|\\__,_|_|  \\___/|___/\\___| |_____|_|_| |_|\\__,_/_/\\_\\\n"
     );set_text_color(RESET);
@@ -135,7 +125,7 @@ char* localization_header() {
 
     printf("\nKeyboard layout [us]: ");
     if (fgets(layout, sizeof(layout), stdin) == NULL) {
-        layout[0] = 'us';  // fallback in case of input error
+        strcpy(layout, "us");  // fallback in case of input error
     } else {
         // remove newline if present
         layout[strcspn(layout, "\n")] = 0;

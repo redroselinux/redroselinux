@@ -1,5 +1,0 @@
-import os; os.system("cp Makefile Makefile.bak")
-with open("Makefile", "r") as file: content = file.read()
-content = content.replace("@", "")
-with open("Makefile", "w") as file: file.write(content)
-print("Removed '@' characters from Makefile commands.")

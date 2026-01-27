@@ -89,7 +89,7 @@ int wipe_drive(char* drive) {
 int dd_drive(char* drive) {
     fflush(stdout);
     char command[100]; // should be fine with 80, some space to make sure
-    snprintf(command, sizeof(command), "dd if=redroselinux_rootfs.iso of=%s bs=4M status=progress conv=fsync", drive);
+    snprintf(command, sizeof(command), "dd if=redroselinux_rootfs.iso of=%s bs=4M status=progress", drive);
     printf("> %s", command);
     int exitcode = system(command);
     
@@ -182,5 +182,7 @@ int drive_patch(char* drive) {
     return 0;
     */
     printf("this function is disabled until we fix some issues with it\n");
+
+    // todo: do not use .iso so we can patch grub properly
     return 0;
 }
