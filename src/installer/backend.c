@@ -76,9 +76,8 @@ void list_dev(void) {
 
     closedir(dir);
 
-    if (!found) {
+    if (!found)
         printf("No drives found!\n");
-    }
 }
 
 int wipe_drive(char* drive) {
