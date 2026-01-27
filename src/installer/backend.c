@@ -66,15 +66,19 @@ void list_dev(void) {
 
         if (cur_dev[0] && strstr(cur_dev, name))
             continue;
-
-        printf("- %s\n", name);
+        if (strstr(name, "/dev/")) {
+            printf("- %s\n", name);
+        } else {
+            printf("- /dev/%s\n", name);
+        }
         found = 1;
     }
 
     closedir(dir);
 
-    if (!found)
+    if (!found) {
         printf("No drives found!\n");
+    }
 }
 
 int wipe_drive(char* drive) {

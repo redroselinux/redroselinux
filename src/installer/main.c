@@ -73,16 +73,16 @@ int main() {
     // disk
     clear();
     char* drive = disk_header();
-    while (!(drive[0] == '/' &&
+    if (!(drive[0] == '/' &&
         drive[1] == 'd' &&
         drive[2] == 'e' &&
         drive[3] == 'v' &&
         drive[4] == '/')) {
-            clear();
-            set_text_color(RED);
-            printf("Pick a drive that starts with /dev/(your drive)\n");
-            set_text_color(RESET);
-            drive = disk_header();
+            char drivefixed[128];
+            snprintf(drivefixed, sizeof(drivefixed), 
+                "/dev/%s", drive
+            );
+            drive = drivefixed;
     }
     enter_continue();
 

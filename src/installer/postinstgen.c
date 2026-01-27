@@ -10,6 +10,7 @@ int gen_postinst_scripts(
     char* rootpassword,
     char* hostname) { // this func isnt finished
         printf("gen_postinst_scripts() is not finished. FYI that this ran\n");
+        printf("this is because we have to switch from .iso for rootfs.\n");
 
         if (!drive ||
             !hostname ||
