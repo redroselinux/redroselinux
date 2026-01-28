@@ -16,6 +16,7 @@ def download_and_launch(url,iso_path,progress_bar):
         if not os.path.exists(A):download_file(url,A,lambda f:progress_bar.set_fraction(f))
         if not os.path.exists(B):subprocess.run(['qemu-img','create','-f','qcow2',B,'2G'])
         C=['qemu-system-x86_64','-enable-kvm','-m','2048','-hda',B,'-cdrom',A,'-boot','d'];subprocess.run(C)
+        C=['qemu-system-x86_64','-enable-kvm','-m','2048','-hda',B,'-boot','d'];subprocess.run(C)
 class LauncherWindow(Gtk.ApplicationWindow):
         def __init__(A,app):
                 super().__init__(application=app);A.set_title('Redrose Linux Launcher');A.set_default_size(640,480);B=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=20,margin_top=20,margin_bottom=20,margin_start=20,margin_end=20);B.set_valign(Gtk.Align.CENTER);B.set_halign(Gtk.Align.CENTER);F=Rsvg.Handle.new_from_data(LOGO_SVG.encode());G=F.get_pixbuf();E=Gtk.Image.new_from_pixbuf(G);E.set_valign(Gtk.Align.CENTER);E.set_halign(Gtk.Align.CENTER);B.append(E);C=Gtk.Label();C.set_markup('<big><b>Redrose Linux Launcher</b></big>');C.set_valign(Gtk.Align.CENTER);C.set_halign(Gtk.Align.CENTER);B.append(C);A.progress_bar=Gtk.ProgressBar();B.append(A.progress_bar);A.version_combo=Gtk.ComboBoxText()
