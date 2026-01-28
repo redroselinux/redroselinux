@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/reboot.h>
 #include "tui.c"
+#include "backend.c"
 #include "postinstgen.c"
 
 // this file is the main file of the installer.
@@ -37,24 +38,31 @@ void print_step_header() {
     printf("\n");
 }
 
-int run_installation_step(int (*operation)(char*), char* arg, const char* step_name, int is_destructive) {
-    set_text_color(is_destructive ? RED : BLUE);
-    printf("* ");
-    set_text_color(RESET);
-    printf("%s\n", step_name);
-    fflush(stdout);
-    
-    if (operation(arg) != 0) {
-        install_failed();
-        print_error_and_exit();
-        return -1;
-    }
-    
-    print_step_header();
-    return 0;
+int run_installation_step(int (*operation)(char*),
+    char* arg,
+    const char* step_name,
+    int is_destructive) {
+        set_text_color(is_destructive ? RED : BLUE);
+        printf("* ");
+        set_text_color(RESET);
+        printf("%s\n", step_name);
+        fflush(stdout);
+        
+        if (operation(arg) != 0) {
+            install_failed();
+            print_error_and_exit();
+            return -1;
+        }
+        
+        print_step_header();
+        return 0;
 }
 
 int main() {
+    // run checks
+    printf("Running checks...\n");
+    if (list_dev() == 0) {}
+
     // show main header
     clear();
     main_header();

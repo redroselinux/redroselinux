@@ -26,7 +26,7 @@ help:
 	@echo "\033[90m-----------------------------------------------------------------------\033[0m"
 
 initramfs:
-	bash -c 'mkdir -p initramfs/{proc,sys}'
+	@bash -c 'mkdir -p initramfs/{proc,sys}'
 	@curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	@echo "-> initramfs/bin/sgdisk"
 	@chmod +x $(INITRAMFS_DIR)/bin/sgdisk
@@ -36,8 +36,10 @@ initramfs:
 	@gzip -f $(INITRAMFS_CPIO)
 	@echo "-> $(INITRAMFS_GZ)"
 
+# TODO: replace with making a rootfs tarball
+# problem: does not fit into the initramfs ._.
 rootfs-iso:
-	bash -c 'mkdir -p rootfs/filesystem/{proc,sys}'
+	@bash -c 'mkdir -p rootfs/filesystem/{proc,sys}'
 	@cp linuxImage rootfs/filesystem/boot/
 	@grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
 	@echo "-> initramfs/redroselinux_rootfs.iso"

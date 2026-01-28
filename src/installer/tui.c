@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "backend.c"
 #include <unistd.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
 // this file includes functions for TUI and some
@@ -78,7 +78,7 @@ void main_header() {
     "|  _ <  __/ (_| | | | (_) \\__ \\  __/ | |___| | | | | |_| |>  < \n"
     "|_| \\_\\___|\\__,_|_|  \\___/|___/\\___| |_____|_|_| |_|\\__,_/_/\\_\\\n"
     );set_text_color(RESET);
-    
+
     set_text_color(YELLOW);
     printf(
     " ___           _        _ _           \n"
@@ -101,6 +101,7 @@ void main_header() {
     printf(".\n\n");
 
     separator();
+
     printf("\n");
 }
 

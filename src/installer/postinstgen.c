@@ -33,5 +33,7 @@ int gen_postinst_scripts(
             hostname
         );
 
+        // TODO: we need car to install shadow to set up users
+
         return 0;
     }

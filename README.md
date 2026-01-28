@@ -22,6 +22,10 @@ curl -sSSL https://raw.githubusercontent.com/redroselinux/redroselinux/refs/head
 
 Otherwise, download from the Releases tab.
 
+## Hardware Requirements
+
+The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did not do any tests for CPU.
+
 ## Development
 *this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the car-coreutils-repo and downloaded in the Makefile.
 

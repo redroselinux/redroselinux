@@ -19,11 +19,11 @@ char* get_partition(const char* drive, int partnum) {
 }
 
 
-void list_dev(void) {
+int list_dev() {
     DIR *dir = opendir("/dev");
     if (!dir) {
         perror("opendir /dev");
-        return;
+        return 0;
     }
 
     struct stat st;
@@ -71,14 +71,41 @@ void list_dev(void) {
         } else {
             printf("- /dev/%s\n", name);
         }
-        found = 1;
+        found++;
     }
 
     closedir(dir);
 
-    if (!found) {
-        printf("No drives found!\n");
+    if (found == 0) {
+        set_text_color(RED);
+        printf("- no drives found!\n");
+        set_text_color(RESET);
+        printf("enter exit to remove this shell and bypass the warning. enter docs if you believe you do have a drive. otherwise, you can repair through commands.\n");
+        while (1) {
+            set_text_color(GREEN);
+            printf("\n> ");
+            set_text_color(RESET);
+            char command[4096];
+
+            if (!fgets(command, sizeof(command), stdin))
+                break;
+
+            command[strcspn(command, "\n")] = 0;
+
+            if (strcmp(command, "exit") == 0) {
+                break;
+            } else if (strcmp(command, "docs") == 0) {
+                printf("docs not implemented yet\n");
+            } else {
+                system(command);
+            }
+        }
+    } else {
+        set_text_color(GREEN);
+        printf("total %d\n", found);
+        set_text_color(RESET);
     }
+    return found;
 }
 
 int wipe_drive(char* drive) {
@@ -100,6 +127,11 @@ int dd_drive(char* drive) {
     return exitcode;
 }
 
+// this will be replaced with postinstgen
+// postinst wont need reboot and we will
+// chroot into it for simplicity
+
+// TODO: move all this into postinstgen.c
 int drive_patch(char* drive) {
     /*
     // we have an issue with GRUB having the root setting
