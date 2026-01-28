@@ -12,6 +12,12 @@ This repo contains some prebuilts, as mentioned in below sections.
 
 - Car: https://github.com/redroselinux/car
 - Website: https://github.com/redroselinux/redroselinux.github.io
+- My video about Redrose: https://youtu.be/5E74TuwsnpI
+
+<div align="center">
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/a24eb7f2-a3fd-41f2-ab44-f626b7108bda" />
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/19af0ebe-0873-4101-ac63-075c7157fc24" />
+</div>
 
 ## Download
 
@@ -49,4 +55,3 @@ This does all the magic, and even runs it in a VM.
 ## Contact
 
 - mostypc7@gmail.com
-- [![Matrix Chat](https://img.shields.io/badge/Matrix-%23redrose__linux-green?logo=matrix&logoColor=white)](https://matrix.to/#/#redrose_linux:matrix.org) 
