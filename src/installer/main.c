@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/reboot.h>
 #include "tui.c"
@@ -17,7 +16,7 @@ void shutdown_computer() {
     reboot(RB_POWER_OFF);
 }
 
-void print_error_and_exit() {
+void error() {
     set_text_color(RED);
     printf("\nInstallation has failed. ");
     set_text_color(RESET);
@@ -42,18 +41,18 @@ int run_installation_step(int (*operation)(char*),
     char* arg,
     const char* step_name,
     int is_destructive) {
-        set_text_color(is_destructive ? RED : BLUE);
+        set_text_color(is_destructive ? RED : GREEN);
         printf("* ");
         set_text_color(RESET);
         printf("%s\n", step_name);
         fflush(stdout);
-        
+
         if (operation(arg) != 0) {
             install_failed();
-            print_error_and_exit();
+            error();
             return -1;
         }
-        
+
         print_step_header();
         return 0;
 }
@@ -87,7 +86,7 @@ int main() {
         drive[3] == 'v' &&
         drive[4] == '/')) {
             char drivefixed[128];
-            snprintf(drivefixed, sizeof(drivefixed), 
+            snprintf(drivefixed, sizeof(drivefixed),
                 "/dev/%s", drive
             );
             drive = drivefixed;
@@ -120,7 +119,6 @@ int main() {
     installing_header();
     printf("\n");
     separator();
-    printf("\nAre you sure? (y/n) [y]: ");
     printf("\nDestructive operations have a ");
     set_text_color(RED);
     printf("red");
@@ -130,21 +128,25 @@ int main() {
     printf("blue");
     set_text_color(RESET);
     printf(" one.\n");
+    printf("Installing to %s", drive);
+    printf("\nAre you sure? (y/n) [y]: ");
 
     char confirm[4];
     fgets(confirm, sizeof(confirm), stdin);
 
+
     if (confirm[0] == 'y' || confirm[0] == '\n') {
         print_step_header();
-        
+
         if (run_installation_step(wipe_drive, drive, "Preparing the drive!", 1) < 0) return 0;
+        if (run_installation_step(iso_to_img, 0, "Converting to .img!", 0 < 0)) return 0;
         if (run_installation_step(dd_drive, drive, "Writing ISO to drive!", 1) < 0) return 0;
         if (run_installation_step(drive_patch, drive, "Patching GRUB config!", 0) < 0) return 0;
-        
+
         print_step_header();
         if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {
             install_failed();
-            print_error_and_exit();
+            error();
         }
         else {
             print_step_header();

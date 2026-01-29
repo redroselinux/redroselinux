@@ -95,7 +95,16 @@ int list_dev() {
             if (strcmp(command, "exit") == 0) {
                 break;
             } else if (strcmp(command, "docs") == 0) {
-                printf("docs not implemented yet\n");
+                printf("If you believe a drive is present, follow these steps:\n\n");
+
+                printf("1) Firmware / BIOS checks:\n");
+                printf("   - Reboot into firmware setup (BIOS/UEFI).\n");
+                printf("   - Ensure the drive is detected by the firmware.\n");
+                printf("   - Disable Intel RST / RAID / VMD and use AHCI mode.\n");
+                printf("   - For NVMe systems, disable VMD if enabled.\n\n");
+
+                printf("2) Virtual machines:\n");
+                printf("   - Ensure a virtual disk is attached to the VM.\n");
             } else {
                 system(command);
             }
@@ -113,17 +122,21 @@ int wipe_drive(char* drive) {
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
     printf("> %s", command);
     int exitcode = system(command);
-    
+
     return exitcode;
+}
+
+int iso_to_img(int) {
+    return system("mv redroselinux_rootfs.iso rootfs.img");
 }
 
 int dd_drive(char* drive) {
     fflush(stdout);
     char command[100]; // should be fine with 80, some space to make sure
-    snprintf(command, sizeof(command), "dd if=redroselinux_rootfs.iso of=%s bs=4M status=progress", drive);
+    snprintf(command, sizeof(command), "dd if=rootfs.img of=%s bs=4M status=progress", drive);
     printf("> %s", command);
     int exitcode = system(command);
-    
+
     return exitcode;
 }
 
@@ -131,12 +144,7 @@ int dd_drive(char* drive) {
 // postinst wont need reboot and we will
 // chroot into it for simplicity
 
-// TODO: move all this into postinstgen.c
 int drive_patch(char* drive) {
-    /*
-    // we have an issue with GRUB having the root setting
-    // that is fine, but we need to patch the GRUB config for that.
-
     // first, we create a mount dir
     system("mkdir -p rootfs");
 
@@ -216,9 +224,7 @@ int drive_patch(char* drive) {
     free(new_buffer);
 
     return 0;
-    */
     printf("this function is disabled until we fix some issues with it\n");
 
-    // todo: do not use .iso so we can patch grub properly
     return 0;
 }
