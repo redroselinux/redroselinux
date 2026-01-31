@@ -79,6 +79,5 @@ installed-vm:
 vm:
 	@qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	@qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
-	$(MAKE) installed-vm
 
 .PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm rootfs-iso
