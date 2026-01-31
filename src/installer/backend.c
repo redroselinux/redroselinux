@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <stdlib.h>
+#include "common.h"
 
 // backend for installer.
 //
@@ -127,7 +128,7 @@ int wipe_drive(char* drive) {
     return exitcode;
 }
 
-int iso_to_img(int) {
+int iso_to_img(char*) {
     return system("mv redroselinux_rootfs.iso rootfs.img");
 }
 

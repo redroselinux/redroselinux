@@ -1,23 +1,15 @@
 #include <stdio.h>
-#include <sys/cdefs.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
-#include "backend.c"
+#include "common.h"
 
 // this file includes functions for TUI and some
 // TUI parts for main.c.
 //
 // was ai used in this file? yes, but only for minor assistance
 //      (escape codes like \033[94m, prinf-ing the figlet text)
-
-// ansi color codes
-#define BLUE 94
-#define RED 91
-#define YELLOW 93
-#define GREEN 92
-#define RESET 0
 
 // function to set text color from ansi codes
 // that are defined above (lines 12-17)

@@ -1,0 +1,28 @@
+#pragma once
+
+// ansi color codes
+#define BLUE 94
+#define RED 91
+#define YELLOW 93
+#define GREEN 92
+#define RESET 0
+
+int set_text_color(unsigned color);
+int clear(void);
+void enter_continue(void);
+void separator(void);
+void main_header(void);
+char *localization_header(void);
+char *language(void);
+char *timezone(void);
+char *disk_header(void);
+char *user_creation(void);
+char *user_password(void);
+char *root_password(void);
+char *hostname(void);
+char *propiertary_enabled(void);
+void installing_header(void);
+void installed_header(void);
+void install_failed(void);
+int list_dev(void);
+int iso_to_img(char*);
