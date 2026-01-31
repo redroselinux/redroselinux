@@ -12,7 +12,6 @@
 //      (escape codes like \033[94m, prinf-ing the figlet text)
 
 // function to set text color from ansi codes
-// that are defined above (lines 12-17)
 __always_inline int set_text_color(unsigned color) {
     return printf("\x1b[%um", color);
 }
