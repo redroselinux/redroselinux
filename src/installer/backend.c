@@ -129,16 +129,15 @@ int wipe_drive(char* drive) {
 }
 
 int iso_to_img(char*) {
-    return system("mv redroselinux_rootfs.iso rootfs.img");
+    return system("dd if=/dev/zero of=image.img bs=2048 seek=16 count=1 conv=notrunc && mv redroselinux_rootfs.iso rootfs.img");
 }
 
 int dd_drive(char* drive) {
     fflush(stdout);
     char command[100]; // should be fine with 80, some space to make sure
-    snprintf(command, sizeof(command), "dd if=rootfs.img of=%s bs=4M status=progress", drive);
+    snprintf(command, sizeof(command), "dd if=rootfs.img of=%s", drive);
     printf("> %s", command);
     int exitcode = system(command);
-
     return exitcode;
 }
 

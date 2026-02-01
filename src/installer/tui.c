@@ -26,7 +26,6 @@ void enter_continue(void) {
     set_text_color(BLUE);
     printf(" ENTER ");
     set_text_color(RESET);
-
     printf("to continue...");
     if (fgets(command, sizeof(command), stdin) && strlen(command) > 1) {
         system(command); // for debugging
@@ -71,16 +70,19 @@ void main_header(void) {
 
     printf(
         "Welcome to the Redrose Linux Installer!\n"
-        "Please note that Redrose is still in alpha (you are using alpha-0.2).\n"
+        "Please note that Redrose is still in alpha (you are using alpha-0.3).\n"
         "You can report bugs at "
     );
     set_text_color(BLUE);
     printf("https://github.com/redroselinux/redroselinux/issues");
     set_text_color(RESET);
-    printf(".\n\n");
+    printf(".\nTo restart the installer, enter ");
+    set_text_color(BLUE);
+    printf("install");
+    set_text_color(RESET);
+    printf(" when prompted to press ENTER.\n\n");
 
     separator();
-
     printf("\n");
 }
 

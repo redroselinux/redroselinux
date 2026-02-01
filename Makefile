@@ -6,8 +6,8 @@ INITRAMFS_CPIO = $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
-all: clean installer rootfs-iso initramfs iso vm
-no-vm: clean installer rootfs-iso initramfs iso
+all: clean installer squash-root initramfs iso vm
+no-vm: clean installer squash-root initramfs iso
 
 help:
 	@echo "\033[90m-----------------------------------------------------------------------\033[0m"
@@ -36,13 +36,13 @@ initramfs:
 	@gzip -f $(INITRAMFS_CPIO)
 	@echo "-> $(INITRAMFS_GZ)"
 
-# TODO: replace with making a rootfs tarball
-# problem: does not fit into the initramfs ._.
-rootfs-iso:
+# currently being replaced with squashfs
+# originally named rootfs-iso
+# TODO: finish this migration
+squash-root:
 	@bash -c 'mkdir -p rootfs/filesystem/{proc,sys}'
-	@cp linuxImage rootfs/filesystem/boot/
-	@grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
-	@echo "-> initramfs/redroselinux_rootfs.iso"
+	@mksquashfs rootfs/filesystem initramfs/rootfs.sqsh
+	@echo "-> initramfs/rootfs.sqsh"
 
 iso:
 	@cp linuxImage $(FS_DIR)/boot/
@@ -70,8 +70,8 @@ clean-downloads:
 	@rm -f $(INITRAMFS_DIR)/bin/dd
 
 clean-all: clean clean-downloads 
-bare-build: installer rootfs-iso initramfs iso
-no-clean: installer rootfs-iso initramfs iso vm
+bare-build: installer squash-root initramfs iso
+no-clean: installer squash-root initramfs iso vm
 
 installed-vm:
 	@qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm
@@ -80,4 +80,5 @@ vm:
 	@qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	@qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
 
-.PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm rootfs-iso
+.PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root
+

@@ -13,7 +13,10 @@
 
 void shutdown_computer() {
     set_text_color(YELLOW);
-    printf("If you are on a VM, after the VM restarts, pick \"Boot existing OS\"\n");
+    printf(
+        "If you are on a VM, after the VM restarts, pick \"Boot existing OS\"\n"
+        "You can also remove the CD-ROM from the VM.\n"
+    );
     set_text_color(RESET);
     enter_continue();
     sync(); // flush filesystem buffers
