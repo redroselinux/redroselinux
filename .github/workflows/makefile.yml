@@ -31,7 +31,8 @@ jobs:
             grub-pc-bin \
             grub-common \
             mtools \
-            make
+            make \
+            squashfs-tools
 
       - name: Build
         run: make no-vm
