@@ -9,7 +9,7 @@
 // it exports the other functions from tui.c and
 // backend.c. got nothing else to say
 //
-// was ai used in this file? no
+// was ai used in this file? yes
 
 void shutdown_computer() {
     set_text_color(YELLOW);
@@ -149,7 +149,6 @@ int main() {
         if (run_installation_step(unsquash, 0, "Unsquashing the SquashFS!", 0 < 0)) return 0;
         if (run_installation_step(copy_rootfs, drive, "Copying rootfs to drive!", 1) < 0) return 0;
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) return 0;
-        // if (run_installation_step(drive_patch, drive, "Patching GRUB config!", 0) < 0) return 0;
 
         print_step_header();
         if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {
