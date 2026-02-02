@@ -63,8 +63,7 @@ clean:
 	@rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 	@rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage redrose_linux.qcow2
 	@rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
-	@rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio
-	@rm -f initramfs/redroselinux_rootfs.iso
+	@rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh
 clean-downloads:
 	@rm -f $(INITRAMFS_DIR)/bin/sgdisk
 	@rm -f $(INITRAMFS_DIR)/bin/dd
