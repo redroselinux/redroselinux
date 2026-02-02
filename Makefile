@@ -26,10 +26,14 @@ help:
 	@echo "\033[90m-----------------------------------------------------------------------\033[0m"
 
 initramfs:
-	@bash -c 'mkdir -p initramfs/{proc,sys}'
+	@bash -c 'mkdir -p initramfs/{proc,sys, mnt}'
 	@curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	@echo "-> initramfs/bin/sgdisk"
 	@chmod +x $(INITRAMFS_DIR)/bin/sgdisk
+	@echo "The current binary being downloaded is not built by us, thanks to https://github.com/VHSgunzo/squashfs-tools-static for providing static squashfs-tools. Downloading unsquashfs."
+	@curl -s -L -o initramfs/bin/unsquashfs https://github.com/VHSgunzo/squashfs-tools-static/releases/download/v4.7.2/unsquashfs-x86_64
+	@echo "-> initramfs/bin/unsquashfs"
+	@chmod +x initramfs/bin/unsquashfs
 	@chmod +x $(INITRAMFS_DIR)/init
 	@cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
 	@echo "-> $(INITRAMFS_CPIO)"
@@ -67,6 +71,7 @@ clean:
 clean-downloads:
 	@rm -f $(INITRAMFS_DIR)/bin/sgdisk
 	@rm -f $(INITRAMFS_DIR)/bin/dd
+	@rm -f $(INITRAMFS_DIR)/bin/unsquashfs
 
 clean-all: clean clean-downloads 
 bare-build: installer squash-root initramfs iso

@@ -128,17 +128,20 @@ int wipe_drive(char* drive) {
     return exitcode;
 }
 
-int unsquash(char*) {
-    return system("dd if=/dev/zero of=image.img bs=2048 seek=16 count=1 conv=notrunc && mv redroselinux_rootfs.iso rootfs.img");
+int makefs(char* drive) {
+    return 0;
 }
 
-int copy_rootfs(char* drive) {
-    fflush(stdout);
-    char command[100]; // should be fine with 80, some space to make sure
-    snprintf(command, sizeof(command), "dd if=rootfs.img of=%s", drive);
-    printf("> %s", command);
-    int exitcode = system(command);
-    return exitcode;
+int unsquash(char* drive) {
+    char mountcmd[100];
+    snprintf(mountcmd, sizeof(mountcmd), "mount %s /mnt/", drive);
+
+    if (system(mountcmd) != 0)
+        return 0;
+
+    system("unsquashfs rootfs.sqsh -d /mnt/");
+    sleep(10);
+    return 1;
 }
 
 int install_grub(char* drive) {

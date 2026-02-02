@@ -146,8 +146,8 @@ int main() {
         print_step_header();
 
         if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) return 0;
-        if (run_installation_step(unsquash, 0, "Unsquashing the SquashFS!", 0 < 0)) return 0;
-        if (run_installation_step(copy_rootfs, drive, "Copying rootfs to drive!", 1) < 0) return 0;
+        if (run_installation_step(makefs, drive, "Making filesystems!", 1) < 0)
+        if (run_installation_step(unsquash, 0, "Copying root!", 1 < 0)) return 0;
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) return 0;
 
         print_step_header();
