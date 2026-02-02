@@ -6,7 +6,7 @@ INITRAMFS_CPIO = $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
-all: clean installer squash-root initramfs iso vm
+all: dep clean installer squash-root initramfs iso vm
 no-vm: clean installer squash-root initramfs iso
 
 help:
@@ -23,7 +23,20 @@ help:
 	@echo "\033[90m|\033[0m  clean-downloads\033[90m|\033[0m Remove downloaded binaries (sgdisk, dd)            \033[90m|\033[0m"
 	@echo "\033[90m|\033[0m  clean-all      \033[90m|\033[0m Run both clean and clean-downloads                 \033[90m|\033[0m"
 	@echo "\033[90m|\033[0m  vm             \033[90m|\033[0m Run the built ISO in a QEMU VM                     \033[90m|\033[0m"
+	@echo "\033[90m|\033[0m  dep            \033[90m|\033[0m Check for dependencies                             \033[90m|\033[0m"
 	@echo "\033[90m-----------------------------------------------------------------------\033[0m"
+
+dep:
+		@echo "-> if the command fails before the next line with '->', you have to install the dependency that is missing."
+		which grub-mkrescue
+		which curl
+		which bash
+		which mksquashfs
+		which gzip
+		@echo "-> if the command fails after this, run with 'make no-vm' to compile anyway or install QEMU."
+		which qemu-img
+		which qemu-system-x86_64
+		@echo "-> everything is installed."
 
 initramfs:
 	@bash -c 'mkdir -p initramfs/{proc,sys, mnt}'
@@ -52,8 +65,6 @@ iso:
 	@cp linuxImage $(FS_DIR)/boot/
 	@cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	@grub-mkrescue -o $(ISO) $(FS_DIR)
-	@cp linuxImage rootfs/filesystem/boot/
-	@grub-mkrescue -o initramfs/redroselinux_rootfs.iso rootfs/filesystem
 	@echo "-> $(ISO)"
 
 installer:
@@ -67,7 +78,7 @@ clean:
 	@rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 	@rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage redrose_linux.qcow2
 	@rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
-	@rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh
+	@rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh 
 clean-downloads:
 	@rm -f $(INITRAMFS_DIR)/bin/sgdisk
 	@rm -f $(INITRAMFS_DIR)/bin/dd
@@ -84,5 +95,5 @@ vm:
 	@qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	@qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
 
-.PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root
+.PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep
 
