@@ -7,12 +7,14 @@
   ![GitHub downloads](https://img.shields.io/github/downloads/redroselinux/redroselinux/total?logo=github)
 </h1>
 
-The repositories for Car or the website are available to view on this Github organization.
-This repo contains some prebuilts, as mentioned in below sections.
+Redrose Linux is an **independent, reproducible, EU-based and beatiful** Linux distribution. It targets the **x86_64 architecture**, has a custom installer and a custom desktop enviroment.
 
-- Car: https://github.com/redroselinux/car
-- Website: https://github.com/redroselinux/redroselinux.github.io
-- My video about Redrose: https://youtu.be/5E74TuwsnpI
+>[!CAUTION]
+> Redrose Linux is under active development and is **not ready for daily use**.
+
+- **Website**: https://redroselinux.is-a.software
+- **My video about Redrose**: https://youtu.be/5E74TuwsnpI
+- **Dev branch**: https://github.com/mostypc123/redroselinux
 
 <div align="center">
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/a24eb7f2-a3fd-41f2-ab44-f626b7108bda" />
@@ -33,7 +35,7 @@ Otherwise, download from the Releases tab.
 The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did not do any tests for CPU.
 
 ## Development
-*this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the car-coreutils-repo and downloaded in the Makefile.
+*this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the `car-coreutils-repo` and downloaded in the `Makefile`.
 
 To build Redrose Linux, first build a Linux kernel.
 - clone the source
@@ -42,7 +44,7 @@ To build Redrose Linux, first build a Linux kernel.
 - move the generated kernel image to ./linuxImage.
 - this repo has a precompiled kernel image FOR THE CI.
 
-You can use the prebuilt, but it is recommended to build it for yourself.
+**You can use the prebuilt**, but it is recommended to build it for yourself. On my PC with 12 cores, it takes about 3 minutes.
 
 Now in the Redrose directory, run:
 
@@ -52,6 +54,10 @@ make
 
 This does all the magic, and even runs it in a VM.
 
+## Other components
+
+- **Car** (package manager): https://github.com/redroselinux/car
+
 ## Contact
 
-- mostypc7@gmail.com
+- **Email**: mostypc7@gmail.com
