@@ -87,16 +87,12 @@ int main() {
     // disk
     clear();
     char* drive = disk_header();
-    if (!(drive[0] == '/' &&
-        drive[1] == 'd' &&
-        drive[2] == 'e' &&
-        drive[3] == 'v' &&
-        drive[4] == '/')) {
-            char drivefixed[128];
-            snprintf(drivefixed, sizeof(drivefixed),
-                "/dev/%s", drive
-            );
-            drive = drivefixed;
+    if (!drive) {
+        set_text_color(RED);
+        printf("No drive selected. Exiting installer.\n");
+        set_text_color(RESET);
+        enter_continue();
+        return 0;
     }
     enter_continue();
 

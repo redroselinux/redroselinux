@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
+#include <termios.h>
 #include "common.h"
 
 // this file includes functions for TUI and some
@@ -12,6 +13,55 @@
 //      (escape codes like \033[94m, prinf-ing the figlet text)
 
 // function to set text color from ansi codes
+
+enum { KEY_UP, KEY_DOWN, KEY_ENTER, KEY_J, KEY_K, KEY_NONE };
+
+static int read_key(void) {
+    unsigned char c;
+    struct termios old, raw;
+
+    if (tcgetattr(STDIN_FILENO, &old) != 0)
+        return KEY_NONE;
+
+    raw = old;
+    raw.c_lflag &= ~(ICANON | ECHO);
+    raw.c_cc[VMIN] = 1;
+    raw.c_cc[VTIME] = 0;
+
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) != 0)
+        return KEY_NONE;
+
+    if (read(STDIN_FILENO, &c, 1) != 1) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &old);
+        return KEY_NONE;
+    }
+
+    if (c == 27) {
+        unsigned char c2, c3;
+        if (read(STDIN_FILENO, &c2, 1) != 1) {
+            tcsetattr(STDIN_FILENO, TCSANOW, &old);
+            return KEY_NONE;
+        }
+        if (c2 == '[' || c2 == 'O') {
+            if (read(STDIN_FILENO, &c3, 1) != 1) {
+                tcsetattr(STDIN_FILENO, TCSANOW, &old);
+                return KEY_NONE;
+            }
+            if (c3 == 'A') { tcsetattr(STDIN_FILENO, TCSANOW, &old); return KEY_UP; }
+            if (c3 == 'B') { tcsetattr(STDIN_FILENO, TCSANOW, &old); return KEY_DOWN; }
+        }
+        tcsetattr(STDIN_FILENO, TCSANOW, &old);
+        return KEY_NONE;
+    }
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &old);
+
+    if (c == '\n' || c == '\r') return KEY_ENTER;
+    if (c == 'j' || c == 'J') return KEY_DOWN;
+    if (c == 'k' || c == 'K') return KEY_UP;
+    return KEY_NONE;
+}
+
 __always_inline int set_text_color(unsigned color) {
     return printf("\x1b[%um", color);
 }
@@ -138,26 +188,76 @@ char* timezone(void) {
 }
 
 char* disk_header(void) {
-    printf("step 3/6");
-    set_text_color(BLUE);
-    printf(
-        "       _        _ _       _   _               ____       _\n"
-        "|_ _|_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __   |  _ \\ _ __(_)_   _____\n"
-        " | || '_ \\/ __| __/ _` | | |/ _` | __| |/ _ \\| '_ \\  | | | | '__| \\ \\ / / _ \\\n"
-        " | || | | \\__ \\ || (_| | | | (_| | |_| | (_) | | | | | |_| | |  | |\\  V /  __/\n"
-        "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___/\n\n"
-    );
-    set_text_color(RESET);
-    separator();
-    printf("\nPlease be extremely careful with what you are picking\nright now. This operation is NOT reversible!\n\nChoices:\n");
-    separator();
-    list_dev();
-    separator();
-    printf("Your choice: ");
-    char *drive = malloc(100);
-    if (fgets(drive, 100, stdin) == NULL) {
-        perror("Could not read input");
+    char *drives[64];
+    int count = list_devices(drives, 64);
+
+    if (count == 0)
+        return NULL;
+
+    int sel = 0;
+
+    for (;;) {
+        clear();
+        printf("step 3/6");
+        set_text_color(BLUE);
+        printf(
+            "       _        _ _       _   _               ____       _\n"
+            "|_ _|_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __   |  _ \\ _ __(_)_   _____\n"
+            " | || '_ \\/ __| __/ _` | | |/ _` | __| |/ _ \\| '_ \\  | | | | '__| \\ \\ / / _ \\\n"
+            " | || | | \\__ \\ || (_| | | | (_| | |_| | (_) | | | | | |_| | |  | |\\  V /  __/\n"
+            "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___/\n\n"
+        );
+        set_text_color(RESET);
+        separator();
+        printf("\nPlease be extremely careful. This operation is NOT reversible!\n");
+        printf("Use ");
+        set_text_color(BLUE);
+        printf("UP/DOWN");
+        set_text_color(RESET);
+        printf(" or ");
+        set_text_color(BLUE);
+        printf("j/k");
+        set_text_color(RESET);
+        printf(" to move, ");
+        set_text_color(BLUE);
+        printf("ENTER");
+        set_text_color(RESET);
+        printf(" to select.\n\n");
+        separator();
+
+        for (int i = 0; i < count; i++) {
+            if (i == sel) {
+                set_text_color(GREEN);
+                printf("  > ");
+                set_text_color(WHITE);
+                printf("%s", drives[i]);
+                set_text_color(RESET);
+                printf("\n");
+            } else {
+                printf("    ");
+                printf("%s", drives[i]);
+                printf("\n");
+            }
+        }
+        separator();
+        printf("\n");
+        fflush(stdout);
+
+        int key = read_key();
+        if (key == KEY_ENTER)
+            break;
+        if (key == KEY_UP || key == KEY_K) {
+            sel--;
+            if (sel < 0) sel = count - 1;
+        } else if (key == KEY_DOWN || key == KEY_J) {
+            sel++;
+            if (sel >= count) sel = 0;
+        }
     }
+
+    char *drive = strdup(drives[sel]);
+    for (int i = 0; i < count; i++)
+        free(drives[i]);
     return drive;
 }
 

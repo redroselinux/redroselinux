@@ -2,7 +2,9 @@
 
 # Mount essential filesystems
 echo "[*] Mounting essential filesystems"
+mkdir -p /proc
 mount -t proc none /proc
+mkdir -p /sys
 mount -t sysfs none /sys
 mount -t devtmpfs none /dev
 

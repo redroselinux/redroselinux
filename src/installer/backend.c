@@ -20,8 +20,42 @@ char* get_partition(const char* drive, int partnum) {
     return buf;
 }
 
+static void no_drives_repl(void) {
+    set_text_color(RED);
+    printf("- no drives found!\n");
+    set_text_color(RESET);
+    printf("enter exit to remove this shell and bypass the warning. enter docs if you believe you do have a drive. otherwise, you can repair through commands.\n");
+    while (1) {
+        set_text_color(GREEN);
+        printf("\n> ");
+        set_text_color(RESET);
+        char command[4096];
 
-int list_dev() {
+        if (!fgets(command, sizeof(command), stdin))
+            break;
+
+        command[strcspn(command, "\n")] = 0;
+
+        if (strcmp(command, "exit") == 0) {
+            break;
+        } else if (strcmp(command, "docs") == 0) {
+            printf("If you believe a drive is present, follow these steps:\n\n");
+
+            printf("1) Firmware / BIOS checks:\n");
+            printf("   - Reboot into firmware setup (BIOS/UEFI).\n");
+            printf("   - Ensure the drive is detected by the firmware.\n");
+            printf("   - Disable Intel RST / RAID / VMD and use AHCI mode.\n");
+            printf("   - For NVMe systems, disable VMD if enabled.\n\n");
+
+            printf("2) Virtual machines:\n");
+            printf("   - Ensure a virtual disk is attached to the VM.\n");
+        } else {
+            system(command);
+        }
+    }
+}
+
+int list_devices(char *drives[64], int max) {
     DIR *dir = opendir("/dev");
     if (!dir) {
         perror("opendir /dev");
@@ -55,10 +89,10 @@ int list_dev() {
         fclose(fp);
     }
 
+    int count = 0;
     struct dirent *entry;
-    int found = 0;
 
-    while ((entry = readdir(dir)) != NULL) {
+    while (count < max && (entry = readdir(dir)) != NULL) {
         const char *name = entry->d_name;
 
         if (!(strncmp(name, "sd", 2) == 0 ||
@@ -68,55 +102,39 @@ int list_dev() {
 
         if (cur_dev[0] && strstr(cur_dev, name))
             continue;
-        if (strstr(name, "/dev/")) {
-            printf("- %s\n", name);
-        } else {
-            printf("- /dev/%s\n", name);
-        }
-        found++;
+
+        char *path = malloc(32);
+        if (!path)
+            break;
+        snprintf(path, 32, "/dev/%s", name);
+        drives[count++] = path;
     }
 
     closedir(dir);
 
-    if (found == 0) {
-        set_text_color(RED);
-        printf("- no drives found!\n");
-        set_text_color(RESET);
-        printf("enter exit to remove this shell and bypass the warning. enter docs if you believe you do have a drive. otherwise, you can repair through commands.\n");
-        while (1) {
-            set_text_color(GREEN);
-            printf("\n> ");
-            set_text_color(RESET);
-            char command[4096];
+    if (count == 0)
+        no_drives_repl();
 
-            if (!fgets(command, sizeof(command), stdin))
-                break;
+    return count;
+}
 
-            command[strcspn(command, "\n")] = 0;
+int list_dev() {
+    char *drives[64];
+    int count = list_devices(drives, 64);
 
-            if (strcmp(command, "exit") == 0) {
-                break;
-            } else if (strcmp(command, "docs") == 0) {
-                printf("If you believe a drive is present, follow these steps:\n\n");
-
-                printf("1) Firmware / BIOS checks:\n");
-                printf("   - Reboot into firmware setup (BIOS/UEFI).\n");
-                printf("   - Ensure the drive is detected by the firmware.\n");
-                printf("   - Disable Intel RST / RAID / VMD and use AHCI mode.\n");
-                printf("   - For NVMe systems, disable VMD if enabled.\n\n");
-
-                printf("2) Virtual machines:\n");
-                printf("   - Ensure a virtual disk is attached to the VM.\n");
-            } else {
-                system(command);
-            }
-        }
-    } else {
-        set_text_color(GREEN);
-        printf("total %d\n", found);
-        set_text_color(RESET);
+    if (count == 0) {
+        return 0;
     }
-    return found;
+
+    for (int i = 0; i < count; i++) {
+        printf("- %s\n", drives[i]);
+        free(drives[i]);
+    }
+
+    set_text_color(GREEN);
+    printf("total %d\n", count);
+    set_text_color(RESET);
+    return count;
 }
 
 int wipe_drive(char* drive) {
@@ -140,11 +158,9 @@ int unsquash(char* drive) {
         return 0;
 
     system("unsquashfs rootfs.sqsh -d /mnt/");
-    sleep(10);
     return 1;
 }
 
 int install_grub(char* drive) {
     return 0;
 }
-

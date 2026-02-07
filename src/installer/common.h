@@ -6,6 +6,7 @@
 #define YELLOW  93
 #define GREEN   92
 #define RESET   0
+#define WHITE   97
 
 int set_text_color(unsigned color);
 int clear(void);
@@ -25,10 +26,10 @@ char *root_password(void);
 char *hostname(void);
 char *proprietary_enabled(void);
 int list_dev(void);
+int list_devices(char *drives[64], int max);
 char *get_partition(const char *drive, int partnum);
 int wipe_drive(char *drive);
 int makefs(char *drive);
 int unsquash(char *drive);
 int install_grub(char *drive);
 int iso_to_img(char *path);
-
