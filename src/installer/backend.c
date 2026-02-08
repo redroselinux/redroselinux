@@ -1,9 +1,12 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
-#include <stdlib.h>
+#include <sys/mount.h>
+
 #include "common.h"
 
 // backend for installer.
@@ -140,27 +143,102 @@ int list_dev() {
 int wipe_drive(char* drive) {
     char command[40]; // should be fine with 30, some space to make sure
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
-    printf("> %s", command);
-    int exitcode = system(command);
-
-    return exitcode;
+    printf("> %s\n", command);
+    fflush(stdout);
+    return system(command);
 }
 
 int makefs(char* drive) {
-    return 0;
+    char command[256];
+
+    snprintf(command, sizeof(command),
+             "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive);
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
+
+    snprintf(command, sizeof(command),
+             "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive);
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
+
+    snprintf(command, sizeof(command),
+             "sgdisk -n 3:0:0 -t 3:8300 -c 3:\"redrose-linux\" %s", drive);
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
+
+    snprintf(command, sizeof(command), "busybox partprobe %s", drive);
+    printf("> %s\n", command);
+    fflush(stdout);
+    (void)system(command);
+    sleep(2);
+
+    char *efi_part = get_partition(drive, 2);
+    char *root_part = get_partition(drive, 3);
+
+    snprintf(command, sizeof(command), "mkfs.vfat -F32 %s", efi_part);
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
+
+    snprintf(command, sizeof(command), "busybox mke2fs -F %s", root_part);
+    printf("> %s\n", command);
+    fflush(stdout);
+    return system(command);
 }
 
 int unsquash(char* drive) {
-    char mountcmd[100];
-    snprintf(mountcmd, sizeof(mountcmd), "mount %s /mnt/", drive);
+    char *root_part = get_partition(drive, 3);
 
+    char mountcmd[128];
+    snprintf(mountcmd, sizeof(mountcmd), "mount %s /mnt", root_part);
+
+    printf("> %s\n", mountcmd);
+    fflush(stdout);
     if (system(mountcmd) != 0)
-        return 0;
+        return 1;
 
-    system("unsquashfs rootfs.sqsh -d /mnt/");
-    return 1;
+    printf("> unsquashfs rootfs.sqsh -d /mnt/\n");
+    fflush(stdout);
+    return system("unsquashfs rootfs.sqsh -d /mnt/");
+}
+
+int detect_efi() {
+    int boot_mode;
+
+    // if /sys/firmware/efi exists, we are booted in efi
+    if (system("ls /sys/firmware/efi" == 0)) {
+        // this is inspired by the archwiki where you check
+        // this by uefi bitness, and it was 64 and 32. so i
+        // put it in here because it looks super cool lmfao
+
+        // 64 means uefi mode
+        return 64;
+    } else {
+        // 32 means bios mode
+        return 32;
+    }
 }
 
 int install_grub(char* drive) {
+    char command[130];
+    // craft a command to install grub for specifications.
+    if (detect_efi() == 64) {
+        printf("Mounting ESP\n");
+        mount(get_partition(drive, 2), "/boot/efi", "vfat", 0, 0);
+        printf("Installing GRUB for UEFI.\n");
+        strcpy(command, "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck");
+    } else {
+        printf("Installing GRUB for BIOS.");
+        snprintf(command, sizeof(command), "grub-install --target=i386-pc --recheck %s", drive);
+    }
+    system(command);
+    enter_continue();
     return 0;
 }
