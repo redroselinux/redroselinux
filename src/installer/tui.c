@@ -16,6 +16,19 @@
 
 enum { KEY_UP, KEY_DOWN, KEY_ENTER, KEY_J, KEY_K, KEY_NONE };
 
+// ANSI escape codes for cursor positioning
+__always_inline void save_cursor(void) {
+    printf("\033[s");
+}
+
+__always_inline void restore_cursor(void) {
+    printf("\033[u");
+}
+
+__always_inline void clear_to_end(void) {
+    printf("\033[0J");
+}
+
 static int read_key(void) {
     unsigned char c;
     struct termios old, raw;
@@ -195,35 +208,44 @@ char* disk_header(void) {
         return NULL;
 
     int sel = 0;
+    int first_draw = 1;
 
     for (;;) {
-        clear();
-        printf("step 3/6");
-        set_text_color(BLUE);
-        printf(
-            "       _        _ _       _   _               ____       _\n"
-            "|_ _|_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __   |  _ \\ _ __(_)_   _____\n"
-            " | || '_ \\/ __| __/ _` | | |/ _` | __| |/ _ \\| '_ \\  | | | | '__| \\ \\ / / _ \\\n"
-            " | || | | \\__ \\ || (_| | | | (_| | |_| | (_) | | | | | |_| | |  | |\\  V /  __/\n"
-            "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___/\n\n"
-        );
-        set_text_color(RESET);
-        separator();
-        printf("\nPlease be extremely careful. This operation is NOT reversible!\n");
-        printf("Use ");
-        set_text_color(BLUE);
-        printf("UP/DOWN");
-        set_text_color(RESET);
-        printf(" or ");
-        set_text_color(BLUE);
-        printf("j/k");
-        set_text_color(RESET);
-        printf(" to move, ");
-        set_text_color(BLUE);
-        printf("ENTER");
-        set_text_color(RESET);
-        printf(" to select.\n\n");
-        separator();
+        if (first_draw) {
+            clear();
+            printf("step 3/6");
+            set_text_color(BLUE);
+            printf(
+                "       _        _ _       _   _               ____       _\n"
+                "|_ _|_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __   |  _ \\ _ __(_)_   _____\n"
+                " | || '_ \\/ __| __/ _` | | |/ _` | __| |/ _ \\| '_ \\  | | | | '__| \\ \\ / / _ \\\n"
+                " | || | | \\__ \\ || (_| | | | (_| | |_| | (_) | | | | | |_| | |  | |\\  V /  __/\n"
+                "|___|_| |_|___/\\__\\__,_|_|_|\\__,_|\\__|_|\\___/|_| |_| |____/|_|  |_| \\_/ \\___/\n\n"
+            );
+            set_text_color(RESET);
+            separator();
+            printf("\nPlease be extremely careful. This operation is NOT reversible!\n");
+            printf("Use ");
+            set_text_color(BLUE);
+            printf("UP/DOWN");
+            set_text_color(RESET);
+            printf(" or ");
+            set_text_color(BLUE);
+            printf("j/k");
+            set_text_color(RESET);
+            printf(" to move, ");
+            set_text_color(BLUE);
+            printf("ENTER");
+            set_text_color(RESET);
+            printf(" to select.\n\n");
+            separator();
+            printf("\n");
+            save_cursor();
+            first_draw = 0;
+        } else {
+            restore_cursor();
+            clear_to_end();
+        }
 
         for (int i = 0; i < count; i++) {
             if (i == sel) {

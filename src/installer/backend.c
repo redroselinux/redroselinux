@@ -148,22 +148,44 @@ int wipe_drive(char* drive) {
     return system(command);
 }
 
+int detect_efi() {
+    int boot_mode;
+
+    // if /sys/firmware/efi exists, we are booted in efi
+    if (!system("ls /sys/firmware/efi" == 0)) {
+        // this is inspired by the archwiki where you check
+        // this by uefi bitness, and it was 64 and 32. so i
+        // put it in here because it looks super cool lmfao
+        //
+        // https://wiki.archlinux.org/title/Installation_guide#Verify_the_boot_mode
+
+        // 64 means uefi mode
+        return 64;
+    } else {
+        // 32 means bios mode
+        return 32;
+    }
+}
+
 int makefs(char* drive) {
     char command[256];
 
-    snprintf(command, sizeof(command),
-        "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive);
-    printf("> %s\n", command);
-    fflush(stdout);
-    if (system(command) != 0)
-        return 1;
-
-    snprintf(command, sizeof(command),
-        "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive);
-    printf("> %s\n", command);
-    fflush(stdout);
-    if (system(command) != 0)
-        return 1;
+    if (detect_efi() == 32) {
+        snprintf(command, sizeof(command),
+            "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive
+        );
+        printf("> %s\n", command);
+        fflush(stdout);
+        if (system(command) != 0)
+            return 1;
+    } else {
+        snprintf(command, sizeof(command),
+            "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive);
+        printf("> %s\n", command);
+        fflush(stdout);
+        if (system(command) != 0)
+            return 1;
+    }
 
     snprintf(command, sizeof(command),
         "sgdisk -n 3:0:0 -t 3:8300 -c 3:\"redrose-linux\" %s", drive);
@@ -172,10 +194,17 @@ int makefs(char* drive) {
     if (system(command) != 0)
         return 1;
 
+    clear();
+    installing_header();
+    printf("\n");
+    separator();
+    printf("\n");
+
     snprintf(command, sizeof(command), "busybox partprobe %s", drive);
     printf("> %s\n", command);
     fflush(stdout);
-    (void)system(command);
+    if (system(command) != 0)
+        return 1;
 
     char *efi_part = get_partition(drive, 2);
     char *root_part = get_partition(drive, 3);
@@ -197,37 +226,16 @@ int makefs(char* drive) {
     system("tar -xf rootfs.tar -C /mnt --strip-components=1");
 }
 
-int detect_efi() {
-    int boot_mode;
-
-    // if /sys/firmware/efi exists, we are booted in efi
-    if (!system("ls /sys/firmware/efi" == 0)) {
-        // this is inspired by the archwiki where you check
-        // this by uefi bitness, and it was 64 and 32. so i
-        // put it in here because it looks super cool lmfao
-        //
-        // https://wiki.archlinux.org/title/Installation_guide#Verify_the_boot_mode
-
-        // 64 means uefi mode
-        return 64;
-    } else {
-        // 32 means bios mode
-        return 32;
-    }
-}
-
 int install_grub(char* drive) {
     char command[256];
     // craft a command to install grub for specifications.
     if (detect_efi() == 64) {
         printf("Mounting ESP\n");
         mount(get_partition(drive, 2), "/boot/efi", "vfat", 0, 0);
-        printf("Installing GRUB for UEFI.\n");
         strcpy(command,
             "chroot /mnt /bin/sh -c 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck'"
         );
     } else {
-        printf("Installing GRUB for BIOS.");
         snprintf(command, sizeof(command),
             "chroot /mnt /bin/sh -c 'grub-install --target=i386-pc --recheck %s'", drive
         );
