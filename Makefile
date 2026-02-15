@@ -41,7 +41,6 @@ dep:
 	@which grub-mkrescue >/dev/null 2>&1 && echo "  ✓ grub-mkrescue" || (echo "  ✗ grub-mkrescue missing"; exit 1)
 	@which curl >/dev/null 2>&1 && echo "  ✓ curl" || (echo "  ✗ curl missing"; exit 1)
 	@which bash >/dev/null 2>&1 && echo "  ✓ bash" || (echo "  ✗ bash missing"; exit 1)
-	@which mksquashfs >/dev/null 2>&1 && echo "  ✓ mksquashfs" || (echo "  ✗ mksquashfs missing"; exit 1)
 	@which gzip >/dev/null 2>&1 && echo "  ✓ gzip" || (echo "  ✗ gzip missing"; exit 1)
 	@which qemu-img >/dev/null 2>&1 && echo "  ✓ qemu-img" || (echo "  ✗ qemu-img missing"; exit 1)
 	@which qemu-system-x86_64 >/dev/null 2>&1 && echo "  ✓ qemu-system-x86_64" || (echo "  ✗ qemu-system-x86_64 missing"; exit 1)
@@ -57,9 +56,6 @@ initramfs:
 	@curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat
 	@chmod +x initramfs/bin/mkfs.vfat
 	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/mkfs.vfat $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)"
-	@curl -s -L -o initramfs/bin/unsquashfs https://github.com/VHSgunzo/squashfs-tools-static/releases/download/v4.7.2/unsquashfs-x86_64
-	@chmod +x initramfs/bin/unsquashfs
-	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/unsquashfs $(C_YELLOW)(VHSgunzo/squashfs-tools-static)$(C_RESET)"
 	@chmod +x $(INITRAMFS_DIR)/init
 	@echo "\n$(C_CYAN)$(C_BOLD)▸ Building initramfs$(C_RESET)"
 	@echo "$(C_DIM)"
@@ -69,17 +65,11 @@ initramfs:
 	@echo "  $(C_GREEN)✓$(C_RESET) $(INITRAMFS_GZ)"
 	@echo "$(C_RESET)"
 
-# currently being replaced with squashfs
-# originally named rootfs-iso
-# TODO: finish this migration
 squash-root:
 	@echo ""
-	@echo "$(C_CYAN)$(C_BOLD)▸ Squashing rootfs$(C_RESET)"
-	@bash -c 'mkdir -p rootfs/filesystem/{proc,sys}'
-	@echo "$(C_DIM)"
-	@mksquashfs rootfs/filesystem initramfs/rootfs.sqsh
-	@echo "$(C_RESET)"
-	@echo "  $(C_GREEN)✓$(C_RESET) initramfs/rootfs.sqsh"
+	@echo "$(C_CYAN)$(C_BOLD)▸ Creating rootfs tar$(C_RESET)"
+	@tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	@echo "  $(C_GREEN)✓$(C_RESET) initramfs/rootfs/rootfs.tar"
 	@echo ""
 
 iso:
@@ -123,7 +113,7 @@ clean-downloads:
 	@echo "  $(C_GREEN)✓$(C_RESET) Downloads cleaned"
 	@echo ""
 
-clean-all: clean clean-downloads 
+clean-all: clean clean-downloads
 bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
