@@ -50,10 +50,10 @@ dep:
 
 initramfs:
 	@bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
-	@curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
+	@file initramfs/bin/sgdisk || curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	@chmod +x $(INITRAMFS_DIR)/bin/sgdisk
 	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/sgdisk $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)"
-	@curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat
+	@file initramfs/bin/mkfs.vfat || curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat
 	@chmod +x initramfs/bin/mkfs.vfat
 	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/mkfs.vfat $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)"
 	@chmod +x $(INITRAMFS_DIR)/init
