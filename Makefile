@@ -42,6 +42,7 @@ dep:
 	@which curl >/dev/null 2>&1 && echo "  ✓ curl" || (echo "  ✗ curl missing"; exit 1)
 	@which bash >/dev/null 2>&1 && echo "  ✓ bash" || (echo "  ✗ bash missing"; exit 1)
 	@which gzip >/dev/null 2>&1 && echo "  ✓ gzip" || (echo "  ✗ gzip missing"; exit 1)
+	@which gcc >/dev/null 2>&1 && echo "  ✓ gcc" || (echo "  ✗ gcc missing"; exit 1)
 	@which qemu-img >/dev/null 2>&1 && echo "  ✓ qemu-img" || (echo "  ✗ qemu-img missing"; exit 1)
 	@which qemu-system-x86_64 >/dev/null 2>&1 && echo "  ✓ qemu-system-x86_64" || (echo "  ✗ qemu-system-x86_64 missing"; exit 1)
 	@echo "$(C_RESET)"
@@ -50,10 +51,10 @@ dep:
 
 initramfs:
 	@bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
-	@file initramfs/bin/sgdisk || curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
+	@curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin
 	@chmod +x $(INITRAMFS_DIR)/bin/sgdisk
 	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/sgdisk $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)"
-	@file initramfs/bin/mkfs.vfat || curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat
+	@curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat
 	@chmod +x initramfs/bin/mkfs.vfat
 	@echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/mkfs.vfat $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)"
 	@chmod +x $(INITRAMFS_DIR)/init
