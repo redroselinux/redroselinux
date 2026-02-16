@@ -66,6 +66,7 @@ initramfs:
 	@echo "$(C_RESET)"
 
 squash-root:
+	@cp linuxImage rootfs/filesystem/boot/linuxImage
 	@echo ""
 	@echo "$(C_CYAN)$(C_BOLD)▸ Creating rootfs tar$(C_RESET)"
 	@tar -cpf initramfs/rootfs.tar -C rootfs filesystem

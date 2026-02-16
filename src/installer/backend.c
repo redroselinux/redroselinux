@@ -170,25 +170,25 @@ int detect_efi() {
 int makefs(char* drive) {
     char command[256];
 
-    if (detect_efi() == 32) {
-        snprintf(command, sizeof(command),
-            "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive
-        );
-        printf("> %s\n", command);
-        fflush(stdout);
-        if (system(command) != 0)
-            return 1;
-    } else {
-        snprintf(command, sizeof(command),
-            "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive);
-        printf("> %s\n", command);
-        fflush(stdout);
-        if (system(command) != 0)
-            return 1;
-    }
+    snprintf(command, sizeof(command),
+        "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive
+    );
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
 
     snprintf(command, sizeof(command),
-        "sgdisk -n 3:0:0 -t 3:8300 -c 3:\"redrose-linux\" %s", drive);
+        "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive
+    );
+    printf("> %s\n", command);
+    fflush(stdout);
+    if (system(command) != 0)
+        return 1;
+
+    snprintf(command, sizeof(command),
+        "sgdisk -n 3:0:0 -t 3:8300 -c 3:\"Redrose Linux\" %s", drive
+    );
     printf("> %s\n", command);
     fflush(stdout);
     if (system(command) != 0)
@@ -223,7 +223,7 @@ int makefs(char* drive) {
 
     // copy root
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
-    system("tar -xf rootfs.tar -C /mnt --strip-components=1");
+    return system("tar -xf rootfs.tar -C /mnt --strip-components=1");
 }
 
 int install_grub(char* drive) {
@@ -237,7 +237,7 @@ int install_grub(char* drive) {
         );
     } else {
         snprintf(command, sizeof(command),
-            "chroot /mnt /bin/sh -c 'grub-install --target=i386-pc --recheck %s'", drive
+            "chroot /mnt /bin/sh -c 'mkdir -p /dev && mount -t devtmpfs none /dev && grub-install --target=i386-pc --recheck %s'", drive
         );
     }
     system(command);

@@ -207,7 +207,36 @@ char* disk_header(void) {
     if (count == 0)
         return NULL;
 
+    // find the drive with the largest size
     int sel = 0;
+    long long max_size = 0;
+    for (int i = 0; i < count; i++) {
+        char path[256];
+        char size_str[64];
+        FILE *fp;
+
+        // extract device name from path (e.g., "/dev/sda" -> "sda")
+        const char *dev_name = strrchr(drives[i], '/');
+        if (!dev_name) continue;
+        dev_name++; // skip the '/'
+
+        // try to read size from /sys/block/*/size
+        snprintf(path, sizeof(path), "/sys/block/%s/size", dev_name);
+        fp = fopen(path, "r");
+        if (!fp) continue;
+
+        if (fgets(size_str, sizeof(size_str), fp) != NULL) {
+            // size in /sys/block/*/size is in 512-byte sectors
+            long long sectors = strtoll(size_str, NULL, 10);
+            long long size = sectors * 512;
+            if (size > max_size) {
+                max_size = size;
+                sel = i;
+            }
+        }
+        fclose(fp);
+    }
+
     int first_draw = 1;
 
     for (;;) {
