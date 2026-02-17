@@ -228,19 +228,35 @@ int makefs(char* drive) {
 
 int install_grub(char* drive) {
     char command[256];
+    char grub_install[] = "chroot /mnt /bin/sh -c 'mkdir -p /dev && mount -t devtmpfs none /dev && grub-install";
     // craft a command to install grub for specifications.
     if (detect_efi() == 64) {
         printf("Mounting ESP\n");
         mount(get_partition(drive, 2), "/boot/efi", "vfat", 0, 0);
-        strcpy(command,
-            "chroot /mnt /bin/sh -c 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck'"
+        snprintf(command, sizeof(command),
+            "%s --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck %s'",
+            grub_install, drive
         );
     } else {
         snprintf(command, sizeof(command),
-            "chroot /mnt /bin/sh -c 'mkdir -p /dev && mount -t devtmpfs none /dev && grub-install --target=i386-pc --recheck %s'", drive
+            "%s --target=i386-pc --recheck %s'", grub_install, drive
         );
     }
-    system(command);
-    enter_continue();
+    return system(command);
+}
+
+int patch(char* drive) {
     return 0;
+    // TODO
+}
+
+int localhost(char* name) {
+    char command[256];
+    if (name[0] == '\n') {
+        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir /etc &&echo iuseredrosebtw > /etc/hostname'");
+    } else {
+        name[strcspn(name, "\n")] = 0;
+        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir /etc &&echo %s > /etc/hostname'", name);
+    }
+    return system(command);
 }
