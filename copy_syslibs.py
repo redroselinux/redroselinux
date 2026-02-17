@@ -8,10 +8,10 @@ print(
 )
 
 print(
-    "We need root permissions to run this script. For that reason, we will run 'sudo echo' right now."
+    "We need root permissions to run this script. For that reason, we will run 'sudo true' right now."
 )
 
-os.system("sudo echo")
+os.system("sudo true")
 
 copy_files = [
     "/lib/x86_64-linux-gnu/liblzma.so.5",
