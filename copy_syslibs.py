@@ -37,10 +37,10 @@ with Progress() as progress:
     os.system("mkdir -p rootfs/filesystem/usr/lib")
 
     for file in copy_files:
-        os.system(f"sudo cp {file} rootfs/filesystem/ -r")
+        os.system(f"sudo cp --parents -r {file} rootfs/filesystem")
         progress.advance(task)
 
-    # os.system("mv rootfs/filesystem/grub rootfs/filesystem/usr/lib")
+    os.system("mv rootfs/filesystem/grub rootfs/filesystem/usr/lib")
     progress.advance(task)
 
 print("Done!")
