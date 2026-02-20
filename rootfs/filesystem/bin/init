@@ -27,7 +27,7 @@ printf "\033[92m*\033[0m \033[97mSet hostname\n"
 printf "\033[95m*\033[0m \033[97mFinished all. Running getty.\n\033[0m"
 clear
 
-getty -L tty1 115200 vt100 -l /bin/login -I "Welcome to your install of Redrose Linux!\n> Visit https://redroselinux.miraheze.org for documentation!\n> Visit https://github.com/redroselinux/redroselinux/issues for support!\n\nMost of Redrose Linux is licensed under GPLv3 and comes with NO WARANTY.\nThird-party software in Redrose Linux retains its own license terms.\n"
+sh /boot/target
 
 printf "\033[91m*\033[0m \033[97mPowering off in 1 second\n"
 sleep 1
