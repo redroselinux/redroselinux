@@ -38,7 +38,7 @@ help:
 
 dep:
 	@echo -n "$(C_CYAN)$(C_BOLD)-> Checking dependencies $(C_RESET)"; \
-	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64; do \
+	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			echo -n "✓ $$cmd  "; \
 		else \
@@ -48,6 +48,7 @@ dep:
 	done;
 
 initramfs:
+	@python3 copy_syslibs.py
 	@bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
 	@test -f $(INITRAMFS_DIR)/bin/sgdisk || ( \
 		curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin && \
