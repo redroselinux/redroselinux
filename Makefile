@@ -46,9 +46,9 @@ dep:
 			exit 1; \
 		fi; \
 	done;
+	@python3 copy_syslibs.py
 
 initramfs:
-	@python3 copy_syslibs.py
 	@bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
 	@test -f $(INITRAMFS_DIR)/bin/sgdisk || ( \
 		curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin && \

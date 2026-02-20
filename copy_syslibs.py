@@ -39,4 +39,5 @@ os.system(
 os.system(
     "cp /lib/x86_64-linux-gnu/libcap.so.2 rootfs/filesystem/lib/x86_64-linux-gnu/"
 )
-os.system("cp /usr/bin/grub-install rootfs/filesystem/bin/")
+os.system("cp /usr/sbin/grub-install rootfs/filesystem/bin/")
+os.system("cp /usr/lib")
