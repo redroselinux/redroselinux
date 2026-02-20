@@ -11,7 +11,7 @@
 
 // backend for installer.
 //
-// was ai used in this file? yes (functions: list_dev, partition_drive, format_partitions)
+// was ai used in this file? yes (functions: list_dev, partition_drive, format_partitions, no_drives_repl, makefs)
 
 char* get_partition(const char* drive, int partnum) {
     static char buf[64];
