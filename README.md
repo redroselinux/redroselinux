@@ -21,12 +21,16 @@ Redrose Linux is an **independent, reproducible, EU-based and beatiful** Linux d
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/19af0ebe-0873-4101-ac63-075c7157fc24" />
 </div>
 
+Yes, the Makefile is fancy because I opened Cursor for fun. You guessed it
+
 ## Download
 
 We made a launcher to launch Redrose in QEMU. To run it, paste this into your terminal:
 ```bash
 curl -sSSL https://raw.githubusercontent.com/redroselinux/redroselinux/refs/heads/main/src/redrose-launcher/main.py | python3
 ```
+
+This uses the latest **release**.
 
 Otherwise, download from the Releases tab.
 
@@ -35,6 +39,17 @@ Otherwise, download from the Releases tab.
 The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did not do any tests for CPU.
 
 ## Development
+
+When compiling, the Makefile copies your system libraries. You need to build them yourself if you do not want the system ones.
+
+### nightly
+To compile the nightly version, clone `mostypc123/redroselinux` and compile:
+
+```
+make
+```
+
+### stable
 *this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the `car-coreutils-repo` and downloaded in the `Makefile`.
 
 To build Redrose Linux, first build a Linux kernel.
@@ -61,3 +76,8 @@ This does all the magic, and even runs it in a VM.
 ## Contact
 
 - **Email**: mostypc7@gmail.com
+
+## Random stats no one reads
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=redroselinux/redroselinux&type=date&legend=top-left)](https://www.star-history.com/#redroselinux/redroselinux&type=date&legend=top-left)
