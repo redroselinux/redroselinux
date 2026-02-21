@@ -72,9 +72,6 @@ int main() {
     // show main header
     clear();
     main_header();
-    set_text_color(YELLOW);
-    printf("Known issue: If you press ENTER during installation, it will likely fail. Please avoid doing so.\n\n");
-    set_text_color(RESET);
     enter_continue();
 
     // localization
