@@ -171,21 +171,23 @@ int detect_efi() {
 int makefs(char* drive) {
     char command[256];
 
-    snprintf(command, sizeof(command),
-        "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive
-    );
-    printf("> %s\n", command);
-    fflush(stdout);
-    if (system(command) != 0)
-        return 1;
-
-    snprintf(command, sizeof(command),
-        "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive
-    );
-    printf("> %s\n", command);
-    fflush(stdout);
-    if (system(command) != 0)
-        return 1;
+    if (detect_efi() == 32) {
+        snprintf(command, sizeof(command),
+            "sgdisk -n 1:1M:+1M -t 1:ef02 -c 1:\"BIOS boot\" %s", drive
+        );
+        printf("> %s\n", command);
+        fflush(stdout);
+        if (system(command) != 0)
+            return 1;
+    } else {
+        snprintf(command, sizeof(command),
+            "sgdisk -n 2:0:+512M -t 2:ef00 -c 2:\"EFI System\" %s", drive
+        );
+        printf("> %s\n", command);
+        fflush(stdout);
+        if (system(command) != 0)
+            return 1;
+    }
 
     snprintf(command, sizeof(command),
         "sgdisk -n 3:0:0 -t 3:8300 -c 3:\"Redrose Linux\" %s", drive
@@ -216,14 +218,21 @@ int makefs(char* drive) {
     if (system(command) != 0)
         return 1;
 
+    clear();
+    installing_header();
+    printf("\n");
+    separator();
+    printf("\n");
     snprintf(command, sizeof(command), "busybox mke2fs -F %s", root_part);
     printf("> %s\n", command);
     fflush(stdout);
-    if (system(command) != 0)
-        return 1;
+    return system(command);
+}
 
-    // copy root
+int copy_root(char* drive) {
+    printf("mounting root\n");
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
+    printf("> tar -xf rootfs.tar -C /mnt --strip-components=1\n");
     return system("tar -xf rootfs.tar -C /mnt --strip-components=1");
 }
 
