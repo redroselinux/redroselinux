@@ -9,7 +9,7 @@
 // it exports the other functions from tui.c and
 // backend.c. got nothing else to say
 //
-// was ai used in this file? yes
+// was ai used in this file? yes (run_installation_step)
 
 void shutdown_computer() {
     set_text_color(YELLOW);

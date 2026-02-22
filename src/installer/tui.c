@@ -9,8 +9,9 @@
 // this file includes functions for TUI and some
 // TUI parts for main.c.
 //
-// was ai used in this file? yes, but only for minor assistance
+// was ai used in this file? yes
 //      (escape codes like \033[94m, prinf-ing the figlet text)
+//      (disk_header)
 
 // function to set text color from ansi codes
 

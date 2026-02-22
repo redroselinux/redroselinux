@@ -2,6 +2,8 @@
 
 // this file generates post-installation scripts
 // was ai used in this file? no
+//
+// this thing is not finished and i doubt this is even used in the code lmfao
 
 int gen_postinst_scripts(
     char* drive,

@@ -1,5 +1,7 @@
 import os
 
+# was ai used in this script? no
+
 print(
     "We need root permissions to run this script. For that reason, we will run 'sudo true' right now and sudo will remember it."
 )
