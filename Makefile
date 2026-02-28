@@ -62,6 +62,12 @@ initramfs:
 		chmod +x initramfs/bin/mkfs.vfat && \
 		echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/mkfs.vfat $(C_YELLOW)(redroselinux/car-coreutils-repo)$(C_RESET)" \
 	)
+	@test -f initramfs/bin/busybox || ( \
+		curl -s -L -o initramfs/bin/busybox https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat && \
+		chmod +x initramfs/bin/busybox && \
+		echo "  $(C_DIM)↓$(C_RESET) initramfs/bin/busybox $(C_YELLOW)(https://files.obsidianos.xyz/~odd/static/)$(C_RESET)" && \
+		cp initramfs/bin/busybox rootfs/filesystem/bin/busybox \
+	)
 	@chmod +x $(INITRAMFS_DIR)/init
 	@echo "\n$(C_CYAN)$(C_BOLD)-> Building initramfs$(C_RESET)"
 	@echo "$(C_DIM)"
