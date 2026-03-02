@@ -263,10 +263,10 @@ int patch(char* drive) {
 int localhost(char* name) {
     char command[256];
     if (name[0] == '\n') {
-        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir /etc &&echo iuseredrosebtw > /etc/hostname'");
+        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir -p /etc &&echo iuseredrosebtw > /etc/hostname'");
     } else {
         name[strcspn(name, "\n")] = 0;
-        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir /etc &&echo %s > /etc/hostname'", name);
+        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir -p /etc &&echo %s > /etc/hostname'", name);
     }
     return system(command);
 }

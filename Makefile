@@ -75,7 +75,7 @@ squash-root:
 	@echo
 	@cp linuxImage rootfs/filesystem/boot/linuxImage && \
 	echo -n "$(C_CYAN)$(C_BOLD)-> Creating rootfs tar $(C_RESET)" && \
-	tar -cpf initramfs/rootfs.tar -C rootfs filesystem && \
+	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem && \
 	echo "  $(C_GREEN)✓$(C_RESET) initramfs/rootfs/rootfs.tar"
 
 iso:
@@ -115,7 +115,7 @@ installed-vm:
 vm:
 	@echo ""
 	@echo "$(C_CYAN)$(C_BOLD)-> Starting QEMU VM$(C_RESET)"
-	@@qemu-img create -f qcow2 redrose_linux.qcow2 1G >/dev/null 2>&1
-	@qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm 2>/dev/null
+	@qemu-img create -f qcow2 redrose_linux.qcow2 1G >/dev/null 2>&1
+	@qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
 
 .PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep
