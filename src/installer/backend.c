@@ -153,13 +153,13 @@ int detect_efi() {
     int boot_mode;
 
     // if /sys/firmware/efi exists, we are booted in efi
-    if (!system("ls /sys/firmware/efi" == 0)) {
-        // this is inspired by the archwiki where you check
-        // this by uefi bitness, and it was 64 and 32. so i
-        // put it in here because it looks super cool lmfao
-        //
-        // https://wiki.archlinux.org/title/Installation_guide#Verify_the_boot_mode
+    // this is inspired by the archwiki where you check
+    // this by uefi bitness, and it was 64 and 32. so i
+    // put it in here because it looks super cool lmfao
+    //
+    // https://wiki.archlinux.org/title/Installation_guide#Verify_the_boot_mode
 
+    if (access("/sys/firmware/efi", F_OK) == 0) {
         // 64 means uefi mode
         return 64;
     } else {

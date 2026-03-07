@@ -14,32 +14,32 @@ no-vm: clean installer squash-root initramfs iso
 help:
 	@echo ""
 	@echo "$(C_DIM)╭──────────────────────────────────────────────────────────────────────╮$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_BOLD)$(C_YELLOW)Redrose Linux$(C_RESET) - Makefile targets                                    $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_BOLD)$(C_YELLOW)Redrose Linux$(C_RESET) - Makefile targets									$(C_DIM)│$(C_RESET)"
 	@echo "$(C_DIM)├──────────────────────────────────────────────────────────────────────┤$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)all$(C_RESET)            $(C_DIM)│$(C_RESET) Build everything and run in VM                     $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)no-vm$(C_RESET)          $(C_DIM)│$(C_RESET) Build everything without running in VM             $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)installer$(C_RESET)      $(C_DIM)│$(C_RESET) Build the installer binary                         $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)run-installer$(C_RESET)  $(C_DIM)│$(C_RESET) Run the installer from initramfs                   $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)initramfs$(C_RESET)      $(C_DIM)│$(C_RESET) Build the initramfs images                         $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)iso$(C_RESET)            $(C_DIM)│$(C_RESET) Build the ISO image                                $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean$(C_RESET)          $(C_DIM)│$(C_RESET) Clean build artifacts                              $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-downloads$(C_RESET)$(C_DIM)│$(C_RESET) Remove downloaded binaries (sgdisk, dd)            $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-all$(C_RESET)      $(C_DIM)│$(C_RESET) Run both clean and clean-downloads                 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)vm$(C_RESET)             $(C_DIM)│$(C_RESET) Run the built ISO in a QEMU VM                     $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)dep$(C_RESET)            $(C_DIM)│$(C_RESET) Check for dependencies                             $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)all$(C_RESET)			$(C_DIM)│$(C_RESET) Build everything and run in VM					 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)no-vm$(C_RESET)		  $(C_DIM)│$(C_RESET) Build everything without running in VM			 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)installer$(C_RESET)	  $(C_DIM)│$(C_RESET) Build the installer binary						 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)run-installer$(C_RESET)  $(C_DIM)│$(C_RESET) Run the installer from initramfs				   $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)initramfs$(C_RESET)	  $(C_DIM)│$(C_RESET) Build the initramfs images						 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)iso$(C_RESET)			$(C_DIM)│$(C_RESET) Build the ISO image								$(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean$(C_RESET)		  $(C_DIM)│$(C_RESET) Clean build artifacts							  $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-downloads$(C_RESET)$(C_DIM)│$(C_RESET) Remove downloaded binaries (sgdisk, dd)			$(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-all$(C_RESET)	  $(C_DIM)│$(C_RESET) Run both clean and clean-downloads				 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)vm$(C_RESET)			 $(C_DIM)│$(C_RESET) Run the built ISO in a QEMU VM					 $(C_DIM)│$(C_RESET)"
+	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)dep$(C_RESET)			$(C_DIM)│$(C_RESET) Check for dependencies							 $(C_DIM)│$(C_RESET)"
 	@echo "$(C_DIM)╰──────────────────────────────────────────────────────────────────────╯$(C_RESET)"
 	@echo ""
 
 dep:
-	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
-		if command -v $$cmd >/dev/null 2>&1; then \
-			echo -n "✓ $$cmd  "; \
+	@for cmd in grub2-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
+		if ! command -v $$cmd >/dev/null 2>&1; then \
+			echo "$$cmd missing, installing..."; \
+			sudo dnf install -y $$cmd; \
 		else \
-			echo -n "✗ $$cmd missing  "; \
-			exit 1; \
+			echo "$$cmd [ok]"; \
 		fi; \
-	done;
-	python3 copy_syslibs.py
+	done
+	@python3 copy_syslibs.py
 
 initramfs:
 	bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
@@ -62,7 +62,7 @@ squash-root:
 iso:
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
-	grub-mkrescue -o $(ISO) $(FS_DIR)
+	grub2-mkrescue -o $(ISO) $(FS_DIR)
 
 installer:
 	$(CC) src/installer/main.c -o initramfs/bin/install -static 2>&1
@@ -83,10 +83,10 @@ bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
 installed-vm:
-	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm 2>/dev/null
+	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm 2>/dev/null -display gtk || echo "install the qemu-ui-gtk package if you havent yet"
 
 vm:
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G >/dev/null 2>&1
-	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm
+	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -display gtk || echo "install the qemu-ui-gtk package if you havent yet"
 
 .PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep
