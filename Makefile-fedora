@@ -12,23 +12,8 @@ all: dep clean installer squash-root initramfs iso vm
 no-vm: clean installer squash-root initramfs iso
 
 help:
-	@echo ""
-	@echo "$(C_DIM)╭──────────────────────────────────────────────────────────────────────╮$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_BOLD)$(C_YELLOW)Redrose Linux$(C_RESET) - Makefile targets									$(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)├──────────────────────────────────────────────────────────────────────┤$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)all$(C_RESET)			$(C_DIM)│$(C_RESET) Build everything and run in VM					 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)no-vm$(C_RESET)		  $(C_DIM)│$(C_RESET) Build everything without running in VM			 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)installer$(C_RESET)	  $(C_DIM)│$(C_RESET) Build the installer binary						 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)run-installer$(C_RESET)  $(C_DIM)│$(C_RESET) Run the installer from initramfs				   $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)initramfs$(C_RESET)	  $(C_DIM)│$(C_RESET) Build the initramfs images						 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)iso$(C_RESET)			$(C_DIM)│$(C_RESET) Build the ISO image								$(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean$(C_RESET)		  $(C_DIM)│$(C_RESET) Clean build artifacts							  $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-downloads$(C_RESET)$(C_DIM)│$(C_RESET) Remove downloaded binaries (sgdisk, dd)			$(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)clean-all$(C_RESET)	  $(C_DIM)│$(C_RESET) Run both clean and clean-downloads				 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)vm$(C_RESET)			 $(C_DIM)│$(C_RESET) Run the built ISO in a QEMU VM					 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)│$(C_RESET)  $(C_CYAN)dep$(C_RESET)			$(C_DIM)│$(C_RESET) Check for dependencies							 $(C_DIM)│$(C_RESET)"
-	@echo "$(C_DIM)╰──────────────────────────────────────────────────────────────────────╯$(C_RESET)"
-	@echo ""
+	@echo "run 'make -f Makefile-fedora' to compile"
+	@echo "does not support -j$(nproc)"
 
 dep:
 	@for cmd in grub2-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
