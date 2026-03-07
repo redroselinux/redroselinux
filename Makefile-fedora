@@ -37,7 +37,10 @@ initramfs:
 		chmod +x initramfs/bin/mkfs.vfat \
 	)
 	chmod +x $(INITRAMFS_DIR)/bin/init
-	cd $(INITRAMFS_DIR) && find . | cpio -H newc -o > ../$(INITRAMFS_CPIO)
+	ln -sf bin/init $(INITRAMFS_DIR)/init
+	chmod +x $(INITRAMFS_DIR)/bin/*
+	chmod +x $(INITRAMFS_DIR)/init
+	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
