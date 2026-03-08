@@ -286,3 +286,24 @@ static int umount_detach(char *path) {
     }
     return 0;
 }
+
+// if user wants to change the system before un-mounting /mnt,
+// this function lets them to do so
+int chroot_(char *h) {
+    char buf[8];
+    printf("Do you wish to chroot into the mounted system before it's unmounted? [N/y] ");
+    if (fgets(buf, sizeof(buf), stdin)) {
+        if (buf[0] == 'y' || buf[0] == 'Y') {
+            system("chroot /mnt /bin/sh");
+        }
+    }
+
+    printf("Do you wish to run /bin/sh in this live enviroment? [N/y] ");
+    if (fgets(buf, sizeof(buf), stdin)) {
+        if (buf[0] == 'y' || buf[0] == 'Y') {
+            system("/bin/sh");
+        }
+    }
+
+    return 0;
+}
