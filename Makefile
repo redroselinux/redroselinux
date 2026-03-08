@@ -1,5 +1,3 @@
-# was ai used in this file? yes (ansi output, minor assistance)
-
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs
 OUTPUT_DIR = .

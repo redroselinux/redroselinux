@@ -70,11 +70,18 @@ Now in the Redrose directory, run:
 make
 ```
 
+or on Fedora:
+
+```
+make -f Makefile-fedora
+```
+
 This does all the magic, and even runs it in a VM.
 
 ## Other components
 
 - **Car** (package manager): https://github.com/redroselinux/car
+- **redrosectl** (idk): https://github.com/redroselinux/redrosectl
 
 ## Contact
 
