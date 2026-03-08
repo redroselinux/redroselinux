@@ -15,6 +15,11 @@ help:
 	@echo "on fedora, run 'make -f Makefile-fedora'"
 
 dep:
+	mkdir -p rootfs/filesystem/lib64
+	mkdir -p rootfs/filesystem/lib
+	mkdir -p rootfs/filesystem/usr/
+	mkdir -p rootfs/filesystem/usr/lib
+	mkdir -p rootfs/filesystem/usr/lib/grub
 	sudo cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
 	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
