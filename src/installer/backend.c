@@ -142,7 +142,7 @@ int list_dev() {
 }
 
 int wipe_drive(char* drive) {
-    char command[40]; // should be fine with 30, some space to make sure
+    char command[256];
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
     printf("> %s\n", command);
     fflush(stdout);
@@ -246,6 +246,8 @@ int install_grub(char* drive) {
     // craft a command to install grub for specifications.
     if (detect_efi() == 64) {
         printf("Mounting ESP\n");
+        system("busybox mkdir -p /boot/");
+        system("busybox mkdir -p /boot/efi");
         mount(get_partition(drive, 2), "/boot/efi", "vfat", 0, 0);
         snprintf(command, sizeof(command),
             "%s --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck %s --directory=/lib/grub/x86_64-efi'",
@@ -260,8 +262,8 @@ int install_grub(char* drive) {
 }
 
 int patch(char* drive) {
-    return 0;
     // TODO
+    return 0;
 }
 
 int localhost(char* name) {
