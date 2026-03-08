@@ -55,6 +55,7 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
+	cp rootfs/filesystem/boot/grub rootfs/filesystem/boot/grub2 -r
 	cp linuxImage rootfs/filesystem/boot/linuxImage
 	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
 
