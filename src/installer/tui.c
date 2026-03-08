@@ -199,7 +199,7 @@ char* localization_header(void) {
 
     printf("\nKeyboard layout [us]: ");
     if (fgets(layout, 100, stdin) == NULL) {
-        layout = "us";  // fallback in case of input error
+        strcpy(layout, "us"); // fallback in case of input error
     } else {
         layout[strcspn(layout, "\n")] = 0;
     }
