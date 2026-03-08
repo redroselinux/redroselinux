@@ -49,11 +49,11 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
-	mkdir -p /rootfs/filesystem/lib64
-	mkdir -p /rootfs/filesystem/lib
-	mkdir -p /rootfs/filesystem/usr/
-	mkdir -p /rootfs/filesystem/usr/lib
-	mkdir -p /rootfs/filesystem/usr/lib/grub
+	mkdir -p rootfs/filesystem/lib64
+	mkdir -p rootfs/filesystem/lib
+	mkdir -p rootfs/filesystem/usr/
+	mkdir -p rootfs/filesystem/usr/lib
+	mkdir -p rootfs/filesystem/usr/lib/grub
 	cp linuxImage rootfs/filesystem/boot/linuxImage
 	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
 
