@@ -333,17 +333,72 @@ char* user_creation(void) {
     return username;
 }
 
+struct termios orig_term;
+
+void disable_echo() {
+    struct termios new_term;
+    if (tcgetattr(STDIN_FILENO, &orig_term) < 0) {
+        perror("tcgetattr");
+        exit(1);
+    }
+    new_term = orig_term;
+    new_term.c_lflag &= ~ECHO;
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) < 0) {
+        perror("tcsetattr");
+        exit(1);
+    }
+}
+
+void enable_echo() {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &orig_term) < 0) {
+        perror("tcsetattr restore");
+        exit(1);
+    }
+}
+
 char* user_password(void) {
     char *password = malloc(100);
+    if (!password) {
+        perror("malloc");
+        exit(1);
+    }
+
     printf("Password to this account [redrose]: ");
-    fgets(password, 100, stdin);
+    fflush(stdout);
+
+    disable_echo();
+    if (!fgets(password, 100, stdin)) {
+        perror("fgets");
+        enable_echo();
+        free(password);
+        return NULL;
+    }
+    enable_echo();
+
+    printf("\n");
     return password;
 }
 
 char* root_password(void) {
     char *password = malloc(100);
+    if (!password) {
+        perror("malloc");
+        exit(1);
+    }
+
     printf("Password to root [redrose]: ");
-    fgets(password, 100, stdin);
+    fflush(stdout);
+
+    disable_echo();
+    if (!fgets(password, 100, stdin)) {
+        perror("fgets");
+        enable_echo();
+        free(password);
+        return NULL;
+    }
+    enable_echo();
+
+    printf("\n");
     return password;
 }
 
