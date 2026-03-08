@@ -8,6 +8,12 @@
 #define RESET   0
 #define WHITE   97
 
+// Debug:
+// If you are developing, enable this by running:
+// python3 enable_debug.py
+// Make sure not to push this with 1 as the value.
+#define DEBUG   0
+
 int set_text_color(unsigned color);
 int clear(void);
 void enter_continue(void);
@@ -30,6 +36,4 @@ int list_devices(char *drives[64], int max);
 char *get_partition(const char *drive, int partnum);
 int wipe_drive(char *drive);
 int makefs(char *drive);
-int unsquash(char *drive);
 int install_grub(char *drive);
-int iso_to_img(char *path);

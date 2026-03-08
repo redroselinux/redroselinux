@@ -13,7 +13,28 @@
 //      (escape codes like \033[94m, prinf-ing the figlet text)
 //      (disk_header)
 
-// function to set text color from ansi codes
+struct termios orig_term;
+
+void disable_echo() {
+    struct termios new_term;
+    if (tcgetattr(STDIN_FILENO, &orig_term) < 0) {
+        perror("tcgetattr");
+        exit(1);
+    }
+    new_term = orig_term;
+    new_term.c_lflag &= ~ECHO;
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) < 0) {
+        perror("tcsetattr");
+        exit(1);
+    }
+}
+
+void enable_echo() {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &orig_term) < 0) {
+        perror("tcsetattr restore");
+        exit(1);
+    }
+}
 
 enum { KEY_UP, KEY_DOWN, KEY_ENTER, KEY_J, KEY_K, KEY_NONE };
 
@@ -91,9 +112,17 @@ void enter_continue(void) {
     printf(" ENTER ");
     set_text_color(RESET);
     printf("to continue...");
+    if (DEBUG == 0) {
+        disable_echo();
+    }
     if (fgets(command, sizeof(command), stdin) && strlen(command) > 1) {
-        system(command); // for debugging
-        enter_continue();
+        if (DEBUG == 1) {
+            system(command);
+            enter_continue();
+        }
+    }
+    if (DEBUG == 0) {
+        enable_echo();
     }
     clear();
 }
@@ -140,12 +169,7 @@ void main_header(void) {
     set_text_color(BLUE);
     printf("https://github.com/redroselinux/redroselinux/issues");
     set_text_color(RESET);
-    printf(".\nTo restart the installer, enter ");
-    set_text_color(BLUE);
-    printf("install");
-    set_text_color(RESET);
-    printf(" when prompted to press ENTER.\n\n");
-
+    printf(".\n\n");
     separator();
     printf("\n");
 }
@@ -331,29 +355,6 @@ char* user_creation(void) {
     printf("Your username [redrose]: ");
     fgets(username, 100, stdin);
     return username;
-}
-
-struct termios orig_term;
-
-void disable_echo() {
-    struct termios new_term;
-    if (tcgetattr(STDIN_FILENO, &orig_term) < 0) {
-        perror("tcgetattr");
-        exit(1);
-    }
-    new_term = orig_term;
-    new_term.c_lflag &= ~ECHO;
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) < 0) {
-        perror("tcsetattr");
-        exit(1);
-    }
-}
-
-void enable_echo() {
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &orig_term) < 0) {
-        perror("tcsetattr restore");
-        exit(1);
-    }
 }
 
 char* user_password(void) {

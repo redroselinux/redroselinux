@@ -44,6 +44,11 @@ The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did 
 ## Development
 
 When compiling, the Makefile copies your system libraries. You need to build them yourself if you do not want the system ones.
+If you wish to edit the installer code, run from source tree:
+
+```bash
+python3 enable_debug.py
+```
 
 ### nightly
 To compile the nightly version, clone `mostypc123/redroselinux` and compile:
