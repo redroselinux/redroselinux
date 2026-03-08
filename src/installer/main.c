@@ -132,7 +132,9 @@ int main() {
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) return 0;
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) return 0;
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) return 0;
+        enable_echo();
         if (run_installation_step(chroot_, "", "Choose an option!", 0) < 0) return 0;
+        disable_echo();
         if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) return 0;
         enable_echo();
 
