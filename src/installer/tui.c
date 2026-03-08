@@ -161,6 +161,12 @@ void main_header(void) {
     separator();
     printf("\n");
 
+    if (DEBUG == 1) {
+        set_text_color(YELLOW);
+        printf("Debug mode is enabled! If you downloaded this build, report this as a bug.\n");
+        set_text_color(RESET);
+    }
+
     printf(
         "Welcome to the Redrose Linux Installer!\n"
         "Please note that Redrose is still in alpha (alpha-0.4).\n"
