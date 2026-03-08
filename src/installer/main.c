@@ -118,25 +118,14 @@ int main() {
     installing_header();
     printf("\n");
     separator();
-    printf("\nDestructive operations have a ");
-    set_text_color(RED);
-    printf("red");
-    set_text_color(RESET);
-    printf(" asterisk (*) next to them while others have a ");
-    set_text_color(BLUE);
-    printf("blue");
-    set_text_color(RESET);
-    printf(" one.\n");
-    printf("Installing to %s", drive);
-    printf("\nAre you sure? (y/n) [y]: ");
+    printf("\nInstalling to %s. Are you sure? (Y/n): ", drive);
 
     char confirm[4];
     fgets(confirm, sizeof(confirm), stdin);
 
 
     if (confirm[0] == 'y' || confirm[0] == '\n') {
-        print_step_header();
-
+        disable_echo();
         if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) return 0;
         if (run_installation_step(makefs, drive, "Making filesystems!", 1) < 0) return 0;
         if (run_installation_step(copy_root, drive, "Copying root!", 1) < 0) return 0;
@@ -145,18 +134,47 @@ int main() {
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) return 0;
         if (run_installation_step(chroot_, "", "Choose an option!", 0) < 0) return 0;
         if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) return 0;
+        enable_echo();
+
+        installed_header();
+        printf("Thank you for installing the Redrose Linux alpha! Reboot to your new system.\n\n");
+        printf("Please report errors on Github Issues: ");
+        set_text_color(BLUE);
+        printf("https://github.com/redroselinux/redroselinux/issues\n\n");
+        set_text_color(RESET);
+        separator();
+        printf("\n");
+        enter_continue();
+
+        // finish and shutdown
+        shutdown_computer();
+    } else {
+        printf("Restart installer? [Y/n]: ");
+
+        char buf[8];
+        if (fgets(buf, sizeof(buf), stdin)) {
+        if (buf[0] == 'n' || buf[0] == 'N') {
+            printf("Reboot or shutdown? [R/s]: ");
+            if (fgets(buf, sizeof(buf), stdin)) {
+                if (buf[0] == 's' || buf[0] == 'S') {
+                    printf("Shutting down in 5 seconds...");
+                    fflush(stdout);
+                    sleep(5);
+                    reboot(RB_POWER_OFF);
+                } else {
+                    printf("Rebooting in 5 seconds...");
+                    fflush(stdout);
+                    sleep(5);
+                    reboot(RB_AUTOBOOT);
+                }
+            }
+        } else {
+            clear();
+            execl("/bin/install", "install", NULL);
+        }
     }
-    installed_header();
-    printf("Thank you for installing the Redrose Linux alpha! Reboot to your new system.\n\n");
-    printf("Please report errors at our Github Issues: ");
-    set_text_color(BLUE);
-    printf("https://github.com/redroselinux/redroselinux/issues\n\n");
-    set_text_color(RESET);
-    separator();
-    printf("\n");
-    enter_continue();
-    // finish and shutdown
-    shutdown_computer();
+
+    }
 
     return 0;
 }

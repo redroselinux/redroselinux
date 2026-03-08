@@ -8,6 +8,7 @@
 #include <sys/mount.h>
 
 #include "common.h"
+#include <unistd.h>
 
 // backend for installer.
 //
@@ -141,6 +142,7 @@ int list_dev() {
     return count;
 }
 
+// this is not vulnerable as theres a ui to pick from preselected drives
 int wipe_drive(char* drive) {
     char command[256];
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
