@@ -144,6 +144,7 @@ int main() {
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) return 0;
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) return 0;
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) return 0;
+        if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) return 0;
 
         print_step_header();
         if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {

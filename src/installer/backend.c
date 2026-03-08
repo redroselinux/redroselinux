@@ -276,3 +276,13 @@ int localhost(char* name) {
     }
     return system(command);
 }
+
+// dear c,
+// add lambdas please
+static int umount_detach(char *path) {
+    sync();
+    if (umount2(path, MNT_DETACH) != 0) {
+        return -1;
+    }
+    return 0;
+}
