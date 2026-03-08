@@ -125,18 +125,23 @@ int main() {
 
 
     if (confirm[0] == 'y' || confirm[0] == '\n') {
+        int success = 1;
         disable_echo();
-        if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) return 0;
-        if (run_installation_step(makefs, drive, "Making filesystems!", 1) < 0) return 0;
-        if (run_installation_step(copy_root, drive, "Copying root!", 1) < 0) return 0;
-        if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) return 0;
-        if (run_installation_step(patch, drive, "Running patches!", 0) < 0) return 0;
-        if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) return 0;
+        if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(makefs, drive, "Making filesystems!", 1) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(copy_root, drive, "Copying root!", 1) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }
+cleanup:
         enable_echo();
+        if (!success) return 0;
         if (run_installation_step(chroot_, "", "Choose an option!", 0) < 0) return 0;
         disable_echo();
-        if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) return 0;
+        if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) { success = 0; goto cleanup2; }
+cleanup2:
         enable_echo();
+        if (!success) return 0;
 
         installed_header();
         printf("Thank you for installing the Redrose Linux alpha! Reboot to your new system.\n\n");
