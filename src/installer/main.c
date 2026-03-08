@@ -3,7 +3,6 @@
 #include <sys/reboot.h>
 #include "tui.c"
 #include "backend.c"
-#include "postinstgen.c"
 
 // this file is the main file of the installer.
 // it exports the other functions from tui.c and
@@ -145,15 +144,6 @@ int main() {
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) return 0;
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) return 0;
         if (run_installation_step(umount_detach, "/mnt", "Unmounting root!", 0) < 0) return 0;
-
-        print_step_header();
-        if (gen_postinst_scripts(drive, username, userpassword, rootpassword, host_name) != 0) {
-            install_failed();
-            error();
-        }
-        else {
-            print_step_header();
-        }
     }
     installed_header();
     printf("Thank you for installing the Redrose Linux alpha! Reboot to your new system.\n\n");
