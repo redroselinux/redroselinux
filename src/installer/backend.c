@@ -238,18 +238,22 @@ int copy_root(char* drive) {
 
 int install_grub(char* drive) {
     char command[256];
-    char grub_install[] = "chroot /mnt /bin/sh -c 'mkdir -p /dev && mount -t devtmpfs none /dev && grub-install";
+    char grub_install[] = "chroot /mnt /bin/sh -c '"
+        "mkdir -p /proc &&mount -t proc proc /proc && "
+        "mkdir -p /sys &&mount -t sysfs sys /sys && "
+        "mkdir -p /dev &&mount -t devtmpfs dev /dev && "
+        "grub-install";
     // craft a command to install grub for specifications.
     if (detect_efi() == 64) {
         printf("Mounting ESP\n");
         mount(get_partition(drive, 2), "/boot/efi", "vfat", 0, 0);
         snprintf(command, sizeof(command),
-            "%s --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck %s'",
+            "%s --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck %s --directory=/lib/grub/x86_64-efi'",
             grub_install, drive
         );
     } else {
         snprintf(command, sizeof(command),
-            "%s --target=i386-pc --recheck %s'", grub_install, drive
+            "%s --target=i386-pc --recheck %s' --directory=/lib/grub/i386-pc", grub_install, drive
         );
     }
     return system(command);

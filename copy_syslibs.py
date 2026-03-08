@@ -20,3 +20,5 @@ else:
 
 os.system("sudo ./libcp rootfs/filesystem/bin/grub-install rootfs/filesystem")
 os.system("sudo cp /usr/lib/grub rootfs/filesystem/lib/ -r")
+os.system("sudo mkdir -p rootfs/filesystem/usr/lib/")
+os.system("sudo cp /usr/lib/grub rootfs/filesystem/usr/lib/ -r")

@@ -17,6 +17,7 @@ help:
 	@echo "on fedora, run 'make -f Makefile-fedora'"
 
 dep:
+	sudo cp -p /lib64/ld-linux-x86-64.so.2 ~/Projects/redroselinux/rootfs/filesystem/lib64/
 	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			echo -n "✓ $$cmd  "; \
@@ -40,6 +41,9 @@ initramfs:
 	chmod +x $(INITRAMFS_DIR)/bin/init
 	ln -sf bin/init $(INITRAMFS_DIR)/init
 	chmod +x $(INITRAMFS_DIR)/bin/*
+	chmod +x rootfs/filesystem/bin/*
+	@echo "this is making sure :)"
+	chmod +x rootfs/filesystem/bin/sh
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)
