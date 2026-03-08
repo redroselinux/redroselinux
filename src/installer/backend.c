@@ -266,15 +266,26 @@ int patch(char* drive) {
     return 0;
 }
 
-int localhost(char* name) {
-    char command[256];
-    if (name[0] == '\n') {
-        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir -p /etc &&echo iuseredrosebtw > /etc/hostname'");
+int localhost(char *name) {
+    const char *default_name = "iuseredrosebtw";
+    char *hostname = name;
+
+    if (name[0] == '\n' || name[0] == '\0') {
+        hostname = (char *)default_name;
     } else {
-        name[strcspn(name, "\n")] = 0;
-        snprintf(command, sizeof(command), "busybox chroot /mnt /bin/sh -c 'mkdir -p /etc &&echo %s > /etc/hostname'", name);
+        name[strcspn(name, "\n")] = '\0';
     }
-    return system(command);
+
+    FILE *f = fopen("/mnt/etc/hostname", "w");
+    if (!f) {
+        perror("fopen");
+        return -1;
+    }
+
+    fprintf(f, "%s\n", hostname);
+    fclose(f);
+
+    return 0;
 }
 
 // dear c,
