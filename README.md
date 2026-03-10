@@ -21,7 +21,7 @@ A GNU/Linux distribution for people who know Linux, but still want a simple syst
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/ddcd994a-e02b-48fc-9541-54c9065cd6df" />
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/f9183b28-adef-425a-a9ae-16133395aa4c" />
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/1e1a3188-70ab-4609-8f22-9c25b5df1521" />
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/16c96925-fa6a-49f6-a8a0-fcaf98e21e0e" />
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/c8f523b5-5eca-48b5-80fb-19f5d29384ea" />
   <img width="600" alt="image" src="https://github.com/user-attachments/assets/a3e11b9a-d2a4-4345-a91b-c8fed8bfd170" />
 </div>
 
