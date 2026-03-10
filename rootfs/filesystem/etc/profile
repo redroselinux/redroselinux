@@ -1,0 +1,2 @@
+busybox clear
+PS1='\w \[\e[1;95m\](\u@\h)\[\e[0m\] # '
