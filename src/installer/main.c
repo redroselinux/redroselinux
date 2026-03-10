@@ -130,6 +130,19 @@ int main() {
         if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(makefs, drive, "Making filesystems!", 1) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(copy_root, drive, "Copying root!", 1) < 0) { success = 0; goto cleanup; }
+        set_text_color(GREEN);
+        printf("* ");
+        set_text_color(RESET);
+        printf("Setting up user accounts!\n");
+        fflush(stdout);
+
+        if (create_users(username, userpassword, rootpassword) != 0) {
+            install_failed();
+            error();
+            return -1;
+        }
+
+        print_step_header();
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }

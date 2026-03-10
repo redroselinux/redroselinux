@@ -47,6 +47,7 @@ initramfs:
 	chmod +x rootfs/filesystem/bin/*
 	@echo "this is making sure :)"
 	chmod +x rootfs/filesystem/bin/sh
+	chmod +x rootfs/filesystem/bin/adduser
 	chmod +x $(INITRAMFS_DIR)/init
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)

@@ -235,15 +235,15 @@ int copy_root(char* drive) {
     printf("mounting root\n");
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
     printf("> tar -xf rootfs.tar -C /mnt --strip-components=1\n");
-    return system("tar -xf rootfs.tar -C /mnt --strip-components=1");
+    return system("busybox tar -xf rootfs.tar -C /mnt --strip-components=1");
 }
 
 int install_grub(char* drive) {
     char command[256];
-    char grub_install[] = "chroot /mnt /bin/sh -c '"
-        "mkdir -p /proc &&mount -t proc proc /proc && "
-        "mkdir -p /sys &&mount -t sysfs sys /sys && "
-        "mkdir -p /dev &&mount -t devtmpfs dev /dev && "
+    char grub_install[] = "busybox chroot /mnt /bin/sh -c '"
+        "busybox mkdir -p /proc &&mount -t proc proc /proc && "
+        "busybox mkdir -p /sys &&mount -t sysfs sys /sys && "
+        "busybox mkdir -p /dev &&mount -t devtmpfs dev /dev && "
         "grub-install";
     // craft a command to install grub for specifications.
     if (detect_efi() == 64) {
@@ -307,7 +307,7 @@ int chroot_(char *h) {
     printf("Do you wish to chroot into the mounted system before it's unmounted? [N/y] ");
     if (fgets(buf, sizeof(buf), stdin)) {
         if (buf[0] == 'y' || buf[0] == 'Y') {
-            system("chroot /mnt /bin/sh");
+            system("busybox chroot /mnt /bin/sh");
         }
     }
 
@@ -320,3 +320,77 @@ int chroot_(char *h) {
 
     return 0;
 }
+
+// remove $( so no prompt injection ._.
+int sanitize_input(char* input) {
+    char *p = input;
+    while (*p) {
+        if (*p == '$' || *p == '(' || *p == ')' || *p == ';') {
+            *p = '_';
+        }
+        p++;
+    }
+    return 0;
+}
+
+int create_users(char *username, char *password, char *root_password) {
+    // username
+    username[strcspn(username, "\n")] = '\0';
+    if (username[0] == '\0') {
+        strcpy(username, "redrose");
+    }
+
+    // user password
+    password[strcspn(password, "\n")] = '\0';
+    if (password[0] == '\0') {
+        strcpy(password, "redrose");
+    }
+
+    // root password
+    root_password[strcspn(root_password, "\n")] = '\0';
+    if (root_password[0] == '\0') {
+        strcpy(root_password, "redrose");
+    }
+
+    // create user
+    char useradd_cmd[256];
+    mkdir("/mnt/home", 0755);
+    char home_dir[50];
+    snprintf(home_dir, sizeof(home_dir), "/mnt/home/%s", username);
+    mkdir(home_dir, 0755);
+
+    snprintf(useradd_cmd, sizeof(useradd_cmd),
+        "busybox chroot /mnt /bin/adduser -D -h /home/%s %s",
+        username, username);
+
+    if (system(useradd_cmd) != 0) {
+        return 1;
+    }
+
+    // set user password
+    char sanitized[128];
+    strncpy(sanitized, password, sizeof(sanitized) - 1);
+    sanitized[sizeof(sanitized) - 1] = '\0';
+    sanitize_input(sanitized);
+
+    char command[256];
+    snprintf(command, sizeof(command),
+        "busybox chroot /mnt /bin/sh -c 'echo \"%s:%s\" | busybox chpasswd'",
+        username, sanitized);
+
+    if (system(command) != 0) {
+        return 1;
+    }
+
+    // set root password
+    strncpy(sanitized, root_password, sizeof(sanitized) - 1);
+    sanitized[sizeof(sanitized) - 1] = '\0';
+    sanitize_input(sanitized);
+
+    snprintf(command, sizeof(command),
+        "busybox chroot /mnt /bin/sh -c 'echo \"root:%s\" | busybox chpasswd'",
+        sanitized);
+
+    return system(command);
+}
+

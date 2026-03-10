@@ -4,31 +4,31 @@ printf "\033[91m*\033[0m \033[97mWelcome to \033[91mRedrose Linux\033[0m\033[97m
 
 printf "\033[96m*\033[0m \033[97mMounting essential filesystems\n"
 
-mkdir -p /proc /sys /dev
+busybox mkdir -p /proc /sys /dev
 
-mount | busybox grep -q 'on /proc ' || mount -t proc proc /proc \
+busybox mount | busybox grep -q 'on /proc ' || mount -t proc proc /proc \
     && printf "  /proc mounted successfully\n" \
     || printf "\033[91m*\033[0m \033[97mFailed to mount /proc\n"
 
-mount | busybox grep -q 'on /sys ' || mount -t sysfs sys /sys \
+busybox mount | busybox grep -q 'on /sys ' || mount -t sysfs sys /sys \
     && printf "  /sys mounted successfully\n" \
     || printf "\033[91m*\033[0m \033[97mFailed to mount /sys\n"
 
-mount | busybox grep -q 'on /dev ' || mount -t devtmpfs devtmpfs /dev \
+busybox mount | busybox grep -q 'on /dev ' || mount -t devtmpfs devtmpfs /dev \
     && printf "  /dev mounted successfully\n" \
     || printf "\033[91m*\033[0m \033[97mFailed to mount /dev\n"
 
 export PATH=/bin
 printf "\033[92m*\033[0m \033[97mPATH set\n"
 
-cat /etc/hostname > /proc/sys/kernel/hostname
+busybox cat /etc/hostname > /proc/sys/kernel/hostname
 printf "\033[92m*\033[0m \033[97mSet hostname\n"
 
 printf "\033[95m*\033[0m \033[97mFinished all. Running getty.\n\033[0m"
-clear
+busybox clear
 
 sh /boot/target
 
 printf "\033[91m*\033[0m \033[97mPowering off in 1 second\n"
-sleep 1
+busybox sleep 1
 busybox poweroff -f
