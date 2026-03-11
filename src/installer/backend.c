@@ -394,3 +394,6 @@ int create_users(char *username, char *password, char *root_password) {
     return system(command);
 }
 
+int install_busybox(char* placeholderthingsotheruninststepfunctionworksfine) {
+    return system("busybox chroot /mnt /bin/sh -c '/bin/busybox --install'");
+}

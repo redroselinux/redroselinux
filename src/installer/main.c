@@ -146,6 +146,7 @@ int main() {
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }
+	if (run_installation_step(install_busybox, "", "Installing BusyBox!", 0) < 0) { success = 0; goto cleanup; }
 cleanup:
         enable_echo();
         if (!success) return 0;

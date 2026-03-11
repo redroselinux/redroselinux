@@ -2,5 +2,5 @@
 while [ true ]
 do
 	busybox clear
-	busybox getty -L tty1 115200 vt100 -l /bin/login -I "Welcome to your install of Redrose Linux!\n> Visit https://redroselinux.miraheze.org for documentation!\n> Visit https://github.com/redroselinux/redroselinux/issues for support!\n\nMost of Redrose Linux is licensed under GPLv3 and comes with NO WARRANTY.\nThird-party software in Redrose Linux retains its own license terms.\n"
+	busybox getty -L tty1 115200 vt100 -l /bin/login -I "\e[31mRedrose Linux\e[0m\nMost of Redrose Linux is licensed under GPLv3 and comes with NO WARRANTY.\nThird-party software in Redrose Linux retains its own license terms.\n"
 done
