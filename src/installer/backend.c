@@ -345,7 +345,8 @@ int create_users(char *username, char *password, char *root_password) {
     if (password[0] == '\0') {
         strcpy(password, "redrose");
     }
-
+    
+    mkdir("/mnt/root", 0755);
     // root password
     root_password[strcspn(root_password, "\n")] = '\0';
     if (root_password[0] == '\0') {

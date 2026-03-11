@@ -53,6 +53,11 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
+	yes sed | python3 strap.py
+	yes zstd | python3 strap.py
+	yes tar | python3 strap.py
+	yes file | python3 strap.py
+	yes nm | python3 strap.py
 	mkdir -p rootfs/filesystem/lib64
 	mkdir -p rootfs/filesystem/lib
 	mkdir -p rootfs/filesystem/usr/

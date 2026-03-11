@@ -56,6 +56,11 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
+	yes sed | python3 strap.py
+	yes zstd | python3 strap.py
+	yes tar | python3 strap.py
+	yes file | python3 strap.py
+	yes nm | python3 strap.py
 	cp rootfs/filesystem/boot/grub rootfs/filesystem/boot/grub2 -r
 	cp linuxImage rootfs/filesystem/boot/linuxImage
 	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
