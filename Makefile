@@ -58,6 +58,7 @@ squash-root:
 	yes tar | python3 strap.py
 	yes file | python3 strap.py
 	yes nm | python3 strap.py
+	yes man | python3 strap.py
 	mkdir -p rootfs/filesystem/lib64
 	mkdir -p rootfs/filesystem/lib
 	mkdir -p rootfs/filesystem/usr/

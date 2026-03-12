@@ -9,3 +9,16 @@ initramfs/bin/sgdisk
 # code editor
 .vscode
 redroselinux.code-workspace
+
+rootfs/filesystem/lib64/liblzma.so.5
+rootfs/filesystem/lib64/libdevmapper.so.1.02
+rootfs/filesystem/lib64/libc.so.6
+rootfs/filesystem/lib64/libselinux.so.1
+rootfs/filesystem/lib64/libudev.so.1
+rootfs/filesystem/lib64/libm.so.6
+rootfs/filesystem/lib64/ld-linux-x86-64.so.2
+rootfs/filesystem/lib64/libpcre2-8.so.0
+rootfs/filesystem/lib64/libcap.so.2
+rootfs/filesystem/lib64/libgcc_s.so.1
+./*.tar.zst
+./libcp
