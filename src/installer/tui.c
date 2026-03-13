@@ -176,8 +176,75 @@ void main_header(void) {
     printf("https://github.com/redroselinux/redroselinux/issues");
     set_text_color(RESET);
     printf(".\n\n");
-    separator();
-    printf("\n");
+
+    const char *options[] = {
+        "Guided install",
+        "Manual install (drop to shell)"
+    };
+
+    int sel = 0;
+    int first_draw = 1;
+
+    for (;;) {
+        if (first_draw) {
+            printf("Select installation mode. Use ");
+            set_text_color(BLUE);
+	    printf("UP/DOWN");
+	    set_text_color(RESET);
+            printf(" or ");
+            set_text_color(BLUE);
+	    printf("j/k");
+	    set_text_color(RESET);
+            printf(" to move, ");
+            set_text_color(BLUE);
+	    printf("ENTER");
+	    set_text_color(RESET);
+            printf(" to select.\n\n");
+
+            save_cursor();
+            first_draw = 0;
+        } else {
+            restore_cursor();
+            clear_to_end();
+        }
+
+        for (int i = 0; i < 2; i++) {
+            if (i == sel) {
+                set_text_color(GREEN);
+                printf("  > ");
+                set_text_color(WHITE);
+                printf("%s", options[i]);
+                set_text_color(RESET);
+                printf("\n");
+            } else {
+                printf("    %s\n", options[i]);
+            }
+        }
+
+        printf("\n");
+        fflush(stdout);
+
+        int key = read_key();
+        if (key == KEY_ENTER)
+            break;
+
+        if (key == KEY_UP || key == KEY_K) {
+            sel--;
+            if (sel < 0) sel = 1;
+        } else if (key == KEY_DOWN || key == KEY_J) {
+            sel++;
+            if (sel > 1) sel = 0;
+        }
+    }
+
+    if (sel == 1) {
+        char *args[] = {"/bin/sh", NULL};
+	clear();
+        execv("/bin/sh", args);
+        perror("execv");
+        exit(1);
+    }
+
 }
 
 char* localization_header(void) {

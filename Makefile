@@ -53,12 +53,13 @@ initramfs:
 	gzip -f $(INITRAMFS_CPIO)
 
 squash-root:
-	yes sed | python3 strap.py
-	yes zstd | python3 strap.py
-	yes tar | python3 strap.py
-	yes file | python3 strap.py
-	yes nm | python3 strap.py
-	yes man | python3 strap.py
+	while IFS= read -r line; do \
+	    yes "$$line" | python3 strap.py; \
+	done < rootfs/rootfs_strap_packages
+	test -f rootfs/filesystem/bin/car || ( \
+		curl -s -L -o rootfs/filesystem/bin/car https://github.com/redroselinux/car/releases/download/latest/car && \
+		chmod +x rootfs/filesystem/bin/car \
+	)
 	mkdir -p rootfs/filesystem/lib64
 	mkdir -p rootfs/filesystem/lib
 	mkdir -p rootfs/filesystem/usr/

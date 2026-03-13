@@ -71,7 +71,6 @@ int main() {
     // show main header
     clear();
     main_header();
-    enter_continue();
 
     // localization
     clear();
@@ -90,7 +89,6 @@ int main() {
         enter_continue();
         return 0;
     }
-    enter_continue();
 
     // user creation
     clear();
