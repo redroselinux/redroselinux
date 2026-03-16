@@ -345,7 +345,7 @@ int create_users(char *username, char *password, char *root_password) {
     if (password[0] == '\0') {
         strcpy(password, "redrose");
     }
-    
+
     mkdir("/mnt/root", 0755);
     // root password
     root_password[strcspn(root_password, "\n")] = '\0';
@@ -397,4 +397,15 @@ int create_users(char *username, char *password, char *root_password) {
 
 int install_busybox(char* placeholderthingsotheruninststepfunctionworksfine) {
     return system("busybox chroot /mnt /bin/sh -c '/bin/busybox --install'");
+}
+
+int propriertary_(char*) {
+    FILE *file = fopen("/mnt/etc/car_propriertary.lock", "w");
+    if (file == NULL) {
+        printf("Error creating file\n");
+        return 1;
+    }
+    printf("File created successfully\n");
+    fclose(file);
+    return 0;
 }

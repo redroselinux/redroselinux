@@ -108,7 +108,7 @@ int main() {
     }
 
     char* host_name = hostname();
-    char* propiertary = propiertary_enable();
+    int propriertary = proprietary_enable();
     enter_continue();
 
     // ask for confirmation
@@ -143,6 +143,9 @@ int main() {
         print_step_header();
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
+        if (propriertary == 0) {
+            if (run_installation_step(propriertary_, "", "Enabling propriertary software!", 0) < 0) { success = 0; goto cleanup; }
+        }
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }
 	if (run_installation_step(install_busybox, "", "Installing BusyBox!", 0) < 0) { success = 0; goto cleanup; }
 cleanup:
