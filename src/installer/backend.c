@@ -400,7 +400,7 @@ int install_busybox(char* placeholderthingsotheruninststepfunctionworksfine) {
 }
 
 int propriertary_(char*) {
-    FILE *file = fopen("/mnt/etc/car_propriertary.lock", "w");
+    FILE *file = fopen("/mnt/etc/car_propiertary.lock", "w");
     if (file == NULL) {
         printf("Error creating file\n");
         return 1;
