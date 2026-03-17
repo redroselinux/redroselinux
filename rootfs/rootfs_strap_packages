@@ -3,3 +3,5 @@ tar
 zstd
 nm
 binutils
+ncurses
+nano
