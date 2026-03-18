@@ -7,7 +7,7 @@ INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 
 all: dep clean installer squash-root initramfs iso vm
-no-vm: clean installer squash-root initramfs iso
+no-vm: dep clean installer squash-root initramfs iso
 
 help:
 	@echo "run 'make' to compile"
@@ -67,6 +67,8 @@ squash-root:
 	mkdir -p rootfs/filesystem/usr/lib/grub
 	cp linuxImage rootfs/filesystem/boot/linuxImage
 	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	sudo gzip -f initramfs/rootfs.tar
+	sudo rm -f initramfs/rootfs.tar
 
 iso:
 	cp linuxImage $(FS_DIR)/boot/

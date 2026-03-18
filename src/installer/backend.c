@@ -234,8 +234,8 @@ int makefs(char* drive) {
 int copy_root(char* drive) {
     printf("mounting root\n");
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
-    printf("> tar -xf rootfs.tar -C /mnt --strip-components=1\n");
-    return system("busybox tar -xf rootfs.tar -C /mnt --strip-components=1");
+    printf("> gzip -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
+    return system("busybox gzip -dc rootfs.tar.gz | busybox tar -xf - -C /mnt --strip-components=1");
 }
 
 int install_grub(char* drive) {
