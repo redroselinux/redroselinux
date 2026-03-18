@@ -264,8 +264,8 @@ int install_grub(char* drive) {
 }
 
 int patch(char* drive) {
-    // TODO
-    // patch grub config with uuids
+    // some patches
+    chmod("/mnt/etc/init.d/rcS", 0755);
     return 0;
 }
 
