@@ -234,7 +234,7 @@ int makefs(char* drive) {
 int copy_root(char* drive) {
     printf("mounting root\n");
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
-    printf("> gzip -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
+    printf("> gzip -5 -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
     return system("busybox gzip -dc rootfs.tar.gz | busybox tar -xf - -C /mnt --strip-components=1");
 }
 
@@ -265,6 +265,7 @@ int install_grub(char* drive) {
 
 int patch(char* drive) {
     // TODO
+    // patch grub config with uuids
     return 0;
 }
 
@@ -399,6 +400,8 @@ int create_users(char *username, char *password, char *root_password) {
 // because the run step func needs a char param to the func so it
 // will fail if we will do otherwise. anyways this installs da busybox
 int install_busybox(char* placeholderthingsotheruninststepfunctionworksfine) {
+    // make sure /sbin exists
+    mkdir("/mnt/sbin", 0755);
     return system("busybox chroot /mnt /bin/sh -c '/bin/busybox --install'");
 }
 
