@@ -81,6 +81,7 @@ run-installer:
 	initramfs/bin/install
 
 clean:
+    rm -f rootfs/filesystem/etc/repro.car
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage redrose_linux.qcow2
 	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage

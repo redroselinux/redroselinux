@@ -5,3 +5,4 @@ nm
 binutils
 ncurses
 nano
+glib
