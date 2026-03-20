@@ -6,3 +6,4 @@ binutils
 ncurses
 nano
 glib
+newt
