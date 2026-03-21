@@ -1,0 +1,2018 @@
+'\" t
+.TH \%tbl 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+\%tbl \- prepare tables for
+.I groff
+documents
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1989-2023 Free Software Foundation, Inc.
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of
+.\" this manual under the conditions for verbatim copying, provided that
+.\" the entire resulting derived work is distributed under the terms of
+.\" a permission notice identical to this one.
+.\"
+.\" Permission is granted to copy and distribute translations of this
+.\" manual into another language, under the above conditions for
+.\" modified versions, except that this permission notice may be
+.\" included in translations approved by the Free Software Foundation
+.\" instead of in the original English.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_tbl_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY \%tbl
+.RB [ \-C ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY \%tbl
+.B \-\-help
+.YS
+.
+.
+.SY \%tbl
+.B \-v
+.
+.SY \%tbl
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The GNU implementation of
+.I tbl \" generic
+is part of the
+.MR groff 1
+document formatting system.
+.
+.I \%tbl
+is a
+.MR \%troff 1
+preprocessor that translates descriptions of tables embedded in
+.MR roff 7
+input files into the language understood by
+.IR \%troff .
+.
+It copies the contents of each
+.I file
+to the standard output stream,
+except that lines between
+.B .TS
+and
+.B .TE
+are interpreted as table descriptions.
+.
+While GNU
+.IR tbl 's \" GNU
+input syntax is highly compatible with AT&T
+.IR tbl , \" AT&T
+the output GNU
+.I tbl \" GNU
+produces cannot be processed by AT&T
+.IR troff ; \" AT&T
+GNU
+.I troff \" GNU
+(or a
+.I troff \" generic
+implementing any GNU extensions employed)
+must be used.
+.
+Normally,
+.I \%tbl
+is not executed directly by the user,
+but invoked by specifying the
+.B \-t
+option to
+.MR groff 1 .
+.
+If no
+.I file
+operands are given on the command line,
+or if
+.I file
+is
+.RB \[lq] \- \[rq],
+.I \%tbl
+reads the standard input stream.
+.
+.
+.\" ====================================================================
+.SS Overview
+.\" ====================================================================
+.
+.I \%tbl
+expects to find table descriptions between input lines that begin with
+.B .TS
+(table start)
+and
+.B .TE
+(table end).
+.
+Each such
+.I table region
+encloses one or more table descriptions.
+.
+Within a table region,
+table descriptions beyond the first must each be preceded
+by an input line beginning with
+.BR .T& .
+.
+This mechanism does not start a new table region;
+all table descriptions are treated as part of their
+.BR .TS / .TE
+enclosure,
+even if they are boxed or have column headings that repeat on subsequent
+pages
+(see below).
+.
+.
+.P
+(Experienced
+.I roff
+users should observe that
+.I \%tbl
+is not a
+.I roff
+language interpreter:
+the default control character must be used,
+and no spaces or tabs are permitted between the control character and
+the macro name.
+.
+These
+.I \%tbl
+input tokens remain as-is in the output,
+where they become ordinary macro calls.
+.
+Macro packages often define
+.BR TS ,
+.BR T& ,
+and
+.B TE
+macros to handle issues of table placement on the page.
+.
+.I \%tbl
+produces
+.I groff
+code to define these macros as empty if their definitions do not exist
+when the formatter encounters a table region.)
+.
+.
+.P
+Each table region may begin with
+.I region options,
+and must contain one or more
+.I table definitions;
+each table definition contains a
+.I format specification
+followed by one or more input lines (rows) of
+.I entries.
+.
+These entries comprise the
+.I table data.
+.
+.
+.
+.\" ====================================================================
+.SS "Region options"
+.\" ====================================================================
+.
+The line immediately following the
+.B .TS
+token may specify region options,
+keywords that influence the interpretation or rendering of the region as
+a whole or all table entries within it indiscriminately.
+.
+They must be separated by commas,
+spaces,
+or tabs.
+.
+Those that require a parenthesized argument permit spaces and tabs
+between the option's name and the opening parenthesis.
+.
+Options accumulate and cannot be unset within a region once declared;
+if an option that takes a parameter is repeated,
+the last occurrence controls.
+.
+If present,
+the set of region options must be terminated with a semicolon
+.RB ( ; ).
+.
+.
+.P
+Any of the
+.BR allbox ,
+.BR box ,
+.BR doublebox ,
+.BR frame ,
+and
+.B doubleframe
+region options makes a table \[lq]boxed\[rq] for the purpose of later
+discussion.
+.
+.
+.TP
+.B allbox
+Enclose each table entry in a box;
+implies
+.BR box .
+.
+.
+.TP
+.B box
+Enclose the entire table region in a box.
+.
+As a GNU extension,
+the alternative option name
+.B frame
+is also recognized.
+.
+.
+.TP
+.B center
+Center the table region with respect to the current indentation and line
+length;
+the default is to left-align it.
+.
+As a GNU extension,
+the alternative option name
+.B centre
+is also recognized.
+.
+.
+.TP
+.BI decimalpoint( c )
+Recognize character
+.I c
+as the decimal separator in columns using the
+.B N
+(numeric) classifier
+(see subsection \[lq]Column classifiers\[rq] below).
+.
+This is a GNU extension.
+.
+.
+.TP
+.BI delim( xy )
+Recognize characters
+.I x
+.RI and\~ y
+as start and end delimiters,
+respectively,
+for
+.MR \%eqn 1
+input,
+and ignore input between them.
+.
+.I x
+.RI and\~ y
+need not be distinct.
+.
+.
+.TP
+.B doublebox
+Enclose the entire table region in a double box;
+implies
+.BR box .
+.
+As a GNU extension,
+the alternative option name
+.B \%doubleframe
+is also recognized.
+.
+.
+.TP
+.B expand
+Spread the table horizontally to fill the available space
+(line length minus indentation)
+by increasing column separation.
+.
+Ordinarily,
+a table is made only as wide as necessary to accommodate the widths of
+its entries and its column separations
+(whether specified or default).
+.
+When
+.B expand
+applies to a table that exceeds the available horizontal space,
+column separation is reduced as far as necessary
+(even to zero).
+.
+.I \%tbl
+produces
+.I groff
+input that issues a diagnostic if such compression occurs.
+.
+The column modifier
+.B x
+(see below)
+overrides this option.
+.
+.
+.TP
+.BI linesize( n )
+Draw lines or rules
+(e.g.,
+from
+.BR box )
+with a thickness of
+.IR n \~points.
+.
+The default is the current type size when the region begins.
+.
+This option is ignored on terminal devices.
+.
+.
+.TP
+.B nokeep
+Don't use
+.I roff
+diversions to manage page breaks.
+.
+Normally,
+.I \%tbl
+employs them to avoid breaking a page within a table row.
+.
+This usage can sometimes interact badly with macro packages' own use of
+diversions\[em]when footnotes,
+for example,
+are employed.
+.
+This is a GNU extension.
+.
+.
+.TP
+.B nospaces
+Ignore leading and trailing spaces in table entries.
+.
+This is a GNU extension.
+.
+.
+.TP
+.B nowarn
+Suppress diagnostic messages produced at document formatting time when
+the line or page lengths are inadequate to contain a table row.
+.
+This is a GNU extension.
+.
+.
+.\" TODO: How about "right"?  (and "left" for symmetry)
+.TP
+.BI tab( c )
+Use the character
+.I c
+instead of a tab to separate entries in a row of table data.
+.
+.
+.\" ====================================================================
+.SS "Table format specification"
+.\" ====================================================================
+.
+The table format specification is mandatory:
+it determines the number of columns in the table and directs how the
+entries within it are to be typeset.
+.
+The format specification is a series of column
+.I descriptors.
+.
+Each descriptor encodes a
+.I classifier
+followed by zero or more
+.I modifiers.
+.
+Classifiers are letters
+(recognized case-insensitively)
+or punctuation symbols;
+modifiers consist of or begin with letters or numerals.
+.
+Spaces,
+tabs,
+newlines,
+and commas separate descriptors.
+.
+Newlines and commas are special;
+they apply the descriptors following them to a subsequent row of the
+table.
+.
+(This enables column headings to be centered or emboldened while the
+table entries for the data are not,
+for instance.)
+.
+We term the resulting group of column descriptors a
+.I row definition.
+.
+Within a row definition,
+separation between column descriptors
+(by spaces or tabs)
+is often optional;
+only some modifiers,
+described below,
+make separation necessary.
+.
+.
+.P
+Each column descriptor begins with a mandatory
+.I classifier,
+a character that selects from one of several arrangements.
+.
+Some determine the positioning of table entries within a rectangular
+cell:
+centered,
+left-aligned,
+numeric
+(aligned to a configurable decimal separator),
+and so on.
+.
+Others perform special operations like drawing lines or spanning entries
+from adjacent cells in the table.
+.
+Except for
+.RB \[lq] | \[rq],
+any classifier can be followed by one or more
+.I modifiers;
+some of these accept an argument,
+which in GNU
+.I tbl \" GNU
+can be parenthesized.
+.\" AT&T tbl allowed parentheses only after 'w'.
+.\" TODO: Accept parentheses after 'p' and 'v'.
+.
+Modifiers select fonts,
+set the type size,
+.\"define the column width,
+.\"adjust inter-column spacing, \" slack text for window/orphan control
+and perform other tasks described below.
+.
+.
+.P
+The format specification can occupy multiple input lines,
+but must conclude with a dot
+.RB \[lq] .\& \[rq]
+followed by a newline.
+.
+Each row definition is applied in turn to one row of the table.
+.
+The last row definition is applied to rows of table data in excess of
+the row definitions.
+.
+.
+.P
+For clarity in this document's examples,
+we shall write classifiers in uppercase and modifiers in lowercase.
+.
+Thus,
+.RB \[lq] CbCb,LR.\& \[rq]
+defines two rows of two columns.
+.
+The first row's entries are centered and boldfaced;
+the second and any further rows' first and second columns are left- and
+right-aligned,
+respectively.
+.
+.\" slack text for window/orphan control
+.\"If more rows of entries are added to the table data,
+.\"they reuse the row definition
+.\".RB \[lq] LR \[rq].
+.
+.
+.P
+The row definition with the most column descriptors determines the
+number of columns in the table;
+any row definition with fewer is implicitly extended on the right-hand
+side with
+.B L
+classifiers as many times as necessary to make the table rectangular.
+.
+.
+.\" ====================================================================
+.SS "Column classifiers"
+.\" ====================================================================
+.
+The
+.BR L ,
+.BR R ,
+and
+.B C
+classifiers are the easiest to understand and use.
+.
+.
+.TP
+.BR A ,\~ a
+Center longest entry in this column,
+left-align remaining entries in the column with respect to the centered
+entry,
+then indent all entries by one en.
+.
+Such \[lq]alphabetic\[rq] entries
+(hence the name of the classifier)
+can be used in the same column as
+.BR L -classified
+entries,
+as in
+.RB \[lq] LL,AR.\& \[rq].
+.
+The
+.B A
+entries are often termed \[lq]sub-columns\[rq] due to their indentation.
+.
+.
+.TP
+.BR C ,\~ c
+Center entry within the column.
+.
+.
+.TP
+.BR L ,\~ l
+Left-align entry within the column.
+.
+.
+.TP
+.BR N ,\~ n
+Numerically align entry in the column.
+.
+.I \%tbl
+aligns columns of numbers vertically at the units place.
+.
+If multiple decimal separators are adjacent to a digit,
+it uses the rightmost one for vertical alignment.
+.
+If there is no decimal separator,
+the rightmost digit is used for vertical alignment;
+otherwise,
+.I \%tbl
+centers the entry within the column.
+.
+The
+.I roff
+dummy character
+.B \[rs]&
+in an entry marks the glyph preceding it
+(if any)
+as the units place;
+if multiple instances occur in the data,
+the leftmost is used for alignment.
+.
+.
+.IP
+If
+.BR N -classified
+entries share a column with
+.B L
+or
+.BR R \~entries,
+.I \%tbl
+centers the widest
+.BR N \~entry
+with respect to the widest
+.B L
+or
+.BR R \~entry,
+preserving the alignment of
+.BR N \~entries
+with respect to each other.
+.
+.
+.IP
+The appearance of
+.I \%eqn
+equations
+within
+.BR N -classified
+columns
+can be troublesome due to the foregoing textual scan for a decimal
+separator.
+.
+Use the
+.B \%delim
+region option to make
+.I \%tbl
+ignore the data within
+.I eqn
+delimiters for that purpose.
+.
+.
+.TP
+.BR R ,\~ r
+Right-align entry within the column.
+.
+.
+.TP
+.BR S ,\~ s
+Span previous entry on the left into this column.
+.
+.
+.TP
+.B \[ha]
+Span entry in the same column from the previous row into this row.
+.
+.
+.TP
+.BR _ ,\~ \-
+Replace table entry with a horizontal rule.
+.
+An empty table entry is expected to correspond to this classifier;
+if data are found there,
+.I \%tbl
+issues a diagnostic message.
+.
+.
+.TP
+.B =
+Replace table entry with a double horizontal rule.
+.
+An empty table entry is expected to correspond to this classifier;
+if data are found there,
+.I \%tbl
+issues a diagnostic message.
+.
+.
+.TP
+.B |
+Place a vertical rule (line) on the corresponding row of the table
+(if two of these are adjacent,
+a double vertical rule).
+.
+This classifier does not contribute to the column count and no table
+entries correspond to it.
+.
+A
+.B |
+to the left of the first column descriptor or to the right of the last
+one produces a vertical rule at the edge of the table;
+these are redundant
+(and ignored)
+in boxed tables.
+.
+.
+.P
+To change the table format within a
+.I \%tbl
+region,
+use the
+.B .T&
+token at the start of a line.
+.
+It is followed by a format specification and table data,
+but
+.I not
+region options.
+.
+The quantity of columns in a new table format thus introduced cannot
+increase relative to the previous table format;
+in that case,
+you must end the table region and start another.
+.
+If that will not serve because the region uses box options or the
+columns align in an undesirable manner,
+you must design the initial table format specification to include the
+maximum quantity of columns required,
+and use the
+.B S
+horizontal spanning classifier where necessary to achieve the desired
+columnar alignment.
+.
+.
+.P
+Attempting to horizontally span in the first column or vertically span
+on the first row is an error.
+.
+Non-rectangular span areas are also not supported.
+.
+.
+.\" ====================================================================
+.SS "Column modifiers"
+.\" ====================================================================
+.
+Any number of modifiers can follow a column classifier.
+.
+Arguments to modifiers,
+where accepted,
+are case-sensitive.
+.
+If the same modifier is applied to a column specifier more than once,
+or if conflicting modifiers are applied,
+only the last occurrence has effect.
+.
+The
+.RB modifier\~ x
+is mutually exclusive with
+.B e
+.RB and\~ w ,
+but
+.B e
+is not mutually exclusive
+.RB with\~ w ;
+if these are used in combination,
+.BR x \~unsets
+both
+.B e
+.RB and\~ w ,
+while either
+.B e
+or
+.B w
+.RB overrides\~ x .
+.
+.
+.br
+.ne 4v \" Keep next two tagged paragraphs together.
+.TP
+.BR b ,\~ B
+Typeset entry in boldface,
+abbreviating
+.BR f(B) .
+.
+.
+.TP
+.BR d ,\~ D
+Align a vertically spanned table entry to the bottom
+(\[lq]down\[rq]),
+instead of the center,
+of its range.
+.
+This is a GNU extension.
+.
+.
+.TP
+.BR e ,\~ E
+Equalize the widths of columns with this modifier.
+.
+The column with the largest width controls.
+.
+This modifier sets the default line length used in a text block.
+.
+.
+.TP
+.BR f ,\~ F
+Select the typeface for the table entry.
+.
+This modifier must be followed by a font or style name
+(one or two characters not starting with a digit),
+font mounting position
+(a single digit),
+or a name or mounting position of any length in parentheses.
+.
+The last form is a GNU extension.
+.
+(The parameter corresponds to that accepted by the
+.I troff \" generic
+.B ft
+request.)
+.
+A one-character argument not in parentheses must be separated by one or
+more spaces or tabs from what follows.
+.
+.
+.TP
+.BR i ,\~ I
+Typeset entry in an oblique or italic face,
+abbreviating
+.BR f(I) .
+.
+.
+.TP
+.BR m ,\~ M
+Call a
+.I groff
+macro before typesetting a text block
+(see subsection \[lq]Text blocks\[rq] below).
+.
+This is a GNU extension.
+.
+This modifier must be followed by a macro name of one or two characters
+or a name of any length in parentheses.
+.
+A one-character macro name not in parentheses must be separated by one
+or more spaces or tabs from what follows.
+.
+The named macro must be defined before the table region containing this
+column modifier is encountered.
+.
+The macro should contain only simple
+.I groff
+requests to change text formatting,
+like adjustment or hyphenation.
+.
+The macro is called
+.I after
+the column modifiers
+.BR b ,
+.BR f ,
+.BR i ,
+.BR p ,
+and
+.B v
+take effect;
+it can thus override other column modifiers.
+.
+.
+.TP
+.BR p ,\~ P
+Set the type size for the table entry.
+.
+This modifier must be followed by an
+.RI integer\~ n
+with an optional leading sign.
+.
+If unsigned,
+the type size is set to
+.IR n \~scaled
+points.
+.
+Otherwise,
+the type size is incremented or decremented per the sign by
+.IR n \~scaled
+points.
+.
+The use of a signed multi-digit number is a GNU extension.
+.
+(The parameter corresponds to that accepted by the
+.I troff \" generic
+.B ps
+request.)
+.
+If a type size modifier is followed by a column separation modifier
+(see below),
+they must be separated by at least one space or tab.
+.\" TODO: Allow parentheses so scaling units and fractional values can
+.\" be used?
+.
+.
+.TP
+.BR t ,\~ T
+Align a vertically spanned table entry to the top,
+instead of the center,
+of its range.
+.
+.
+.TP
+.BR u ,\~ U
+Move the column up one half-line,
+\[lq]staggering\[rq] the rows.
+.
+This is a GNU extension.
+.
+.
+.TP
+.BR v ,\~ V
+Set the vertical spacing to be used in a text block.
+.
+This modifier must be followed by an
+.RI integer\~ n
+with an optional leading sign.
+.
+If unsigned,
+the vertical spacing is set to
+.IR n\~ points.
+.
+Otherwise,
+the vertical spacing is incremented or decremented per the sign by
+.IR n\~ points.
+.
+The use of a signed multi-digit number is a GNU extension.
+.
+(This parameter corresponds to that accepted by the
+.I troff \" generic
+.B vs
+request.)
+.
+If a vertical spacing modifier is followed by a column separation
+modifier
+(see below),
+they must be separated by at least one space or tab.
+.\" TODO: Allow parentheses so scaling units and fractional values can
+.\" be used?
+.
+.
+.TP
+.BR w ,\~ W
+Set the column's minimum width.
+.
+This modifier must be followed by a number,
+which is either a unitless integer,
+or a
+.I roff
+horizontal measurement in parentheses.
+.
+Parentheses are required if the width is to be followed immediately by
+an explicit column separation
+(alternatively,
+follow the width with one or more spaces or tabs).
+.
+If no unit is specified,
+ens are assumed.
+.
+This modifier sets the default line length used in a text block.
+.
+.
+.TP
+.BR x ,\~ X
+Expand the column.
+.
+After computing the column widths,
+distribute any remaining line length evenly over all columns bearing
+this modifier.
+.
+Applying the
+.BR x \~modifier
+to more than one column is a GNU extension.
+.\" 'x' wasn't documented at all in Lesk 1979.
+.
+This modifier sets the default line length used in a text block.
+.
+.
+.TP
+.BR z ,\~ Z
+Ignore the table entries corresponding to this column for width
+calculation purposes;
+that is,
+compute the column's width using only the information in its descriptor.
+.
+.
+.TP
+.I n
+A numeric suffix on a column descriptor sets the separation distance
+(in ens)
+from the succeeding column;
+the default separation is
+.BR 3n .
+.
+This separation is
+proportionally multiplied if the
+.B expand
+region option is in effect;
+in the case of tables wider than the output line length,
+this separation might be zero.
+.
+A negative separation cannot be specified.
+.
+A separation amount after the last column in a row is nonsensical and
+provokes a diagnostic from
+.IR \%tbl .
+.
+.
+.\" ====================================================================
+.SS "Table data"
+.\" ====================================================================
+.
+The table data come after the format specification.
+.
+Each input line corresponds to a table row,
+except that a backslash at the end of a line of table data continues an
+entry on the next input line.
+.
+(Text blocks,
+discussed below,
+also spread table entries across multiple input lines.)
+.
+Table entries within a row are separated in the input by a tab character
+by default;
+see the
+.B tab
+region option above.
+.
+Excess entries in a row of table data
+(those that have no corresponding column descriptor,
+not even an implicit one arising from rectangularization of the table)
+are discarded with a diagnostic message.
+.
+.I roff
+control lines are accepted between rows of table data and within text
+blocks.
+.
+If you wish to visibly mark an empty table entry in the document source,
+populate it with the
+.B \[rs]&
+.I roff
+dummy character.
+.
+The table data are interrupted by a line consisting of the
+.B .T&
+input token,
+and conclude with the line
+.BR .TE .
+.
+.
+.P
+Ordinarily,
+a table entry is typeset rigidly.
+.
+It is not filled,
+broken,
+hyphenated,
+adjusted,
+or populated with additional inter-sentence space.
+.
+.I \%tbl
+instructs the formatter to measure each table entry as it occurs in the
+input,
+updating the width required by its corresponding column.
+.
+If the
+.B z
+modifier applies to the column,
+this measurement is ignored;
+if
+.B w
+applies and its argument is larger than this width,
+that argument is used instead.
+.
+In contrast to conventional
+.I roff
+input
+(within a paragraph,
+say),
+changes to text formatting,
+such as font selection or vertical spacing,
+do not persist between entries.
+.
+.
+.P
+Several forms of table entry are interpreted specially.
+.
+.
+.IP \[bu] 2n
+If a table row contains only an underscore or equals sign
+.RB ( _
+or
+.BR = ),
+a single or double horizontal rule (line),
+respectively,
+is drawn across the table at that point.
+.
+.
+.IP \[bu] 2n
+A table entry containing only
+.B _
+or
+.B =
+on an otherwise populated row is replaced by a single or double
+horizontal rule,
+respectively,
+joining its
+neighbors.
+.
+.
+.IP \[bu] 2n
+Prefixing a lone underscore or equals sign with a backslash also has
+meaning.
+.
+If a table entry consists only of
+.B \[rs]_
+or
+.B \[rs]=
+on an otherwise populated row,
+it is replaced by a single or double horizontal rule,
+respectively,
+that does
+.I not
+(quite) join its neighbors.
+.
+.
+.IP \[bu]
+A table entry consisting of
+.BI \[rs]R x\c
+,
+where
+.IR x \~is
+any
+.I roff
+ordinary or special character,
+is replaced by enough repetitions of the glyph corresponding
+.RI to\~ x
+to fill the column,
+albeit without joining its neighbors.
+.\" TODO: Bad things happen if there's garbage in the entry after 'x',
+.\" which can be a *roff special character escape sequence, so
+.\" validation is not trivial.
+.
+.
+.IP \[bu]
+On any row but the first,
+a table entry of
+.B \[rs]\[ha]
+causes the entry above it to span down into the current one.
+.
+.
+.P
+On occasion,
+these special tokens may be required as literal table data.
+.
+To use either
+.B _
+or
+.B =
+literally and alone in an entry,
+prefix or suffix it with the
+.I roff
+dummy character
+.BR \[rs]& .
+.
+To express
+.BR \[rs]_ ,
+.BR \[rs]= ,
+or
+.BR \[rs]R ,
+use a
+.I roff
+escape sequence to interpolate the backslash
+.RB ( \[rs]e
+or
+.BR \[rs][rs] ).
+.
+A reliable way to emplace the
+.B \[rs]\[ha]
+glyph sequence within a table entry is to use a pair of
+.I groff
+special character escape sequences
+.RB ( \[rs][rs]\[rs][ha] ).
+.
+.
+.P
+Rows of table entries can be interleaved with
+.I groff
+control lines;
+these do not count as table data.
+.
+On such lines the default control character
+.RB ( .\& )
+must be used
+(and not changed);
+the no-break control character is not recognized.
+.
+To start the first table entry in a row with a dot,
+precede it with the
+.I roff
+dummy character
+.BR \[rs]& .
+.
+.
+.\" ====================================================================
+.SS "Text blocks"
+.\" ====================================================================
+.
+An ordinary table entry's contents can make a column,
+and therefore the table,
+excessively wide;
+the table then exceeds the line length of the page,
+and becomes ugly or is exposed to truncation by the output device.
+.
+When a table entry requires more conventional typesetting,
+breaking across more than one output line
+(and thereby increasing the height of its row),
+it can be placed within a
+.I text block.
+.
+.
+.P
+.I \%tbl
+interprets a table entry beginning with
+.RB \[lq] T{ \[rq]
+at the end of an input line not as table data,
+but as a token starting a text block.
+.
+Similarly,
+.RB \[lq] T} \[rq]
+at the start of an input line ends a text block;
+it must also end the table entry.
+.
+Text block tokens can share an input line with other table data
+(preceding
+.B T{
+and following
+.BR T} ).
+.
+Input lines between these tokens are formatted in a diversion by
+.IR troff . \" generic
+.
+Text blocks cannot be nested.
+.
+Multiple text blocks can occur in a table row.
+.
+.
+.P
+Text blocks are formatted as was the text prior to the table,
+modified by applicable column descriptors.
+.
+Specifically,
+the classifiers
+.BR A ,
+.BR C ,
+.BR L ,
+.BR N ,
+.BR R ,
+and
+.B S
+determine a text block's
+.I alignment
+within its cell,
+but not its
+.I adjustment.
+.
+Add
+.B na
+or
+.B ad
+requests to the beginning of a text block to alter its adjustment
+distinctly from other text in the document.
+.
+As with other table entries,
+when a text block ends,
+any alterations to formatting parameters are discarded.
+.
+They do not affect subsequent table entries,
+not even other text blocks.
+.
+.
+.P
+.ne 2v
+If
+.B w
+or
+.B x
+modifiers are not specified for
+.I all
+columns of a text block's span,
+the default length of the text block
+(more precisely,
+the line length used to process the text block diversion)
+is computed as
+.IR L \[tmu] C /( N +1),
+.\" ...and rounded to the horizontal motion quantum of the output device
+where
+.I L
+is the current line length,
+.I C
+the number of columns spanned by the text block,
+and
+.I N
+the number of columns in the table.
+.
+If necessary,
+you can also control a text block's width by including an
+.B ll
+(line length)
+request in it prior to any text to be formatted.
+.
+Because a diversion is used to format the text block,
+its height and width are subsequently available in the registers
+.B dn
+and
+.BR dl ,
+respectively.
+.
+.
+.\" ====================================================================
+.SS \f[I]roff\f[] interface
+.\" ====================================================================
+.
+The register
+.B TW
+stores the width of the table region in basic units;
+it can't be used within the region itself,
+but is defined before the
+.B .TE
+token is output so that a
+.I groff
+macro named
+.B TE
+can make use of it.
+.
+.B T.\&
+is a Boolean-valued register indicating whether the bottom of the table
+is being processed.
+.
+The
+.B #T
+register marks the top of the table.
+.
+Avoid using these names for any other purpose.
+.
+.
+.P
+.I \%tbl
+also defines a macro
+.B T#
+to produce the bottom and side lines of a boxed table.
+.
+While
+.I \%tbl
+itself arranges for the output to include a call of this macro at the
+end of such a table,
+it can also be used by macro packages to create boxes for multi-page
+tables by calling it from a page footer macro that is itself called by
+a trap planted near the bottom of the page.
+.
+See section \[lq]Limitations\[rq] below for more on multi-page tables.
+.
+.
+.P
+GNU
+.I tbl \" GNU
+.\" AT&T tbl used all kinds of registers; many began with "3".
+internally employs register,
+string,
+macro,
+and diversion names beginning with the
+.RB numeral\~ 3 .
+.
+A document to be preprocessed with GNU
+.I tbl \" GNU
+should not use any such identifiers.
+.\" XXX: Why are they not named starting with "gtbl*" or something?  GNU
+.\" tbl turns AT&T troff compatibility mode off anyway.
+.
+.
+.\" ====================================================================
+.SS "Interaction with \f[I]\%eqn\f[]"
+.\" ====================================================================
+.
+.I \%tbl
+should always be called before
+.MR \%eqn 1 .
+.
+(\c
+.MR groff 1
+automatically arranges preprocessors in the correct order.)
+.
+Don't call the
+.B EQ
+and
+.B EN
+macros within tables;
+instead,
+set up delimiters in your
+.I eqn \" generic
+input and use the
+.B \%delim
+region option so that
+.I \%tbl
+will recognize them.
+.
+.
+.br
+.ne 5v \" Keep enough space for heading, intro sentence, and first item.
+.\" ====================================================================
+.SS "GNU \f[I]tbl\f[] enhancements"
+.\" ====================================================================
+.
+In addition to extensions noted above,
+GNU
+.I tbl \" GNU
+removes constraints endured by users of AT&T
+.IR tbl .\" AT&T
+.
+.
+.IP \[bu] 2n
+Region options can be specified in any lettercase.
+.
+.
+.IP \[bu]
+There is no limit on the number of columns in a table,
+regardless of their classification,
+nor any limit on the number of text blocks.
+.
+.
+.IP \[bu]
+All table rows are considered when deciding column widths,
+not just those occurring in the first 200 input lines of a region.
+.
+Similarly,
+table continuation
+.RB ( .T& )
+tokens are recognized outside a region's first 200 input lines.
+.
+.
+.IP \[bu]
+Numeric and alphabetic entries may appear in the same column.
+.
+.
+.IP \[bu]
+Numeric and alphabetic entries may span horizontally.
+.
+.
+.\" ====================================================================
+.SS "Using GNU \f[I]tbl\f[] within macros"
+.\" ====================================================================
+.
+You can embed a table region inside a macro definition.
+.
+However,
+since
+.I \%tbl
+writes its own macro definitions at the beginning of each table region,
+it is necessary to call end macros instead of ending macro definitions
+with
+.RB \[lq] ..\& \[rq].
+.\" XXX: Why don't we fix that by ending all of tbl's own macro
+.\" definitions with a call to a macro in its own reserved name space?
+.
+Additionally,
+the escape character must be disabled. \" XXX: Why?
+.
+.
+.P
+Not all
+.I \%tbl
+features can be exercised from such macros because
+.I \%tbl
+is a
+.I roff
+preprocessor:
+it sees the input earlier than
+.I \%troff
+does.
+.
+For example,
+vertically aligning decimal separators fails if the numbers containing
+them occur as macro or string parameters;
+the alignment is performed by
+.I \%tbl
+itself,
+which sees only
+.BR \[rs]$1 ,
+.BR \[rs]$2 ,
+and so on,
+and therefore can't recognize a decimal separator that only appears
+later when
+.I \%troff
+interpolates a macro or string definition.
+.
+.
+.\" XXX: The following is a general caveat about preprocessors; move it.
+.P
+Using
+.I \%tbl
+macros within conditional input
+(that is,
+contingent upon an
+.BR if ,
+.BR ie ,
+.BR el ,
+or
+.B while
+request)
+can result in misleading line numbers in subsequent diagnostics.
+.
+.I \%tbl
+unconditionally injects its output into the source document,
+but the conditional branch containing it may not be taken,
+and if it is not,
+the
+.B lf
+requests that
+.I \%tbl
+injects to restore the source line number cannot take effect.
+.
+Consider copying the input line counter register
+.B c.\&
+and restoring its value at a convenient location after applicable
+arithmetic.
+.
+.
+.br
+.ne 5v
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-\-help
+displays a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.B \-C
+Enable AT&T compatibility mode:
+recognize
+.B .TS
+and
+.B .TE
+even when followed by a character other than space or newline.
+.
+Furthermore,
+interpret the uninterpreted leader escape sequence
+.BR \[rs]a .
+.
+.
+.\" ====================================================================
+.SH Limitations
+.\" ====================================================================
+.
+Multi-page tables,
+if boxed and/or if you want their column headings repeated after page
+breaks,
+require support at the time the document is formatted.
+.
+A convention for such support has arisen in macro packages such as
+.IR ms ,
+.IR mm ,
+and
+.IR me .
+.
+To use it,
+follow the
+.B .TS
+token with a space and then
+.RB \[lq] H \[rq];
+this will be interpreted by the formatter
+as a
+.B TS
+macro call with an
+.B H
+argument.
+.
+Then,
+within the table data,
+call the
+.B TH
+macro;
+this informs the macro package where the headings end.
+.
+If your table has no such heading rows,
+or you do not desire their repetition,
+call
+.B TH
+immediately after the table format specification.
+.
+If a multi-page table is boxed or has repeating column headings,
+do not enclose it with keep/release macros,
+or divert it in any other way.
+.
+Further,
+the
+.B bp
+request will not cause a page break in a
+.RB \[lq] "TS H" \[rq]
+table.
+.
+Define a macro to wrap
+.BR bp :
+invoke it normally if there is no current diversion.
+.
+Otherwise,
+pass the macro call to the enclosing diversion using the transparent
+line escape sequence
+.BR \[rs]!\& ;
+this will \[lq]bubble up\[rq] the page break to the output device.
+.
+See section \[lq]Examples\[rq] below for a demonstration.
+.
+.
+.P
+Double horizontal rules are not supported by
+.MR grotty 1 ;
+single rules are used instead.
+.
+.I \%grotty
+also ignores half-line motions,
+so the
+.B u
+column modifier has no effect.
+.
+On terminal devices
+.RI (\[lq] nroff\~ mode\[rq]),
+horizontal rules and box borders occupy a full vee of space;
+this amount is doubled for
+.B doublebox
+tables.
+.
+Tables using these features thus require more vertical space in
+.I nroff
+mode than in
+.I troff
+mode:
+write
+.B ne
+requests accordingly.
+.
+Vertical rules between columns are drawn in the space between columns in
+.I nroff
+mode;
+using double vertical rules and/or reducing the column separation below
+the default can make them ugly or overstrike them with table data.
+.
+.
+.P
+A text block within a table must be able to fit on one page.
+.
+.
+.P
+Using
+.B \[rs]a
+to put leaders in table entries does not work
+in GNU
+.IR tbl , \" GNU
+except in compatibility mode.
+.
+This is correct behavior:
+.B \[rs]a
+is an
+.I uninterpreted
+leader.
+.
+You can still use the
+.I roff
+leader character (Control+A) or define a string to use
+.B \[rs]a
+as it was designed:
+to be interpreted only in copy mode.
+.
+.
+.RS
+.P
+.EX
+\&.ds a \[rs]a
+\&.TS
+\&box center tab(;);
+\&Lw(2i)0 L.
+\&Population\[rs]*a;6,327,119
+\&.TE
+.EE
+.RE
+.
+.
+.\" We use a real leader to avoid defining a string in a man page.
+.P
+.TS
+box center tab(;);
+Lw(2i)0 L.
+Population;6,327,119
+.TE
+.
+.
+.P
+A leading and/or trailing
+.B |
+in a format specification,
+such as
+.RB \[lq] |LCR|.\& \[rq],
+produces an en space between the vertical rules and the content of the
+adjacent columns.
+.
+If no such space is desired
+(so that the rule abuts the content),
+you can introduce \[lq]dummy\[rq] columns with zero separation and empty
+corresponding table entries before and/or after.
+.
+.
+.RS
+.P
+.EX
+\&.TS
+\&center tab(#);
+\&R0|L C R0|L.
+_
+\&#levulose#glucose#dextrose#
+_
+\&.TE
+.EE
+.RE
+.
+.
+.P
+These dummy columns have zero width and are therefore invisible;
+unfortunately they usually don't work as intended on terminal devices.
+.
+.
+.if t \{\
+.TS
+center tab(#);
+R0|L C R0|L.
+_
+#levulose#glucose#dextrose#
+_
+.TE
+.\}
+.
+.
+.\" ====================================================================
+.SH Examples
+.\" ====================================================================
+.
+It can be easier to acquire the language of
+.I tbl \" generic
+through examples than formal description,
+especially at first.
+.
+.
+.\" Note: This example is nearly at the column limit (78n) for nroff
+.\" output.  Recast with care.
+.RS
+.P
+.EX
+\&.TS
+box center tab(#);
+Cb Cb
+L L.
+Ability#Application
+Strength#crushes a tomato
+Dexterity#dodges a thrown tomato
+Constitution#eats a month-old tomato without becoming ill
+Intelligence#knows that a tomato is a fruit
+Wisdom#chooses \[rs]f[I]not\[rs]f[] to put tomato in a fruit salad
+Charisma#sells obligate carnivores tomato-based fruit salads
+\&.TE
+.EE
+.RE
+.
+.
+.P
+.TS
+box center tab(#);
+Cb Cb
+L L.
+Ability#Application
+Strength#crushes a tomato
+Dexterity#dodges a thrown tomato
+Constitution#eats a month-old tomato without becoming ill
+Intelligence#knows that a tomato is a fruit
+Wisdom#chooses \f[I]not\f[] to put tomato in a fruit salad
+Charisma#sells obligate carnivores tomato-based fruit salads
+.TE
+.
+.
+.P
+The
+.B A
+and
+.B N
+column classifiers can be easier to grasp in visual rendering than in
+description.
+.
+.
+.RS
+.P
+.EX
+\&.TS
+center tab(;);
+CbS,LN,AN.
+Daily energy intake (in MJ)
+Macronutrients
+\&.\[rs]" assume 3 significant figures of precision
+Carbohydrates;4.5
+Fats;2.25
+Protein;3
+\&.T&
+LN,AN.
+Mineral
+Pu\-239;14.6
+_
+\&.T&
+LN.
+Total;\[rs][ti]24.4
+\&.TE
+.EE
+.RE
+.
+.
+.RS
+.P
+.TS
+center tab(;);
+CbS,LN,AN.
+Daily energy intake (in MJ)
+.\" assume 3 significant figures of precision
+Macronutrients
+Carbohydrates;4.5
+Fats;2.25
+Protein;3
+.T&
+LN,AN.
+Mineral
+Pu-239;14.6
+_
+.T&
+LN.
+Total;\[ti]24.4
+.TE
+.RE
+.
+.
+.br
+.ne 12v
+.P
+Next,
+we'll lightly adapt a compact presentation of spanning,
+vertical alignment,
+and zero-width column modifiers from the
+.I mandoc
+reference for its
+.I tbl \" generic
+interpreter.
+.
+It rewards close study.
+.
+.
+.RS
+.P
+.EX
+\&.TS
+box center tab(:);
+Lz  S | Rt
+Ld| Cb| \[ha]
+\[ha] | Rz  S.
+left:r
+l:center:
+:right
+\&.TE
+.EE
+.RE
+.
+.
+.RS
+.P
+.TS
+box center tab(:);
+Lz  S | Rt
+Ld| Cb| ^
+^ | Rz  S.
+left:r
+l:center:
+:right
+.TE
+.RE
+.
+.
+.P
+.ne 2v
+Row staggering is not visually achievable on terminal devices,
+but a table using it can remain comprehensible nonetheless.
+.
+.
+.RS
+.P
+.EX
+\&.TS
+center tab(|);
+Cf(BI) Cf(BI) Cf(B), C C Cu.
+n|n\[rs]f[B]\[rs][tmu]\[rs]f[]n|difference
+1|1
+2|4|3
+3|9|5
+4|16|7
+5|25|9
+6|36|11
+\&.TE
+.EE
+.RE
+.
+.
+.RS
+.P
+.TS
+center tab(|);
+Cf(BI) Cf(BI) Cf(B), C C Cu.
+n|n\f[B]\[tmu]\f[]n|difference
+1|1
+2|4|3
+3|9|5
+4|16|7
+5|25|9
+6|36|11
+.TE
+.RE
+.
+.
+.P
+Some
+.I \%tbl
+features cannot be illustrated in the limited environment of a portable
+man page.
+.
+.
+.\" TODO: Find a better example than this.
+.\".P
+.\"As noted above,
+.\"we can embed a table region in a
+.\".I groff
+.\"macro definition.
+.\".
+.\".IR \%tbl ,
+.\"however,
+.\"cannot know what will result from any macro argument interpolations,
+.\"so we might confine such interpolations to one column of the table and
+.\"apply the
+.\".B x
+.\"modifier to it.
+.\".
+.\".
+.\".RS
+.\".P
+.\".EX
+.\"\&.de END
+.\"\&..
+.\"\&.eo
+.\"\&.de MYTABLE END
+.\"\&.TS
+.\"\&allbox tab(;);
+.\"\&C Lx.
+.\"\&This is table \[rs]$1.;\[rs]$2
+.\"\&.TE
+.\"\&.END
+.\"\&.ec
+.\"\&.MYTABLE 1 alpha
+.\"\&.MYTABLE 2 beta
+.\"\&.MYTABLE 3 "gamma delta"
+.\".EE
+.\".RE
+.\"
+.\"
+.P
+We can define a macro outside of a
+.I tbl \" generic
+region that we can call from within it to cause a page break inside a
+multi-page boxed table.
+.
+You can choose a different name;
+be sure to change both occurrences of \[lq]BP\[rq].
+.
+.
+.RS
+.P
+.ne 4v
+.EX
+\&.de BP
+\&.\&  ie \[aq]\[rs]\[rs]n(.z\[aq]\[aq] \&.bp \[rs]\[rs]$1
+\&.\&  el \[rs]!.BP \[rs]\[rs]$1
+\&..
+.EE
+.RE
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+\[lq]Tbl\[em]A Program to Format Tables\[rq],
+by M.\& E.\& Lesk,
+1976
+(revised 16 January 1979),
+AT&T Bell Laboratories Computing Science Technical Report No.\& 49.
+.
+.
+.P
+The spanning example above was taken from
+.UR https://man.openbsd.org/tbl.7
+.IR mandoc 's
+man page for its
+.I tbl \" mandoc
+implementation
+.UE .
+.
+.
+.P
+.MR groff 1 ,
+.MR \%troff 1
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_tbl_1_man_C]
+.do rr *groff_tbl_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

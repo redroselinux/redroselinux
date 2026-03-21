@@ -1,0 +1,628 @@
+.TH grog 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+grog \- \(lqgroff guess\(rq\(eminfer the
+.I groff
+command a document requires
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1989-2021 Free Software Foundation, Inc.
+.\"
+.\" This file is part of grog, which is part of groff, a free software
+.\" project.  You can redistribute it and/or modify it under the terms
+.\" of the GNU General Public License version 2 (GPL2) as published by
+.\" the Free Software Foundation.
+.\"
+.\" groff is distributed in the hope that it will be useful, but WITHOUT
+.\" ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.\" The text for GPL2 is available in the internet at
+.\" <http://www.gnu.org/licenses/gpl2.0.txt>.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_grog_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY grog
+.RB [ \-\-run ]
+.RB [ \-\-ligatures ]
+.RI [ groff-option\~ .\|.\|.\&]
+.RB [ \-\- ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY grog
+.B \-h
+.
+.SY grog
+.B \-\-help
+.YS
+.
+.
+.SY grog
+.B \-v
+.
+.SY grog
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+.I grog
+reads its input
+and guesses which
+.MR groff 1
+options are needed to render it.
+.
+If no operands are given,
+or if
+.I file
+is
+.RB \[lq] \- \[rq],
+.I grog
+reads the standard input stream.
+.
+The corresponding
+.I groff
+command is normally written to the standard output stream.
+.
+With the option
+.BR \-\-run ,
+the inferred command is written to the standard error stream and then
+executed.
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-h
+and
+.B \-\-help
+display a usage message,
+whereas
+.B \-v
+and
+.B \-\-version
+display version information;
+all exit afterward.
+.
+.
+.TP
+.B \-\-ligatures
+includes the arguments
+.B \-P\-y \-PU
+in the inferred
+.I groff
+command.
+.
+These are supported only by the
+.B pdf
+output device.
+.
+.
+.TP
+.B \-\-run
+writes the inferred command to the standard error stream and then
+executes it.
+.
+.
+.P
+All other specified short options
+(that is,
+arguments beginning with a minus sign
+.RB \[lq] \- \[rq]
+followed by a letter)
+are interpreted as
+.I groff
+options or option clusters with or without an option argument.
+.
+Such options are included in the constructed
+.I groff
+command line.
+.
+.
+.\" ====================================================================
+.SH Details
+.\" ====================================================================
+.
+.I grog
+reads each
+.I file
+operand,
+pattern-matching strings that are statistically likely to be
+characteristic of
+.MR roff 7
+documents.
+.
+It tries to guess which of the following
+.I groff
+options are required to correctly render the input:
+.BR \-e ,
+.BR \-g ,
+.BR \-G ,
+.BR \-j ,
+.\" gideal is not implemented yet.
+.\" .BR \-J ,
+.BR \-p ,
+.BR \-R ,
+.\".BR \-s ,
+.B \-t
+(preprocessors);
+and
+.BR \-man ,
+.BR \-mdoc ,
+.BR \-mdoc\-old ,
+.BR \-me ,
+.BR \-mm ,
+.BR \-mom ,
+and
+.B \-ms
+(macro packages).
+.
+The inferred
+.I groff
+command including these options and any
+.I file
+parameters is written to the standard output stream.
+.
+.
+.P
+It is possible to specify arbitrary
+.I groff
+options on the command line.
+.
+These are included in the inferred command without change.
+.
+Choices of
+.I groff
+options include
+.B \-C
+to enable AT&T
+.I troff
+compatibility mode and
+.B \-T
+to select a non-default output device.
+.
+If the input is not encoded in US-ASCII,
+ISO 8859-1,
+or IBM code page 1047,
+specification of a
+.I groff
+option to run the
+.MR preconv 1
+preprocessor is advised;
+see the
+.BR \-D ,
+.BR \-k ,
+and
+.B \-K
+options of
+.MR groff 1 .
+.
+For UTF-8 input,
+.B \-k
+is a good choice.
+.
+.
+.P
+.I groff
+may issue diagnostic messages when an inappropriate
+.B \-m
+option,
+or multiple conflicting ones,
+are specified.
+.
+Consequently,
+it is best to specify no
+.B \-m
+options to
+.I grog
+unless it cannot correctly infer all of the
+.B \-m
+arguments a document requires.
+.
+A
+.I roff
+document can also be written without recourse to any macro package.
+.
+In such cases,
+.I grog
+will infer a
+.I groff
+command without an
+.B \-m
+option.
+.
+.
+.\" ====================================================================
+.SS Limitations
+.\" ====================================================================
+.
+.I grog
+presumes that the input does not change the escape,
+control,
+or no-break control characters.
+.
+.I grog
+does not parse
+.I roff
+input line continuation or control structures
+(brace escape sequences and the
+.RB \[lq] if \[rq],
+.RB \[lq] ie \[rq],
+and
+.RB \[lq] el \[rq]
+requests)
+nor
+.IR groff 's
+.RB \[lq] while \[rq].
+.
+Thus the input
+.
+.RS
+.EX
+\&.if \[rs]
+t .NH 1
+\&.if n .SH
+Introduction
+.EE
+.RE
+.
+will conceal the use of the
+.I ms
+macros
+.B NH
+and
+.B SH
+from
+.IR grog .
+.
+Such constructions are regarded by
+.IR grog 's
+implementors as insufficiently common to cause many inference problems.
+.
+Preprocessors can be even stricter when matching macro calls that
+bracket the regions of an input file they replace.
+.
+.IR pic ,
+for example,
+requires
+.BR PS ,
+.BR PE ,
+and
+.B PF
+calls to immediately follow the default control character at the
+beginning of a line.
+.
+.
+.P
+Detection of the
+.B \-s
+option
+(the
+.MR \%soelim 1
+preprocessor)
+is tricky;
+to correctly infer its necessity would require
+.I grog
+to recursively open all files given as arguments to the
+.B .so
+request under the same conditions that
+.I \%soelim
+itself does so;
+see its man page.
+.
+Recall that
+.I \%soelim
+is necessary only if sourced files need to be preprocessed.
+.
+Therefore,
+as a workaround,
+you may want to run the input through
+.I \%soelim
+manually,
+piping it to
+.IR grog ,
+and compare the output to running
+.I grog
+on the input directly.
+.
+If the
+.RI \[lq] \%soelim \[rq]ed
+input causes
+.I grog
+to infer additional preprocessor options,
+then
+.B \-s
+is likely necessary.
+.
+.
+.RS
+.P
+.EX
+$ \c
+.B printf \[dq].TS\[rs]nl.\[rs]nI\[aq]m a table.\[rs]n.TE\[rs]n\[dq] > \
+3.roff
+$ \c
+.B printf \[dq].so 3.roff\[rs]n\[dq] > 2.roff
+$ \c
+.B printf \[dq].XP\[rs]n.so 2.roff\[rs]n\[dq] > 1.roff
+$ \c
+.B grog 1.roff
+groff \-ms 1.roff
+$ \c
+.B \%soelim 1.roff | grog
+groff \-t \-ms \-
+.EE
+.RE
+.
+.
+.P
+In the foregoing example,
+we see that this procedure enabled
+.I grog
+to detect
+.MR \%tbl 1
+macros,
+so we would add
+.B \-s
+as well as the detected
+.B \-t
+option to a revised
+.I grog
+or
+.I groff
+command.
+.
+.
+.RS
+.P
+.EX
+$ \c
+.B grog \-st 1.roff
+groff \-st \-ms 1.roff
+.EE
+.RE
+.
+.
+.\" ====================================================================
+.SH "Exit status"
+.\" ====================================================================
+.
+.I grog
+exits with error status
+.B 1
+if a macro package appears to be in use by the input document,
+but
+.I grog
+was unable to infer which one,
+or
+.B 2
+if there were problems handling an option or operand.
+.
+It otherwise exits with status
+.BR 0 .
+.
+(If the
+.B \-\-run
+option is specified,
+.IR groff 's
+exit status is discarded.)
+.
+Inferring no preprocessors or macro packages is not an error condition;
+a valid
+.I roff
+document need not use either.
+.
+Even plain text is valid input,
+if one is mindful of the syntax of the control and escape characters.
+.
+.
+.\" ====================================================================
+.SH Examples
+.\" ====================================================================
+.
+Running
+.
+.RS
+.EX
+.B grog /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meintro.me
+.EE
+.RE
+at the command line results in
+.RS
+.EX
+groff \-me /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meintro.me
+.EE
+.RE
+.
+because
+.I grog
+recognizes that the file
+.I meintro.me
+is written using macros from the
+.I me
+package.
+.
+The command
+.
+.RS
+.EX
+.B grog /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/pic.ms
+.EE
+.RE
+.
+outputs
+.
+.RS
+.EX
+groff \-e \-p \-t \-ms /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/pic.ms
+.EE
+.RE
+.
+on the other hand.
+.
+Besides discerning the
+.I ms
+macro package,
+.I grog
+recognizes that the file
+.I pic.ms
+additionally needs the combination of
+.B \-t
+for
+.IR tbl ,
+.B \-e
+for
+.IR eqn ,
+and
+.B \-p
+for
+.IR pic .
+.
+.
+.\" XXX: grog no longer (June 2021) attempts to detect this scenario.
+.\" It's also not a practical one; full-service macro packages don't
+.\" generally support being "unloaded" for subsequent processing of
+.\" another document using a different one.  We do achieve it, with
+.\" care, in groff with man(7) and mdoc(7) (see andoc.tmac).
+.\" .P
+.\" If both of the former example files are combined in the command
+.\" .
+.\" .RS
+.\" .EX
+.\" .B grog meintro.me pic.ms
+.\" .EE
+.\" .RE
+.\" .
+.\" a diagnostic message is sent to the standard error stream because
+.\" some macro packages cannot be combined.
+.\" .
+.\" Nevertheless the corresponding output with the wrong options is
+.\" written to standard output:
+.\" .
+.\" .RS
+.\" .EX
+.\" groff \-t \-e \-p \-ms meintro.me pic.ms
+.\" .EE
+.\" .RE
+.\" .
+.\" and
+.\" .I grog
+.\" terminates with an error exit status.
+.
+.
+.P
+Consider a file
+.IR \%doc/\:\%grnexampl.me ,
+which uses the
+.I \%grn
+preprocessor to include a
+.MR gremlin 1
+picture file in an
+.I me \" generic
+document.
+.
+Let's say we want to suppress color output,
+produce a DVI file,
+and get backtraces for any errors that
+.I \%troff
+encounters.
+.
+The command
+.
+.RS
+.EX
+.B grog \-bc \-Idoc \-Tdvi doc/grnexmpl.me
+.EE
+.RE
+.
+is processed by
+.I grog
+into
+.
+.RS
+.EX
+groff \-bc \-Idoc \-Tdvi \-e \-g \-me doc/grnexmpl.me
+.EE
+.RE
+.
+where we can see that
+.I grog
+has inferred the
+.I me \" generic
+macro package along with the
+.I eqn \" generic
+and
+.I grn \" generic
+preprocessors.
+.
+(The input file is located in
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0
+if you'd like to try this example yourself.)
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+.I grog
+was originally written in Bourne shell by James Clark.
+.
+The current implementation in Perl was written by
+.MT groff\-bernd\:.warken\-72@\:web\:.de
+Bernd Warken
+.ME
+and heavily revised by
+.MT g.branden\:.robinson@\:gmail\:.com
+G.\& Branden Robinson
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.MR groff 1
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_grog_1_man_C]
+.do rr *groff_grog_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

@@ -1,0 +1,335 @@
+.TH groff_trace 7 "2 July 2023" "groff 1.23.0"
+.SH Name
+groff_trace \- macros for debugging GNU
+.I roff
+documents
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 2002-2022 Free Software Foundation, Inc.
+.\"
+.\" This file is part of groff, the GNU roff type-setting system.
+.\"
+.\" Permission is granted to copy, distribute and/or modify this
+.\" document under the terms of the GNU Free Documentation License,
+.\" Version 1.3 or any later version published by the Free Software
+.\" Foundation; with no Invariant Sections, with no Front-Cover Texts,
+.\" and with no Back-Cover Texts.
+.\"
+.\" A copy of the Free Documentation License is included as a file
+.\" called FDL in the main directory of the groff source package.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_groff_trace_7_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY "groff \-m trace"
+.RI [ option\~ .\|.\|.\&]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+.I trace
+is a macro package for the
+.MR groff 7
+document formatting system,
+designed as an aid for debugging documents written in its language.
+.
+It issues a message to the standard error stream upon entry to and exit
+from each macro call.
+.
+This can ease the process of isolating errors in macro definitions.
+.
+.
+.P
+Activate the package by specifying the command-line option
+.RB \[lq] \-m\~trace \[rq]
+to the formatter program
+(often
+.MR groff 1 ).
+.
+You can achieve finer control by including the macro file within the
+document;
+invoke the
+.B mso
+request,
+as in
+.RB \[lq] .mso\~trace.tmac \[rq].
+.
+Only macros that are defined after this invocation are traced.
+.
+If the
+.B trace\-full
+register is set to a true value,
+as with the command-line option
+.RB \[lq] \-r\~trace\-full=1 \[rq],
+register and string assignments,
+along with some other requests,
+are traced also.
+.
+If another macro package should be traced as well,
+specify it after
+.RB \[lq] \-m\~trace \[rq]
+on the command line.
+.
+.
+.P
+The macro file
+.I trace.tmac
+is unusual because it does not contain any macros to be called by a
+user.
+.
+Instead,
+.IR groff 's
+macro definition and alteration facilities are wrapped such that they
+display diagnostic messages.
+.
+.
+.\" ====================================================================
+.SS Limitations
+.\" ====================================================================
+.
+Because
+.I trace.tmac
+wraps the
+.B de
+request
+(and its cousins),
+macro arguments are expanded one level more.
+.
+This causes problems if an argument uses four or more backslashes to
+delay interpretation of an escape sequence.
+.
+For example,
+the macro call
+.
+.RS
+.EX
+\&.foo \[rs]\[rs]\[rs]\[rs]n[bar]
+.EE
+.RE
+.
+normally passes \[lq]\[rs]\[rs]n[bar]\[rq] to macro \[lq]foo\[rq],
+but with
+.B de
+redefined,
+it passes \[lq]\[rs]n[bar]\[rq] instead.
+.
+.
+.P
+The solution to this problem is to use
+.IR groff 's
+.B \[rs]E
+escape sequence,
+an escape character that is not interpreted in copy mode.
+.
+.RS
+.EX
+\&.foo \[rs]En[bar]
+.EE
+.RE
+.
+.
+.\" ====================================================================
+.SH Examples
+.\" ====================================================================
+.
+We will illustrate
+.I trace.tmac
+using the shell's \[lq]here document\[rq] feature to supply
+.I groff
+with a document
+on the standard input stream.
+.
+Since we are interested only in diagnostic messages appearing on the
+standard error stream,
+we discard the formatted output by redirecting the standard output
+stream to
+.IR /dev/null .
+.
+.
+.\" ====================================================================
+.SS "Observing nested macro calls"
+.\" ====================================================================
+.
+Macro calls can be nested,
+even with themselves.
+.
+Tracing recurses along with them;
+this feature can help to detangle complex call stacks.
+.
+.
+.RS
+.P
+.EX
+.RB $\~ "cat <<EOF | groff \-m trace > /dev/null
+.B .de countdown
+.B .  nop \[rs]\[rs]$1
+.B .  nr count (\[rs]\[rs]$1 - 1)
+.B .  if \[rs]\[rs]n[count] .countdown \[rs]\[rs]n[count]
+.B ..
+.B .countdown 3
+.B blastoff
+.B EOF
+\~*** .de countdown
+\~*** de trace enter: .countdown "3"
+\~\~*** de trace enter: .countdown "2"
+\~\~\~*** de trace enter: .countdown "1"
+\~\~\~*** trace exit: .countdown "1"
+\~\~*** trace exit: .countdown "2"
+\~*** trace exit: .countdown "3"
+.EE
+.RE
+.
+.
+.\" ====================================================================
+.SS "Tracing with the mso request"
+.\" ====================================================================
+.
+Now let us activate tracing within the document,
+not with a command-line option.
+.
+We might do this when using a macro package like
+.I ms
+or
+.IR mom ,
+where we may not want to be distracted by traces of macros we didn't
+write.
+.
+.
+.RS
+.P
+.EX
+.RB $\~ "cat <<EOF | groff -ms > /dev/null"
+.B .LP
+.B This is my introductory paragraph.
+.B .mso trace.tmac
+.B .de Mymac
+.B ..
+.B .Mymac
+.B .PP
+.B Let us review the existing literature.
+.B EOF
+\~*** .de Mymac
+\~*** de trace enter: .Mymac
+\~*** trace exit: .Mymac
+.EE
+.RE
+.
+.
+.P
+As tracing was not yet active when the macros \[lq]LP\[rq] and
+\[lq]PP\[rq] were defined
+(by
+.IR s.tmac ),
+their calls were not traced;
+contrast with the macro \[lq]Mymac\[rq].
+.
+.
+.br
+.ne 3v
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:trace\:.tmac
+implements the package.
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+.I trace.tmac
+was written by James Clark.
+.
+This document was written by
+.MT groff\-bernd\:.warken\-72@\:web\:.de
+Bernd Warken
+.ME
+and
+.MT g.branden\:.robinson@\:gmail\:.com
+G.\& Branden Robinson
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is the primary
+.I groff
+manual.
+.
+You can browse it interactively with \[lq]info groff\[rq].
+.
+.
+.TP
+.MR groff 1
+gives an overview of the
+.I groff
+document formatting system.
+.
+.
+.TP
+.MR troff 1
+supplies details of the
+.B \-m
+command-line option.
+.
+.
+.TP
+.MR groff_tmac 5
+offers a survey of
+.I groff
+macro packages.
+.
+.
+.TP
+.MR groff 7
+is a reference manual for the
+.I groff
+language.
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_groff_trace_7_man_C]
+.do rr *groff_groff_trace_7_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

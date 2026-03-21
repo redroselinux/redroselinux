@@ -1,0 +1,1047 @@
+'\" t
+.TH \%troff 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+\%troff \- GNU
+.I roff
+typesetter and document formatter
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1989-2021 Free Software Foundation, Inc.
+.\"
+.\" This file is part of groff, the GNU roff type-setting system.
+.\"
+.\" Permission is granted to copy, distribute and/or modify this
+.\" document under the terms of the GNU Free Documentation License,
+.\" Version 1.3 or any later version published by the Free Software
+.\" Foundation; with no Invariant Sections, with no Front-Cover Texts,
+.\" and with no Back-Cover Texts.
+.\"
+.\" A copy of the Free Documentation License is included as a file
+.\" called FDL in the main directory of the groff source package.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_troff_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY \%troff
+.RB [ \-abcCEiRUz ]
+.RB [ \-d\~\c
+.IR ctext ]
+.RB [ \-d\~\c
+.IB string =\c
+.IR text ]
+.RB [ \-f\~\c
+.IR  font-family ]
+.RB [ \-F\~\c
+.IR  font-directory ]
+.RB [ \-I\~\c
+.IR  inclusion-directory ]
+.RB [ \-m\~\c
+.IR  macro-package ]
+.RB [ \-M\~\c
+.IR  macro-directory ]
+.RB [ \-n\~\c
+.IR  page-number ]
+.RB [ \-o\~\c
+.IR  page-list ]
+.RB [ \-r\~\c
+.IR  cnumeric-expression ]
+.RB [ \-r\~\c
+.IB register =\c
+.IR numeric-expression ]
+.RB [ \-T\~\c
+.IR  output-device ]
+.RB [ \-w\~\c
+.IR  warning-category ]
+.RB [ \-W\~\c
+.IR  warning-category ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY \%troff
+.B \-\-help
+.YS
+.
+.
+.SY \%troff
+.B \-v
+.
+.SY \%troff
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+GNU
+.I troff \" GNU
+transforms
+.MR groff 7
+language input into the device-independent output format described in
+.MR groff_out 5 ;
+.I \%troff
+is thus the heart of the GNU
+.I roff
+document formatting system.
+.
+If no
+.I file
+operands are given on the command line,
+or if
+.I file
+is
+.RB \[lq] \- \[rq],
+the standard input stream is read.
+.
+.
+.P
+GNU
+.I troff \" GNU
+is functionally compatible with the AT&T
+.I troff \" AT&T
+typesetter and features numerous extensions.
+.
+Many people prefer to use the
+.MR groff 1
+command,
+a front end which also runs preprocessors and output drivers in the
+appropriate order and with appropriate options.
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-h
+and
+.B \-\-help
+display a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.B \-a
+Generate a plain text approximation of the typeset output.
+.
+The read-only register
+.B .A
+is set to\~1.
+.
+This option produces a sort of abstract preview of the formatted output.
+.
+.
+.RS
+.IP \[bu] 2n
+Page breaks are marked by a phrase in angle brackets;
+for example,
+\[lq]<beginning of page>\[rq].
+.
+.
+.IP \[bu]
+Lines are broken where they would be in the formatted output.
+.
+.
+.IP \[bu]
+A horizontal motion of any size is represented as one space.
+.
+Adjacent horizontal motions are not combined.
+.
+Inter-sentence space nodes
+(those arising from the second argument to the
+.B .ss
+request)
+are not represented.
+.
+.
+.IP \[bu]
+Vertical motions are not represented.
+.
+.
+.IP \[bu]
+Special characters are rendered in angle brackets;
+for example,
+the default soft hyphen character appears as
+\[lq]<hy>\[rq].
+.RE
+.
+.
+.IP
+The above description should not be considered a specification;
+the details of
+.B \-a
+output are subject to change.
+.
+.
+.TP
+.B \-b
+Write a backtrace reporting the state of
+.IR \%troff 's
+input parser to the standard error stream with each diagnostic message.
+.
+The line numbers given in the backtrace might not always be correct,
+because
+.IR \%troff 's
+idea of line numbers can be confused by requests that append to
+.\" strings or (??? strings never contain newlines)
+macros.
+.
+.
+.TP
+.B \-c
+Start with color output disabled.
+.
+.
+.TP
+.B \-C
+Enable AT&T
+.I troff \" AT&T
+compatibility mode;
+implies
+.BR \-c .
+.
+See
+.MR groff_diff 7 .
+.
+.
+.TP
+.BI \-d\~ ctext
+.TQ
+.BI \-d\~ string = text
+Define
+.I roff
+.RI string\~ c
+or
+.I string
+as
+.I text.
+.
+.IR c \~must
+be one character;
+.I string
+can be of arbitrary length.
+.
+Such string assignments happen before any macro file is loaded,
+including the startup file.
+.
+Due to
+.MR getopt_long 3
+limitations,
+.IR c\~ cannot
+be,
+and
+.I string
+cannot contain,
+an equals sign,
+even though that is a valid character in a
+.I roff
+identifier.
+.
+.
+.TP
+.B \-E
+Inhibit
+.I \%troff
+error messages;
+implies
+.BR \-Ww .
+.
+This option does
+.I not
+suppress messages sent to the standard error stream by documents or
+macro packages using
+.B tm
+or related requests.
+.
+.
+.TP
+.BI \-f\~ fam
+Use
+.I fam
+as the default font family.
+.
+.
+.TP
+.BI \-F\~ dir
+Search in directory
+.I dir
+for the selected output device's directory of device and font
+description files.
+.
+See the description of
+.I GROFF_FONT_PATH
+in section \[lq]Environment\[rq] below for the default search locations
+and ordering.
+.
+.
+.TP
+.B \-i
+Read the standard input stream after all named input files have been
+processed.
+.
+.
+.TP
+.BI \-I\~ dir
+Search the directory
+.I dir
+for files
+(those named on the command line;
+in
+.BR psbb ,
+.BR so ,
+and
+.B soquiet
+requests;
+and in
+.RB \[lq] "\[rs]X\[aq]ps: import\[aq]" \[rq],
+.RB \[lq] "\[rs]X\[aq]ps: file\[aq]" \[rq],
+and
+.RB \[lq] "\[rs]X\[aq]pdf: pdfpic\[aq]" \[rq]
+device control escape sequences).
+.
+.B \-I
+may be specified more than once;
+each
+.I dir
+is searched in the given order.
+.
+To search the current working directory before others,
+add
+.RB \[lq] "\-I .\&" \[rq]
+at the desired place;
+it is otherwise searched last.
+.
+.B \-I
+works similarly to,
+and is named for,
+the \[lq]include\[rq]
+option of Unix C compilers.
+.
+.
+.TP
+.BI \-m\~ name
+Process the file
+.RI name .tmac
+prior to any input files.
+.
+If not found,
+.IR tmac. name
+is attempted.
+.
+.I name
+(in both arrangements)
+is presumed to be a macro file;
+see the description of
+.I GROFF_TMAC_PATH
+in section \[lq]Environment\[rq] below for the default search locations
+and ordering.
+.
+.
+.TP
+.BI \-M\~ dir
+Search directory
+.I dir
+for macro files.
+.
+See the description of
+.I GROFF_TMAC_PATH
+in section \[lq]Environment\[rq] below for the default search locations
+and ordering.
+.
+.
+.TP
+.BI \-n\~ num
+Begin numbering pages at
+.I num.
+.
+The default
+.RB is\~ 1 .
+.
+.
+.TP
+.BI \-o\~ list
+Output only pages in
+.I list,
+which is a comma-separated list of inclusive page ranges;
+.I n
+means page
+.I n,
+.IB m \- n
+means every page
+.RI between\~ m
+.RI and\~ n ,
+.BI \- n
+means every page up
+.RI to\~ n ,
+and
+.IB n \-
+means every page from
+.IR n \~on.
+.
+.I \%troff
+stops processing and exits after formatting the last page enumerated in
+.I list.
+.
+.
+.TP
+.BI \-r\~ cnumeric-expression
+.TQ
+.BI \-r\~ register = numeric-expression
+Define
+.I roff
+.RI register\~ c
+or
+.I register
+as
+.I numeric-expression.
+.
+.IR c \~must
+be a one-character name;
+.I register
+can be of arbitrary length.
+.
+Such register assignments happen before any macro file is loaded,
+including the startup file.
+.
+Due to
+.MR getopt_long 3
+limitations,
+.IR c\~ cannot
+be,
+and
+.I register
+cannot contain,
+an equals sign,
+even though that is a valid character in a
+.I roff
+identifier.
+.
+.
+.TP
+.B \-R
+Don't load
+.I troffrc
+and
+.IR troffrc\-end .
+.
+.
+.TP
+.BI \-T\~ dev
+Prepare output for device
+.I dev.
+.
+The default is
+.BR \%ps ;
+see
+.MR groff 1 .
+.
+.
+.TP
+.B \-U
+Operate in
+.I unsafe mode,
+enabling the
+.BR open ,
+.BR opena ,
+.BR pi ,
+.BR pso ,
+and
+.B sy
+requests,
+which are disabled by default because they allow an untrusted input
+document to write to arbitrary file names and run arbitrary commands.
+.
+This option also adds the current directory to the macro package search
+path;
+see the
+.B \-m
+and
+.B \-M
+options above.
+.
+.
+.TP
+.BI \-w\~ name
+.TQ
+.BI \-W\~ name
+Enable
+.RB ( \-w )
+or inhibit
+.RB ( \-W )
+warnings in category
+.I name.
+.
+See section \[lq]Warnings\[rq] below.
+.
+.
+.TP
+.B \-z
+Suppress formatted output.
+.
+.
+.\" ====================================================================
+.SH Warnings
+.\" ====================================================================
+.
+.\" BEGIN Keep parallel with groff.texi node "Warnings".
+.\" Caveat: the Texinfo manual sorts them by number, not name.
+Warning diagnostics emitted by
+.I \%troff
+are divided into named,
+numbered categories.
+.
+The name associated with each warning category is used by the
+.B \-w
+and
+.B \-W
+options.
+.
+Each category is also assigned a power of two;
+the sum of enabled category codes is used by the
+.B warn
+request and the
+.B .warn
+register.
+.
+Warnings of each category are produced under the following
+circumstances.
+.
+.
+.P
+.TS
+tab(@), center, box;
+c c c | c c c
+r rI lB | r rI lB.
+Bit@Code@Category@Bit@Code@Category
+_
+0@1@char@10@1024@reg
+1@2@number@11@2048@tab
+2@4@break@12@4096@right\-brace
+3@8@delim@13@8192@missing
+4@16@el@14@16384@input
+5@32@scale@15@32768@escape
+6@64@range@16@65536@space
+7@128@syntax@17@131072@font
+8@256@di@18@262144@ig
+9@512@mac@19@524288@color
+@@@20@1048576@file
+.TE
+.
+.
+.P
+.nr x \w'\fBright\-brace'+1n+\w'00000'u
+.ta \nxuR
+.
+.
+.TP \nxu+3n
+.BR break "\t4"
+A filled output line could not be broken such that its length was less
+than the output line length
+.BR \[rs]n[.l] .
+.
+This category is enabled by default.
+.
+.
+.TP
+.BR char "\t1"
+No mounted font defines a glyph for the requested character.
+.
+This category is enabled by default.
+.
+.
+.TP
+.BR color "\t524288"
+An undefined color name was selected,
+an attempt was made to define a color using an unrecognized color space,
+an invalid component in a color definition was encountered,
+or an attempt was made to redefine a default color.
+.
+.
+.TP
+.BR delim "\t8"
+The closing delimiter in an escape sequence was missing or mismatched.
+.
+.
+.TP
+.BR di "\t256"
+A
+.BR di ,
+.BR da ,
+.BR box ,
+or
+.B boxa
+request was invoked without an argument when there was no current
+diversion.
+.
+.
+.TP
+.BR el "\t16"
+The
+.B el
+request was encountered with no prior corresponding
+.B ie
+request.
+.
+.
+.TP
+.BR escape "\t32768"
+An unsupported escape sequence was encountered.
+.
+.
+.TP
+.BR file "\t1048576"
+An attempt was made to load a file that does not exist.
+.
+This category is enabled by default.
+.
+.
+.TP
+.BR font "\t131072"
+A non-existent font was selected,
+or the selection was ignored because a font selection escape sequence
+was used after the output line continuation escape sequence on an input
+line.
+.
+This category is enabled by default.
+.
+.
+.TP
+.BR ig "\t262144"
+An invalid escape sequence occurred in input ignored using the
+.B ig
+request.
+.
+This warning category diagnoses a condition that is an error when it
+occurs in non-ignored input.
+.
+.
+.TP
+.BR input "\t16384"
+An invalid character occurred on the input stream.
+.
+.
+.TP
+.BR mac "\t512"
+An undefined string,
+macro,
+or diversion was used.
+.
+When such an object is dereferenced,
+an empty one of that name is automatically created.
+.
+So,
+unless it is later deleted,
+at most one warning is given for each.
+.
+.
+.IP
+This warning is also emitted upon an attempt to move an unplanted trap
+macro.
+.
+In such cases,
+the unplanted macro is
+.I not
+dereferenced,
+so it is not created if it does not exist.
+.
+.
+.TP
+.BR missing "\t8192"
+A request was invoked with a mandatory argument absent.
+.
+.
+.TP
+.BR number "\t2"
+An invalid numeric expression was encountered.
+.
+This category is enabled by default.
+.
+.
+.TP
+.BR range "\t64"
+A numeric expression was out of range for its context.
+.
+.
+.TP
+.BR reg "\t1024"
+An undefined register was used.
+.
+When an undefined register is dereferenced,
+it is automatically defined with a value of\~0.
+.
+So,
+unless it is later deleted,
+at most one warning is given for each.
+.
+.
+.TP
+.BR right\-brace "\t4096"
+A right brace escape sequence
+.B \[rs]}
+was encountered where a number was expected.
+.
+.
+.TP
+.BR scale "\t32"
+A scaling unit inappropriate to its context was used in a numeric
+expression.
+.
+.
+.TP
+.BR space "\t65536"
+A space was missing between a request or macro and its argument.
+.
+This warning is produced when an undefined name longer than two
+characters is encountered and the first two characters of the name
+constitute a defined name.
+.
+No request is invoked,
+no macro called,
+and an empty macro is not defined.
+.
+This category is enabled by default.
+.
+It never occurs in compatibility mode.
+.
+.
+.TP
+.BR syntax "\t128"
+A self-contradictory hyphenation mode was requested;
+an empty or incomplete numeric expression was encountered;
+an operand to a numeric operator was missing;
+an attempt was made to define a recursive,
+empty,
+or nonsensical character class;
+or a
+.I groff
+extension conditional expression operator was used while in
+compatibility mode.
+.
+.
+.TP
+.BR tab "\t2048"
+A tab character was encountered where a number was expected,
+or appeared in an unquoted macro argument.
+.
+.
+.P
+Two warning names group other warning categories for convenience.
+.
+.
+.TP
+.B all
+All warning categories except
+.BR di ,
+.BR mac ,
+and
+.BR reg .
+.
+This shorthand is intended to produce all warnings that are useful with
+macro packages and documents written for AT&T
+.I troff \" AT&T
+and its descendants,
+which have less fastidious diagnostics than GNU
+.IR troff . \" GNU
+.
+.
+.TP
+.B w
+All warning categories.
+.
+Authors of documents and macro packages targeting
+.I groff
+are encouraged to use this setting.
+.\" END Keep parallel with groff.texi node "Warnings".
+.
+.
+.\" ====================================================================
+.SH Environment
+.\" ====================================================================
+.
+.I GROFF_FONT_PATH
+and
+.I GROFF_TMAC_PATH
+each accept a search path of directories;
+that is,
+a list of directory names separated by the system's path component
+separator character.
+.
+On Unix systems,
+this character is a colon (:);
+on Windows systems,
+it is a semicolon (;).
+.
+.
+.TP
+.I GROFF_FONT_PATH
+A list of directories in which to seek the selected output device's
+directory of device and font description files.
+.
+.I \%troff
+will scan directories given as arguments to any specified
+.B \-F
+options before these,
+then in a site-specific directory
+.RI ( /usr/\:\%share/\:\%groff/\:\%site\-font ),
+a standard location
+.RI ( /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font ),
+and a compatibility directory
+.RI ( /usr/\:\%lib/\:\%font )
+after them.
+.
+.
+.TP
+.I GROFF_TMAC_PATH
+A list of directories in which to search for macro files.
+.
+.I \%troff
+will scan directories given as arguments to any specified
+.B \-M
+options before these,
+then the current directory
+(only if in unsafe mode),
+the user's home directory,
+.if !'no'no' \{\
+a platform-specific directory
+.RI ( /usr/\:\%lib/\:\%groff/\:\%site\-tmac ),
+.\}
+a site-specific directory
+.RI ( /usr/\:\%share/\:\%groff/\:\%site\-tmac ),
+and a standard location
+.RI ( /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac )
+after them.
+.
+.
+.TP
+.I GROFF_TYPESETTER
+Set the default output device.
+.
+If empty or not set,
+.B \%ps
+is used.
+.
+The
+.B \-T
+option overrides
+.IR \%GROFF_TYPESETTER .
+.
+.
+.TP
+.I SOURCE_DATE_EPOCH
+A timestamp
+(expressed as seconds since the Unix epoch)
+to use as the output creation timestamp in place of the current time.
+.
+The time is converted to human-readable form using
+.MR localtime 3
+when the formatter starts up and stored in registers usable by documents
+and macro packages.
+.
+.
+.TP
+.I TZ
+The timezone to use when converting the current time
+(or value of
+.IR SOURCE_DATE_EPOCH )
+to human-readable form;
+see
+.MR tzset 3 .
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%troffrc
+is an initialization macro file loaded before any macro packages
+specified with
+.B \-m
+options.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%troffrc\-end
+is an initialization macro file loaded after all macro packages
+specified with
+.B \-m
+options.
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\: name \:.tmac
+are macro files distributed with
+.IR groff .
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%dev name /\:DESC
+describes the output device
+.IR name .
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%dev name / F
+describes the font
+.I F
+of device
+.I name.
+.
+.
+.P
+.I troffrc
+and
+.I troffrc\-end
+are sought neither in the current nor the home directory by default for
+security reasons,
+even if the
+.B \-U
+option is specified.
+.
+Use the
+.B \-M
+command-line option or the
+.I GROFF_TMAC_PATH
+environment variable to add these directories to the search path if
+necessary.
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+The GNU version of
+.I troff \" generic
+was originally written by James Clark;
+he also wrote the original version of this document,
+which was updated by
+.MT wl@\:gnu\:.org
+Werner Lemberg
+.ME ,
+.MT groff\-bernd\:.warken\-72@\:web\:.de
+Bernd Warken
+.ME ,
+and
+.MT g.branden\:.robinson@\:gmail\:.com
+G.\& Branden Robinson
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is the primary
+.I groff
+manual.
+.
+You can browse it interactively with \[lq]info groff\[rq].
+.
+.
+.TP
+.MR groff 1
+offers an overview of the GNU
+.I roff
+system
+and describes its front end executable.
+.
+.
+.TP
+.MR groff 7
+details the
+.I groff
+language,
+including a short but complete reference of all predefined requests,
+registers,
+and escape sequences.
+.
+.
+.TP
+.MR groff_char 7
+explains the syntax of
+.I groff
+special character escape sequences,
+and lists all special characters predefined by the language.
+.
+.
+.TP
+.MR groff_diff 7
+enumerates the differences between
+AT&T device-independent
+.I troff \" AT&T
+and
+.IR groff .
+.
+.
+.TP
+.MR groff_font 5
+covers the format of
+.I groff
+device and font description files.
+.
+.
+.TP
+.MR groff_out 5
+describes the format of
+.IR \%troff 's
+output.
+.
+.
+.TP
+.MR groff_tmac 5
+includes information about macro files that ship with
+.IR groff .
+.
+.
+.TP
+.MR roff 7
+supplies background on
+.I roff
+systems in general,
+including pointers to further related documentation.
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_troff_1_man_C]
+.do rr *groff_troff_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

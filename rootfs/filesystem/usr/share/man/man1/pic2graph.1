@@ -1,0 +1,234 @@
+.TH pic2graph 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+pic2graph \- convert a
+.I pic
+diagram into a cropped image
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" This documentation is released to the public domain.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_pic2graph_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY pic2graph
+.RB [ \-unsafe ]
+.RB [ \-format\~\c
+.IR output-format ]
+.RB [ \-eqn\~\c
+.IR delimiters ]
+.RI [ convert-argument \~.\|.\|.]
+.YS
+.
+.
+.SY pic2graph
+.B \-\-help
+.YS
+.
+.
+.SY pic2graph
+.B \-v
+.
+.SY pic2graph
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+.I pic2graph
+reads a
+.MR \%pic 1
+program from the standard input and writes an image file,
+by default in Portable Network Graphics (PNG) format,
+to the standard output.
+.
+It furthermore translates
+.MR \%eqn 1
+constructs, so it can be used for generating images of mathematical
+formulae.
+.
+.
+.PP
+The input PIC code should
+.I not
+be wrapped with the
+.B .PS
+and
+.BR .PE / .PF
+macros that normally guard it within
+.MR groff 1
+documents.
+.
+.
+.\" FIXME: How old?  This text hasn't been touched since 2008 at latest.
+.\" Older versions of
+.\" .I \%convert
+.\" will produce a black-on-white graphic; newer ones may produce a
+.\" black-on-transparent graphic.
+.
+.PP
+Arguments not recognized by
+.I pic2graph
+are passed to the ImageMagick or GraphicsMagick program
+.MR convert 1 .
+.
+.
+By specifying these, you can give your image a border,
+.\" Transparent backgrounds are the default in 2018.
+.\" force the background transparent,
+set the image's pixel density,
+or perform other useful transformations.
+.
+.
+.PP
+The output image is clipped using
+.IR \%convert 's
+.B \-trim
+option to the smallest possible bounding box that contains all the black
+pixels.
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-\-help
+displays a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.TP
+.BI \-eqn\~ delimiters
+Use
+.I delimiters
+as the opening and closing
+characters that delimit
+.I \%eqn
+directives;
+the default is \(lq$$\(rq.
+.
+The option argument
+.I delimiters
+should be a two-character string,
+but an empty string (\(dq\(dq) is accepted as a directive to disable
+.I \%eqn
+processing.
+.
+.
+.TP
+.BI \-format\~ output-format
+Write the image in
+.IR output-format ,
+which must be understood by
+.IR \%convert ;
+the default is PNG.
+.
+.
+.TP
+.B \-unsafe
+Run
+.I groff
+in
+.I unsafe
+mode, enabling the PIC command
+.B sh
+to execute arbitrary Unix shell commands.
+.
+The
+.I groff
+default is to forbid this.
+.
+.
+.\" ====================================================================
+.SH Environment
+.\" ====================================================================
+.
+.TP
+.I \%GROFF_TMPDIR
+.TQ
+.I \%TMPDIR
+.TQ
+.I TMP
+.TQ
+.I TEMP
+These environment variables are searched in the given order to determine
+the directory where temporary files will be created.
+.
+If none are set,
+.I /tmp
+is used.
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+.I pic2graph
+was written by
+.MT esr@\:thyrsus\:.com
+Eric S.\& Raymond
+.ME ,
+based on a recipe by W.\& Richard Stevens.
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+W.\& Richard Stevens,
+.UR http://\:www\:.kohala\:.com/\:start/\:troff/\:pic2html\:.html
+.I Turning PIC into HTML
+.UE
+.
+.
+.PP
+.MR eqn2graph 1 ,
+.MR grap2graph 1 ,
+.MR \%pic 1 ,
+.MR \%eqn 1 ,
+.MR groff 1 ,
+.MR convert 1
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_pic2graph_1_man_C]
+.do rr *groff_pic2graph_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

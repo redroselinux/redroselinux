@@ -1,0 +1,2240 @@
+'\" et
+.TH \%eqn 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+\%eqn \- format mathematics (equations) for
+.I groff
+or MathML
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1989-2023 Free Software Foundation, Inc.
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of
+.\" this manual under the conditions for verbatim copying, provided that
+.\" the entire resulting derived work is distributed under the terms of
+.\" a permission notice identical to this one.
+.\"
+.\" Permission is granted to copy and distribute translations of this
+.\" manual into another language, under the above conditions for
+.\" modified versions, except that this permission notice may be
+.\" included in translations approved by the Free Software Foundation
+.\" instead of in the original English.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_eqn_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.ie \n(.V<\n(.v \
+.  ds tx T\h'-.1667m'\v'.224m'E\v'-.224m'\h'-.125m'X
+.el \
+.  ds tx TeX
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY \%eqn
+.RB [ \-CNrR ]
+.RB [ \- d
+.IR xy ]
+.RB [ \-f
+.IR F ]
+.RB [ \-m
+.IR n ]
+.RB [ \-M
+.IR dir ]
+.RB [ \-p
+.IR n ]
+.RB [ \-s
+.IR n ]
+.RB [ \-T
+.IR dev ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY \%eqn
+.B \-\-help
+.YS
+.
+.
+.SY \%eqn
+.B \-v
+.
+.SY \%eqn
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The GNU implementation of
+.I eqn \" GNU
+is part of the
+.MR groff 7
+document formatting system.
+.
+.I \%eqn
+is a
+.MR \%troff 1
+preprocessor that translates expressions in its own language,
+embedded in
+.MR roff 7
+input files,
+into mathematical notation typeset by
+.MR \%troff 1 .
+.
+It copies each
+.IR file 's
+contents to the standard output stream,
+translating each
+.I equation
+between lines starting with
+.B .EQ
+and
+.BR .EN ,
+or within a pair of user-specified delimiters.
+.
+Normally,
+.I \%eqn
+is not executed directly by the user,
+but invoked by specifying the
+.B \-e
+option to
+.MR groff 1 .
+.
+While GNU
+.IR eqn 's \" GNU
+input syntax is highly compatible with AT&T
+.IR eqn , \" AT&T
+the output
+.I \%eqn
+produces cannot be processed by AT&T
+.IR troff ; \" AT&T
+GNU
+.I troff \" GNU
+(or a
+.I troff \" generic
+implementing relevant GNU extensions)
+must be used.
+.
+If no
+.I file
+operands are given on the command line,
+or if
+.I file
+is
+.RB \[lq] \- \[rq],
+.I \%eqn
+reads the standard input stream.
+.
+.
+.P
+Unless the
+.B \-R
+option is used,
+.I \%eqn
+searches for the file
+.I eqnrc
+in the directories given with the
+.B \-M
+option first,
+then in
+.if !'no'no' .IR /usr/\:\%lib/\:\%groff/\:\%site\-tmac ,
+.IR /usr/\:\%share/\:\%groff/\:\%site\-tmac ,
+and finally in the standard macro directory
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac .
+.
+If it exists and is readable,
+.I \%eqn
+processes it before any input files.
+.
+.
+.P
+This man page primarily discusses the differences between GNU
+.I eqn \" GNU
+and AT&T
+.IR eqn .\" AT&T
+.
+Most of the new features of the GNU
+.I eqn \" GNU
+input language are based on \*[tx].
+.
+There are some references to the differences between \*[tx] and GNU
+.I eqn \" GNU
+below;
+these may safely be ignored if you do not know \*[tx].
+.
+.
+.P
+Three points are worth special note. \" good, bad, and different
+.
+.
+.IP \[bu] 2n
+GNU
+.I eqn \" GNU
+emits Presentation MathML output when invoked with the
+.RB \[lq] "\-T\~MathML" \[rq]
+option.
+.
+.
+.IP \[bu]
+GNU
+.I eqn \" GNU
+does not support terminal devices well,
+though it may suffice for simple inputs.
+.
+.
+.IP \[bu]
+GNU
+.I eqn
+sets the input token
+.RB \[lq] .\|.\|.\& \[rq]
+as an ellipsis on the text baseline,
+not the three centered dots of AT&T
+.IR eqn . \" AT&T
+.
+Set an ellipsis on the math axis with the GNU extension macro
+.BR cdots .
+.
+.
+.\" ====================================================================
+.SS "Anatomy of an equation"
+.\" ====================================================================
+.
+.I eqn
+input consists of tokens.
+.
+Consider a form of Newton's second law of motion.
+.
+The input
+.
+.
+.P
+.RS
+.EX
+\&.EQ
+F =
+m a
+\&.EN
+.EE
+.RE
+.
+.
+.P
+becomes
+.EQ
+F =
+m a.
+.EN
+.
+Each of
+.BR F ,
+.BR = ,
+.BR m ,
+and
+.B a
+is a token.
+.
+.
+Spaces and newlines are interchangeable;
+they separate tokens but do not break lines or produce space in
+the output.
+.
+.
+.P
+The following input characters not only separate tokens,
+but manage their grouping and spacing as well.
+.
+.
+.TP
+.B "{ }"
+Braces perform grouping.
+.
+Whereas
+.RB \[lq] "e sup a b" \[rq]
+expresses
+.ie n .RI \[lq]( e "\~to the\~" a )\~times\~ b \[rq],
+.el \{\
+.EQ
+e sup a b ,
+.EN
+.\}
+.RB \[lq] "e sup { a b }" \[rq]
+means
+.ie n .RI \[lq] e "\~to the\~(" a \~times\~ b )\[rq].
+.el \{\
+.EQ
+e sup { a b } .
+.EN
+.\}
+.
+When immediately preceded by a
+.RB \[lq] left \[rq]
+or
+.RB \[lq] right \[rq]
+primitive,
+a brace loses its special meaning.
+.
+.
+.TP
+.B "\[ha] \[ti]
+are the
+.I "half space"
+and
+.I "full space,"
+respectively.
+.
+Use them to tune the appearance of the output.
+.
+.
+.P
+Tab and leader characters separate tokens as well as advancing the
+drawing position to the next tab stop,
+but are seldom used in
+.I eqn
+input.
+.
+When they occur,
+they must appear at the outermost lexical scope.
+.
+This roughly means that they can't appear within braces that are
+necessary to disambiguate the input;
+.I \%eqn
+will diagnose an error in this event.
+.
+(See subsection \[lq]Macros\[rq] below for additional token separation
+rules.)
+.
+.
+.P
+Other tokens are primitives,
+macros,
+an argument to either of the foregoing,
+or components of an equation.
+.
+.
+.br
+.ne 4v
+.P
+.I Primitives
+are fundamental keywords of the
+.I eqn
+language.
+.
+They can configure an aspect of the preprocessor's state,
+as when setting a \[lq]global\[rq] font selection or type size
+.RB ( gfont
+and
+.BR gsize ),
+or declaring or deleting macros
+.RB \%(\[lq] define \[rq]
+and
+.BR undef );
+these are termed
+.I commands.
+.
+Other primitives perform formatting operations on the tokens after them
+(as with
+.BR fat ,
+.BR over ,
+.BR sqrt ,
+or
+.BR up ).
+.
+.
+.P
+Equation
+.I components
+include mathematical variables,
+constants,
+numeric literals,
+and operators.
+.
+.I \%eqn
+remaps some input character sequences to
+.I groff
+special character escape sequences for economy in equation entry and to
+ensure that glyphs from an unstyled font are used;
+see
+.MR groff_char 7 .
+.
+.
+.P
+.RS
+.TS
+tab(@);
+Lf(CR) Lf(CR) Lw(1i) Lf(CR) Lf(CR).
++@\[rs][pl]@\&@\[aq]@\[rs][fm]
+-@\[rs][mi]@\&@<=@\[rs][<=]
+\&=@\[rs][eq]@\&@>=@\[rs][>=]
+.TE
+.RE
+.
+.
+.P
+.I Macros
+permit primitives,
+components,
+and other macros to be collected and referred to by a single token.
+.
+Predefined macros make convenient the preparation of
+.I eqn
+input in a form resembling its spoken expression;
+for example,
+consider
+.BR cos ,
+.BR hat ,
+.BR inf ,
+and
+.BR lim .
+.
+.
+.\" ====================================================================
+.SS "Spacing and typeface"
+.\" ====================================================================
+.
+GNU
+.I eqn
+imputes types to the components of an equation,
+adjusting the spacing between them accordingly.
+.
+Recognized types are as follows;
+most affect spacing only,
+whereas the
+.RB \%\[lq] letter \[rq]
+subtype of
+.RB \%\[lq] ordinary \[rq]
+also assigns a style.
+.
+.
+.RS 2n \" we need quite a bit of horizontal space for this table
+.P
+.TS
+Lf(CR) Lx
+Af(CR) Lx
+Af(CR) Lx
+Lf(CR) Lx.
+ordinary	T{
+character such as \[lq]1\[rq],
+\[lq]a\[rq],
+or
+\[lq]!\&\[rq]
+T}
+letter	character to be italicized by default
+digit	\f[I]n/a\f[]
+operator	T{
+large operator such as
+.ds Su \[lq]\s+5\[*S]\s0\[rq]
+.if \n(.g .if !c\[*S] .ds Su the summation operator
+\*[Su]
+.rm Su
+T}
+binary	binary operator such as \[lq]\[pl]\[rq]
+relation	relational operator such as \[lq]=\[rq]
+opening	opening bracket such as \[lq](\[rq]
+closing	closing bracket such as \[lq])\[rq]
+punctuation	punctuation character such as \[lq],\[rq]
+inner	sub-formula contained within brackets
+suppress	component to which automatic spacing is not applied
+.TE
+.RE
+.
+.
+.P
+Two primitives apply types to equation components.
+.
+.
+.TP
+.BI type\~ "t e"
+Apply
+.RI type\~ t
+to
+.RI expression\~ e .
+.
+.
+.TP
+.BI chartype\~ "t text"
+Assign each character in (unquoted)
+.I text
+.RI type\~ t ,
+persistently.
+.
+.
+.P
+.I \%eqn \" GNU
+sets up spacings and styles as if by the following commands.
+.
+.P
+.RS
+.TS
+tab(@);
+Lf(CR)1 Lf(CR).
+chartype \[dq]letter\[dq]@abcdefghiklmnopqrstuvwxyz
+chartype \[dq]letter\[dq]@ABCDEFGHIKLMNOPQRSTUVWXYZ
+chartype \[dq]letter\[dq]@\[rs][*a]\[rs][*b]\[rs][*g]\[rs][*d]\[rs][*e]\
+\[rs][*z]
+chartype \[dq]letter\[dq]@\[rs][*y]\[rs][*h]\[rs][*i]\[rs][*k]\[rs][*l]\
+\[rs][*m]
+chartype \[dq]letter\[dq]@\[rs][*n]\[rs][*c]\[rs][*o]\[rs][*p]\[rs][*r]\
+\[rs][*s]
+chartype \[dq]letter\[dq]@\[rs][*t]\[rs][*u]\[rs][*f]\[rs][*x]\[rs][*q]\
+\[rs][*w]
+chartype \[dq]binary\[dq]@*\[rs][pl]\[rs][mi]
+chartype \[dq]relation\[dq]@<>\[rs][eq]\[rs][<=]\[rs][>=]
+chartype \[dq]opening\[dq]@{([
+chartype \[dq]closing\[dq]@})]
+chartype \[dq]punctuation\[dq]@,;:.
+chartype \[dq]suppress\[dq]@\[ha]\[ti]
+.TE
+.RE
+.
+.
+.P
+.I \%eqn
+assigns all other ordinary and special
+.I roff
+characters,
+including numerals 0\[en]9,
+the
+.RB \%\[lq] ordinary \[rq]
+type.
+.
+(The
+.RB \[lq] digit \[rq]
+type is not used,
+but is available for customization.)
+.\" XXX: How would you actually customize it, though?  There doesn't
+.\" seem to be a means of replacing the font associated with a type.
+.\" Is the "digit" type just cruft?
+.
+In keeping with common practice in mathematical typesetting,
+lowercase,
+but not uppercase,
+Greek letters are assigned the
+.RB \%\[lq] letter \[rq]
+type to style them in italics.
+.
+The macros for producing ellipses,
+.RB \[lq] .\|.\|. \[rq],
+.BR cdots ,
+and
+.BR ldots ,
+use the
+.RB \%\[lq] inner \[rq]
+type.
+.
+.
+.\" ====================================================================
+.SS Primitives
+.\" ====================================================================
+.
+.I \%eqn
+supports without alteration the AT&T
+.I eqn \" AT&T
+primitives
+.BR above ,
+.BR back ,
+.BR bar ,
+.BR bold ,
+.BR \%define ,
+.BR down ,
+.BR fat ,
+.BR font ,
+.BR from ,
+.BR fwd ,
+.BR gfont ,
+.BR gsize ,
+.BR italic ,
+.BR left ,
+.BR lineup ,
+.BR mark ,
+.BR \%matrix ,
+.BR \%ndefine ,
+.BR over ,
+.BR right ,
+.BR roman ,
+.BR size ,
+.BR sqrt ,
+.BR sub ,
+.BR sup ,
+.BR \%tdefine ,
+.BR to ,
+.BR \%under ,
+and
+.BR up .
+.
+.
+.\" ====================================================================
+.SS "New primitives"
+.\" ====================================================================
+.
+The GNU extension primitives
+.RB \[lq] type \[rq]
+and
+.B \%chartype
+are discussed in subsection \[lq]Spacing and typeface\[rq] above;
+.RB \[lq] set \[rq]
+in subsection \[lq]Customization\[rq] below;
+and
+.B grfont
+and
+.B gbfont
+in subsection \[lq]Fonts\[rq] below.
+.
+In the following synopses,
+.I X
+can be any character not appearing in the parameter thus bracketed.
+.
+.
+.TP
+.IB e1 \~accent\~ e2
+Set
+.I e2
+as an accent over
+.IR e1 .
+.
+.I e2
+is assumed to be at the appropriate height for a lowercase letter
+without an ascender;
+.I \% eqn
+vertically shifts it depending on
+.IR e1 's
+height.
+.
+For example,
+.B hat
+is defined as follows.
+.
+.
+.RS
+.IP
+.EX
+accent { "\[ha]" }
+.EE
+.RE
+.
+.
+.IP
+.BR dotdot ,
+.BR dot ,
+.BR tilde ,
+.BR vec ,
+and
+.B dyad
+are also defined using the
+.B \%accent
+primitive.
+.
+.
+.TP
+.BI big\~ e
+Enlarge the expression
+.IR e ;
+semantics like those of CSS \[lq]large\[rq] are intended.
+.
+In
+.I \%troff
+output,
+the type size is increased by\~5 scaled points.
+.
+MathML output emits the following.
+.
+.
+.RS
+.IP
+.EX
+<mstyle \%mathsize=\[aq]big\[aq]>
+.EE
+.RE
+.
+.
+.TP
+.BI copy\~ file
+.TQ
+.BI include\~ file
+Interpolate the contents of
+.IR file ,
+omitting lines
+beginning with
+.B .EQ
+or
+.BR .EN .
+.
+If a relative path name,
+.I file
+is sought relative to the current working directory.
+.
+.
+.TP
+.BI ifdef\~ "name X anything X"
+If
+.I name
+is defined as a primitive or macro,
+interpret
+.IR anything .
+.
+.
+.TP
+.BI nosplit\~ text
+As
+.RI \[dq] text \[dq],
+but since
+.I text
+is not quoted it is subject to macro expansion;
+it is not split up and the spacing between characters not adjusted per
+subsection \[lq]Spacing and typeface\[rq] above.
+.
+.
+.TP
+.IB e\~ opprime
+As
+.BR prime ,
+but set the prime symbol as an operator
+.RI on\~ e .
+.
+In the input
+.RB \[lq] "A opprime sub 1" \[rq],
+the\~\[lq]1\[rq] is tucked under the prime as a subscript to
+the\~\[lq]A\[rq]
+(as is conventional in mathematical typesetting),
+whereas when
+.B prime
+is used,
+the\~\[lq]1\[rq] is a subscript to the prime character.
+.
+The precedence of
+.B \%opprime
+is the same as that of
+.B bar
+and
+.RB \%\[lq] under \[rq],
+and higher than that of other primitives except
+.B \%accent
+and
+.BR uaccent .
+.
+In unquoted text,
+a neutral apostrophe
+.RB ( \[aq] )
+that is not the first character on the input line is treated like
+.BR \%opprime .
+.
+.
+.TP
+.BI sdefine\~ "name X anything X"
+As
+.RB \%\[lq] define \[rq],
+but
+.I name
+is not recognized as a macro if called with arguments.
+.
+.
+.TP
+.IB e1 \~smallover\~ e2
+As
+.BR over ,
+but reduces the type size of
+.I e1
+and
+.IR e2 ,
+and puts less vertical space between
+.I e1
+and
+.I e2
+and the fraction bar.
+.
+The
+.B over
+primitive corresponds to the \*[tx]
+.B \[rs]over
+primitive in displayed equation styles;
+.B smallover
+corresponds to
+.B \[rs]over
+in non-display (\[lq]inline\[rq]) styles.
+.
+.
+.br
+.ne 5v
+.TP
+.BI space\~ n
+Set extra vertical spacing around the equation,
+replacing the default values,
+where
+.IR n \~is
+an integer in hundredths of an em.
+.
+If positive,
+.IR n \~increases
+vertical spacing before the equation;
+if negative,
+it does so after the equation.
+.
+This primitive provides an interface to
+.IR groff 's
+.B \[rs]x
+escape sequence,
+but with the opposite sign convention.
+.
+It has no effect if the equation is part of a
+.MR \%pic 1
+picture.
+.
+.
+.TP
+.BI special\~ "troff-macro e"
+Construct an object by calling
+.I troff-macro
+.RI on\~ e .
+.
+The
+.I troff \" generic
+string
+.B 0s
+contains the
+.I eqn \" generic
+output
+.RI for\~ e ,
+and the registers
+.BR 0w ,
+.BR 0h ,
+.BR 0d ,
+.BR 0skern ,
+and
+.B 0skew
+the width,
+height,
+depth,
+subscript kern,
+and skew
+.RI of\~ e ,
+respectively.
+.
+(The
+.I subscript kern
+of an object indicates how much a subscript on that object should be
+\[lq]tucked in\[rq],
+or placed to the left relative to a non-subscripted glyph of the same
+size.
+.
+The
+.I skew
+of an object is how far to the right of the center of the object an
+accent over it should be placed.)
+.
+The macro must modify
+.B 0s
+so that it outputs the desired result,
+returns the drawing position to the text baseline at the beginning of
+.IR e ,
+and updates the foregoing registers to correspond to the new dimensions
+of the result.
+.
+.
+.IP
+Suppose you want a construct that \[lq]cancels\[rq] an expression by
+drawing a diagonal line through it.
+.
+.
+.br
+.ne 11v
+.RS
+.IP
+.EX
+\&.de Ca
+\&.  ds 0s \[rs]
+\[rs]Z\[aq]\[rs]\[rs]*(0s\[aq]\[rs]
+\[rs]v\[aq]\[rs]\[rs]n(0du\[aq]\[rs]
+\[rs]D\[aq]l \[rs]\[rs]n(0wu \-\[rs]\[rs]n(0hu\-\[rs]\
+\[rs]n(0du\[aq]\[rs]
+\[rs]v\[aq]\[rs]\[rs]n(0hu\[aq]
+\&..
+\&.EQ
+special Ca "x \[rs][mi] 3 \[rs][pl] x" \[ti] 3
+\&.EN
+.EE
+.RE
+.
+.
+.IP
+We use the
+.B \[rs][mi]
+and
+.B \[rs][pl]
+special characters instead of + and \-
+because they are part of the argument to a
+.I \%troff
+macro,
+so
+.I \%eqn
+does not transform them to mathematical glyphs for us.
+.
+Here's a more complicated construct that draws a box around an
+expression;
+the bottom of the box rests on the text baseline.
+.
+We define the
+.I eqn \" generic
+macro
+.B box
+to wrap the call of the
+.I \%troff
+macro
+.BR Bx .
+.
+.
+.br
+.ne 17v
+.RS
+.IP
+.EX
+\&.de Bx
+\&.ds 0s \[rs]
+\[rs]Z\[aq]\[rs]\[rs]h\[aq]1n\[aq]\[rs]\[rs]*[0s]\[aq]\[rs]
+\[rs]v\[aq]\[rs]\[rs]n(0du+1n\[aq]\[rs]
+\[rs]D\[aq]l \[rs]\[rs]n(0wu+2n 0\[aq]\[rs]
+\[rs]D\[aq]l 0 \-\[rs]\[rs]n(0hu\-\[rs]\[rs]n(0du\-2n\[aq]\[rs]
+\[rs]D\[aq]l \-\[rs]\[rs]n(0wu\-2n 0\[aq]\[rs]
+\[rs]D\[aq]l 0 \[rs]\[rs]n(0hu+\[rs]\[rs]n(0du+2n\[aq]\[rs]
+\[rs]h\[aq]\[rs]\[rs]n(0wu+2n\[aq]
+\&.nr 0w +2n
+\&.nr 0d +1n
+\&.nr 0h +1n
+\&..
+\&.EQ
+define box \[aq] special Bx $1 \[aq]
+box(foo) \[ti] "bar"
+\&.EN
+.EE
+.RE
+.
+.
+.TP
+.BI "split \[dq]" text \[dq]
+As
+.IR text ,
+but since
+.I text
+is quoted,
+it is not subject to macro expansion;
+it is split up and the spacing between characters adjusted per
+subsection \[lq]Spacing and typeface\[rq] above.
+.
+.
+.TP
+.IB e1 \~uaccent\~ e2
+Set
+.I e2
+as an accent under
+.IR e1 .
+.
+.I e2
+is assumed to be at the appropriate height for a letter without a
+descender;
+.I \% eqn
+vertically shifts it depending on whether
+.I e1
+has a descender.
+.
+.B utilde
+is predefined using
+.B uaccent
+as a tilde accent below the baseline.
+.
+.
+.TP
+.BI undef\~ name
+Remove definition of macro or primitive
+.IR name ,
+making it undefined.
+.
+.
+.TP
+.BI vcenter\~ e
+Vertically center
+.I e
+about the
+.IR "math axis" ,
+a horizontal line upon which fraction bars and characters such as
+\[lq]\[pl]\[rq] and \[lq]\[mi]\[rq] are aligned.
+.
+MathML already behaves this way,
+so
+.I \%eqn
+ignores this primitive when producing that output format.
+.
+The built-in
+.B sum
+macro is defined as if by the following.
+.
+.RS
+.IP
+.EX
+define sum ! { type "operator" vcenter size +5 \[rs](*S } !
+.EE
+.RE
+.
+.
+.br
+.ne 8v
+.\" ====================================================================
+.SS "Extended primitives"
+.\" ====================================================================
+.
+GNU
+.I eqn \" GNU
+extends the syntax of some AT&T
+.I eqn \" AT&T
+primitives,
+introducing one deliberate incompatibility.
+.
+.
+.TP
+.B "delim on"
+.I \%eqn
+recognizes an
+.RB \[lq] on \[rq]
+argument to the
+.B \%delim
+primitive specially,
+restoring any delimiters previously disabled with
+.RB \%\[lq] "delim off" \[rq].
+.
+If delimiters haven't been specified,
+neither command has effect.
+.
+Few
+.I eqn \" generic
+documents are expected to use \[lq]o\[rq] and \[lq]n\[rq] as left and
+right delimiters,
+respectively.
+.
+If yours does,
+consider swapping them,
+or select others.
+.
+.
+.TP
+.BI col\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI ccol\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI lcol\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI rcol\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI pile\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI cpile\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI lpile\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+.TQ
+.BI rpile\~ n\~\c
+.BR {\~ .\|.\|.\& \~}
+The integer
+.RI value\~ n
+(in hundredths of an em)
+increases the vertical spacing between rows,
+using
+.IR groff 's
+.B \[rs]x
+escape sequence
+(the value has no effect in MathML mode).
+.
+Negative values are accepted but have no effect.
+.
+If more than one
+.I n
+occurs in a matrix or pile,
+the largest is used.
+.
+.
+.\" ====================================================================
+.SS Customization
+.\" ====================================================================
+.
+When
+.I \%eqn
+generates
+.I \%troff
+input,
+the appearance of equations is controlled by a large number of
+parameters.
+.
+They have no effect when generating MathML,
+which delegates typesetting to a MathML rendering engine.
+.
+Configure these parameters with the
+.B set
+primitive.
+.
+.
+.TP
+.BI set\~ "p n"
+assigns
+.RI parameter\~ p
+the integer
+.RI value\~ n ;
+.IR n \~is
+interpreted in units of hundredths of an em unless otherwise stated.
+.
+For example,
+.
+.
+.RS
+.IP
+.EX
+set x_height 45
+.EE
+.RE
+.
+.
+.IP
+says that
+.I \%eqn
+should assume that the font's x-height is 0.45\~ems.
+.
+.
+.RS
+.P
+Available parameters are as follows;
+defaults are shown in parentheses.
+.
+We intend these descriptions to be expository rather than rigorous.
+.
+.
+.TP 17n
+.B minimum_size
+sets a floor for the type size
+(in scaled points)
+at which equations are set
+.RB ( 5 ).
+.
+.
+.TP
+.B fat_offset
+The
+.B fat
+primitive emboldens an equation by overprinting two copies of the
+equation horizontally offset by this amount
+.RB ( 4 ).
+.
+In MathML mode,
+components to which
+.B \%fat_offset
+applies instead use the following.
+.
+.RS
+.RS
+.EX
+<mstyle mathvariant=\[aq]double\-struck\[aq]>
+.EE
+.RE
+.RE
+.
+.
+.TP
+.B over_hang
+A fraction bar is longer by twice this amount than
+the maximum of the widths of the numerator and denominator;
+in other words,
+it overhangs the numerator and denominator by at least this amount
+.RB ( 0 ).
+.
+.
+.TP
+.B accent_width
+When
+.B bar
+or
+.B \%under
+is applied to a single character,
+the line is this long
+.RB ( 31 ).
+.
+Normally,
+.B bar
+or
+.B \%under
+produces a line whose length is the width of the object to which it
+applies;
+in the case of a single character,
+this tends to produce a line that looks too long.
+.
+.
+.TP
+.B delimiter_factor
+Extensible delimiters produced with the
+.B left
+and
+.B right
+primitives have a combined height and depth of at least this many
+thousandths of twice the maximum amount by which the sub-equation that
+the delimiters enclose extends away from the axis
+.RB ( 900 ).
+.
+.
+.TP
+.B delimiter_shortfall
+Extensible delimiters produced with the
+.B left
+and
+.B right
+primitives have a combined height and depth not less than the
+difference of twice the maximum amount by which the sub-equation that
+the delimiters enclose extends away from the axis and this amount
+.RB ( 50 ).
+.
+.
+.TP
+.B null_delimiter_space
+This much horizontal space is inserted on each side of a fraction
+.RB ( 12 ).
+.
+.
+.TP
+.B script_space
+The width of subscripts and superscripts is increased by this amount
+.RB ( 5 ).
+.
+.
+.TP
+.B thin_space
+This amount of space is automatically inserted after punctuation
+characters.
+.
+It also configures the width of the space produced by the
+.B \[ha]
+token
+.RB ( 17 ).
+.
+.
+.TP
+.B medium_space
+This amount of space is automatically inserted on either side of
+binary operators
+.RB ( 22 ).
+.
+.
+.TP
+.B thick_space
+This amount of space is automatically inserted on either side of
+relations.
+.
+It also configures the width of the space produced by the
+.B \[ti]
+token
+.RB ( 28 ).
+.
+.
+.TP
+.B x_height
+The height of lowercase letters without ascenders such as \[lq]x\[rq]
+.RB ( 45 ).
+.
+.
+.TP
+.B axis_height
+The height above the baseline of the center of characters such as
+\[lq]\[pl]\[rq] and \[lq]\[mi]\[rq]
+.RB ( 26 ).
+.
+It is important that this value is correct for the font
+you are using.
+.
+.
+.TP
+.B default_rule_thickness
+This should be set to the thickness of the
+.B \[rs][ru]
+character,
+or the thickness of horizontal lines produced with the
+.B \[rs]D
+escape sequence
+.RB ( 4 ).
+.
+.
+.TP
+.B num1
+The
+.B over
+primitive shifts up the numerator by at least this amount
+.RB ( 70 ).
+.
+.
+.TP
+.B num2
+The
+.B smallover
+primitive shifts up the numerator by at least this amount
+.RB ( 36 ).
+.
+.
+.TP
+.B denom1
+The
+.B over
+primitive shifts down the denominator by at least this amount
+.RB ( 70 ).
+.
+.
+.TP
+.B denom2
+The
+.B smallover
+primitive shifts down the denominator by at least this amount
+.RB ( 36 ).
+.
+.
+.TP
+.B sup1
+Normally superscripts are shifted up by at least this amount
+.RB ( 42 ).
+.
+.
+.TP
+.B sup2
+Superscripts within superscripts or upper limits
+or numerators of
+.B smallover
+fractions are shifted up by at least this amount
+.RB ( 37 ).
+.
+Conventionally,
+this is less than
+.BR sup1 .
+.
+.
+.TP
+.B sup3
+Superscripts within denominators or square roots
+or subscripts or lower limits are shifted up by at least
+this amount
+.RB ( 28 ).
+.
+Conventionally,
+this is less than
+.BR sup2 .
+.
+.
+.TP
+.B sub1
+Subscripts are normally shifted down by at least this amount
+.RB ( 20 ).
+.
+.
+.TP
+.B sub2
+When there is both a subscript and a superscript,
+the subscript is shifted down by at least this amount
+.RB ( 23 ).
+.
+.
+.TP
+.B sup_drop
+The baseline of a superscript is no more than this much below the top of
+the object on which the superscript is set
+.RB ( 38 ).
+.
+.
+.TP
+.B sub_drop
+The baseline of a subscript is at least this much below the bottom of
+the object on which the subscript is set
+.RB ( 5 ).
+.
+.
+.TP
+.B big_op_spacing1
+The baseline of an upper limit is at least this much above the top of
+the object on which the limit is set
+.RB ( 11 ).
+.
+.
+.TP
+.B big_op_spacing2
+The baseline of a lower limit is at least this much below the bottom
+of the object on which the limit is set
+.RB ( 17 ).
+.
+.
+.TP
+.B big_op_spacing3
+The bottom of an upper limit is at least this much above the top of
+the object on which the limit is set
+.RB ( 20 ).
+.
+.
+.TP
+.B big_op_spacing4
+The top of a lower limit is at least this much below the bottom of the
+object on which the limit is set
+.RB ( 60 ).
+.
+.
+.TP
+.B big_op_spacing5
+This much vertical space is added above and below limits
+.RB ( 10 ).
+.
+.
+.TP
+.B baseline_sep
+The baselines of the rows in a pile or matrix are normally this far
+apart
+.RB ( 140 ).
+.
+Usually equal to the sum of
+.B num1
+and
+.BR denom1 .
+.
+.
+.TP
+.B shift_down
+The midpoint between the top baseline and the bottom baseline in a
+matrix or pile is shifted down by this much from the axis
+.RB ( 26 ).
+.
+Usually equal to
+.BR axis_height .
+.
+.
+.TP
+.B column_sep
+This much space is added between columns in a matrix
+.RB ( 100 ).
+.
+.
+.TP
+.B matrix_side_sep
+This much space is added at each side of a matrix
+.RB ( 17 ).
+.
+.
+.br
+.ne 4v
+.TP
+.B draw_lines
+If non-zero,
+.I \%eqn
+draws lines using the
+.I troff \" generic
+.B \[rs]D
+escape sequence,
+rather than the
+.B \[rs]l
+escape sequence and the
+.B \[rs][ru]
+special character.
+.
+The
+.I eqnrc
+file sets the default:
+.BR 1 \~on
+.BR ps ,
+.BR html ,
+and the X11 devices,
+.RB otherwise\~ 0 .
+.
+.
+.TP
+.B body_height
+is the presumed height of an equation above the text baseline;
+.I \%eqn
+adds any excess as extra pre-vertical line spacing with
+.IR troff 's\" generic
+.B \[rs]x
+escape sequence
+.RB ( 85 ).
+.
+.
+.TP
+.B body_depth
+is the presumed depth of an equation below the text baseline;
+.I \%eqn
+adds any excess as extra post-vertical line spacing with
+.IR troff 's\" generic
+.B \[rs]x
+escape sequence
+.RB ( 35 ).
+.
+.
+.TP
+.B nroff
+If non-zero,
+then
+.B \%ndefine
+behaves like
+.B \%define
+and
+.B \%tdefine
+is ignored,
+otherwise
+.B \%tdefine
+behaves like
+.B \%define
+and
+.B \%ndefine
+is ignored.
+.
+The
+.I eqnrc
+file sets the default:
+.BR 1 \~on
+.BR ascii ,
+.BR latin1 ,
+.BR utf8 ,
+and
+.B cp1047
+devices,
+.RB otherwise\~ 0 .
+.RE
+.
+.
+.\" ====================================================================
+.SS Macros
+.\" ====================================================================
+.
+In GNU
+.IR eqn , \" GNU
+macros can take arguments.
+.
+A word defined by any of the
+.BR \%define ,
+.BR \%ndefine ,
+or
+.B \%tdefine
+primitives followed immediately by a left parenthesis is treated as a
+.I "parameterized macro call:"
+subsequent tokens up to a matching right parenthesis are treated as
+comma-separated arguments.
+.
+In this context only,
+commas and parentheses also serve as token separators.
+.
+A macro argument is not terminated by a comma inside parentheses nested
+within it.
+.
+In a macro definition,
+.BI $ n\c
+,
+where
+.I n
+is between 1 and\~9 inclusive,
+is replaced by the
+.IR n th
+argument;
+if there are fewer than
+.IR n \~arguments,
+it is replaced by nothing.
+.
+.
+.\" ====================================================================
+.SS "Predefined macros"
+.\" ====================================================================
+.
+GNU
+.I eqn \" GNU
+supports the predefined macros offered by AT&T
+.IR eqn : \" AT&T
+.BR and ,
+.BR \%approx ,
+.BR arc ,
+.BR cos ,
+.BR cosh ,
+.BR del ,
+.BR det ,
+.BR dot ,
+.BR \%dotdot ,
+.BR dyad ,
+.BR exp ,
+.BR for ,
+.BR grad ,
+.BR half ,
+.BR hat ,
+.BR if ,
+.BR \%inter ,
+.BR Im ,
+.BR inf ,
+.BR int ,
+.BR lim ,
+.BR ln ,
+.BR log ,
+.BR max ,
+.BR min ,
+.BR \%nothing ,
+.BR \%partial ,
+.BR prime ,
+.BR prod ,
+.BR Re ,
+.BR sin ,
+.BR sinh ,
+.BR sum ,
+.BR tan ,
+.BR tanh ,
+.BR tilde ,
+.BR times ,
+.BR union ,
+.BR vec ,
+.BR == ,
+.BR != ,
+.BR += ,
+.BR \-> ,
+.BR <\- ,
+.BR << ,
+.BR >> ,
+and
+.RB \[lq] .\|.\|. \[rq].
+.
+The lowercase classical Greek letters are available as
+.BR \%alpha ,
+.BR beta ,
+.BR chi ,
+.BR delta ,
+.BR \%epsilon ,
+.BR eta ,
+.BR gamma ,
+.BR iota ,
+.BR kappa ,
+.BR lambda ,
+.BR mu ,
+.BR nu ,
+.BR omega ,
+.BR \%omicron ,
+.BR phi ,
+.BR pi ,
+.BR psi ,
+.BR rho ,
+.BR sigma ,
+.BR tau ,
+.BR theta ,
+.BR \%upsilon ,
+.BR xi ,
+and
+.BR zeta .
+.
+Spell them with an initial capital letter
+.RB \%( Alpha )
+or in full capitals
+.RB \%( ALPHA )
+to obtain uppercase forms.
+.
+.
+.P
+GNU
+.I eqn \" GNU
+further defines the macros
+.BR cdot ,
+.BR cdots ,
+and
+.B utilde
+(all discussed above),
+.BR \%dollar ,
+which sets a dollar sign,
+and
+.BR ldots ,
+which sets an ellipsis on the text baseline.
+.
+.
+.\" ====================================================================
+.SS Fonts
+.\" ====================================================================
+.
+.I \%eqn
+uses up to three typefaces to set an equation:
+italic (oblique),
+roman (upright),
+and bold.
+.
+Assign each a
+.I groff
+typeface with the primitives
+.BR gfont ,
+.BR \%grfont ,
+and
+.B \%gbfont.
+.
+The defaults are the styles
+.BR I ,
+.BR R ,
+and
+.B B
+(applied to the current font family).
+.
+The
+.B \%chartype
+primitive
+(see above)
+sets a character's type,
+which determines the face used to set it.
+.
+The
+.RB \%\[lq] letter \[rq]
+type is set in italics;
+others are set in roman.
+.
+Use the
+.B bold
+primitive to select an (upright) bold style.
+.
+.
+.TP
+.BI gbfont\~ f
+.RI Select\~ f
+as the bold font.
+.
+This is a GNU extension.
+.
+.
+.TP
+.BI gfont\~ f
+.RI Select\~ f
+as the italic font.
+.
+.
+.TP
+.BI grfont\~ f
+.RI Select\~ f
+as the roman font.
+.
+This is a GNU extension.
+.
+.
+.br
+.ne 4v
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-\-help
+displays a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.B \-C
+Recognize
+.B .EQ
+and
+.B .EN
+even when followed by a character other than space or newline.
+.
+.
+.TP
+.BI \-d\~ xy
+Specify delimiters
+.I x
+for left
+.RI and\~ y
+for right ends
+of equations not bracketed by
+.BR .EQ / .EN .
+.
+.I x
+and
+.I y
+need not be distinct.
+.
+Any
+.RB \%\[lq] delim
+.IR xy \[rq]
+statements in the source file override this option.
+.
+.
+.TP
+.BI \-f\~ F
+is equivalent to
+.RB \[lq] gfont
+.IR F \[rq].
+.
+.
+.TP
+.BI \-m\~ n
+is equivalent to
+.RB \[lq] "set \%minimum_size"
+.IR n \[rq].
+.
+.
+.TP
+.BI \-M\~ dir
+Search
+.I dir
+for
+.I eqnrc
+before those listed in section \[lq]Description\[rq] above.
+.
+.
+.TP
+.B \-N
+Prohibit newlines within delimiters.
+.
+This option allows
+.I \%eqn
+to recover better from missing closing delimiters.
+.
+.
+.TP
+.BI \-p\~ n
+Set sub- and superscripts
+.IR n \~points
+smaller than the surrounding text.
+.
+This option is deprecated.
+.
+.I \%eqn
+normally sets sub- and superscripts at 70% of the type size of the
+surrounding text.
+.
+.
+.TP
+.B \-r
+Reduce the type size of subscripts at most once relative to the base
+type size for the equation.
+.
+.
+.TP
+.B \-R
+Don't load
+.IR eqnrc .
+.
+.
+.TP
+.BI \-s\~ n
+is equivalent to
+.RB \[lq] gsize
+.IR n \[rq].
+.
+This option is deprecated.
+.
+.
+.TP
+.BI \-T\~ dev
+Prepare output for the device
+.IR dev .
+.
+In most cases,
+the effect of this is to define a macro
+.I dev
+with a value
+.RB of\~ 1 ;
+.I eqnrc
+uses this to provide definitions appropriate for the device.
+.
+However,
+if the specified driver is \[lq]MathML\[rq],
+the output is MathML markup rather than
+.I \%troff
+input,
+and
+.I eqnrc
+is not loaded at all.
+.
+The default output device is
+.BR \%ps .
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%eqnrc
+Initialization file.
+.
+.
+.\" ====================================================================
+.SH "MathML mode limitations"
+.\" ====================================================================
+.
+MathML is designed on the assumption that it cannot know the exact
+physical characteristics of the media and devices on which it will
+be rendered.
+.
+It does not support control of motions and sizes to the same
+degree
+.I \%troff
+does.
+.
+.
+.IP \[bu] 2n
+.I \%eqn
+customization parameters have no effect on generated MathML.
+.
+.
+.IP \[bu]
+The
+.BR \%special ,
+.BR up ,
+.BR down ,
+.BR fwd ,
+and
+.B back
+primitives cannot be implemented,
+and yield a MathML \%\[lq]<merror>\[rq] message instead.
+.
+.
+.IP \[bu]
+The
+.B vcenter
+primitive is silently ignored,
+as centering on the math axis is the MathML default.
+.
+.
+.IP \[bu]
+Characters that
+.I \%eqn
+sets extra large in
+.I troff \" mode
+mode\[em]notably the integral sign\[em]may appear too small and need to
+have their \[lq]<mstyle>\[rq] wrappers adjusted by hand.
+.
+.
+.P
+As in its
+.I troff \" mode
+mode,
+.I \%eqn
+in MathML mode leaves the
+.B .EQ
+and
+.B .EN
+tokens in place,
+but emits nothing corresponding to
+.B \%delim
+delimiters.
+.
+They can,
+however,
+be recognized as character sequences that begin with \[lq]<math>\[rq],
+end with \[lq]</math>\[rq],
+and do not cross line boundaries.
+.
+.
+.\" ====================================================================
+.SH Caveats
+.\" ====================================================================
+.
+Tokens must be double-quoted in
+.I eqn \" generic
+input if they are not to be recognized as names of macros or primitives,
+or if they are to be interpreted by
+.IR troff . \" generic
+.
+In particular,
+short ones,
+like
+.RB \[lq] pi \[rq]
+and
+.RB \[lq] PI \[rq],
+can collide with
+.I troff \" generic
+identifiers.
+.
+For instance,
+the
+.I eqn \" generic
+command
+.RB \%\[lq]\^ "gfont PI" \^\[rq]
+does not select
+.IR groff 's
+Palatino italic font for the global italic face;
+you must use
+.RB \%\[lq]\^ "gfont \[dq]PI\[dq]" \^\[rq]
+instead.
+.
+.
+.P
+Delimited equations are set at the type size current at the beginning of
+the input line,
+not necessarily that immediately preceding the opening delimiter.
+.
+.
+.P
+Unlike \*[tx],
+.I eqn \" generic
+does not inherently distinguish displayed and inline equation styles;
+see the
+.B smallover
+primitive above.
+.
+However,
+macro packages frequently define
+.B EQ
+and
+.B EN
+macros such that the equation within is displayed.
+.
+These macros may accept arguments permitting the equation to be labeled
+or captioned;
+see the package's documentation.
+.
+.
+.\" ====================================================================
+.SH Bugs
+.\" ====================================================================
+.
+.I eqn \" generic
+abuses terminology\[em]its
+\[lq]equations\[rq]
+can be inequalities,
+bare expressions,
+or unintelligible gibberish.
+.
+But there's no changing it now.
+.
+.
+.P
+In
+.I nroff \" mode
+mode,
+lowercase Greek letters are rendered in roman instead of italic style.
+.
+.
+.P
+In MathML mode,
+the
+.B mark
+and
+.B lineup
+features don't work.
+.
+These could,
+in theory,
+be implemented with \%\[lq]<maligngroup>\[rq] elements.
+.
+.
+.P
+In MathML mode,
+each digit of a numeric literal gets a separate \[lq]<mn>\:</mn>\[rq]
+pair,
+and decimal points are tagged with \[lq]<mo>\:</mo>\[rq].
+.
+This is allowed by the specification,
+but inefficient.
+.
+.
+.\" ====================================================================
+.SH Examples
+.\" ====================================================================
+.
+We first illustrate
+.I \%eqn
+usage with a trigonometric identity.
+.
+.
+.RS
+.P
+.EX
+\&.EQ
+sin ( alpha + beta ) = sin alpha cos beta + cos alpha sin beta
+\&.EN
+.EE
+.if t \{\
+.
+.
+.P
+.RS
+.EQ
+sin ( alpha + beta ) = sin alpha cos beta + cos alpha sin beta
+.EN
+.RE
+.\}
+.RE
+.
+.
+.P
+It can be convenient to set up delimiters if mathematical content will
+appear frequently in running text.
+.
+.
+.RS
+.P
+.EX
+\&.EQ
+delim $$
+\&.EN
+.
+Having cached a table of logarithms,
+the property $ln ( x y ) = ln x + ln y$ sped calculations.
+.EE
+.if t \{\
+.
+.
+.P
+.RS
+.EQ
+delim $$
+.EN
+.
+Having cached a table of logarithms,
+the property $ln ( x y ) = ln x + ln y$ sped calculations.
+.
+.\" We _must_ shut delimiters back off when serially processing man
+.\" pages, or subsequent documents cannot safely use those characters.
+.EQ
+delim off
+.EN
+.RE
+.\}
+.RE
+.
+.
+.P
+The quadratic formula illustrates use of fractions and radicals,
+and affords an opportunity to use the full space token
+.BR \[ti] .
+.
+.
+.RS
+.P
+.EX
+\&.EQ
+x = { \- b \[ti] \[rs][+\-] \[ti] sqrt { b sup 2 \- 4 a c } } \
+over { 2 a }
+\&.EN
+.EE
+.if t \{\
+.
+.
+.P
+.RS
+.EQ
+x = { - b ~ \[+-] ~ sqrt { b sup 2 - 4 a c } } over { 2 a }
+.EN
+.RE
+.\}
+.RE
+.
+.
+.P
+Alternatively,
+we could define the plus-minus sign as a binary operator.
+.
+Automatic spacing puts 0.06\~em less space on either side of the
+plus-minus than \[ti] does,
+this being the difference between the widths of the
+.B medium_space
+parameter used by binary operators and that of the full space.
+.
+Independently,
+we can define a macro \[lq]frac\[rq] for setting fractions.
+.
+.
+.RS
+.P
+.EX
+\&.EQ
+chartype "binary" \[rs][+\-]
+define frac ! { $1 } over { $2 } !
+x = frac(\- b \[rs][+\-] sqrt { b sup 2 \- 4 a c }, 2 a)
+\&.EN
+.EE
+.if t \{\
+.
+.
+.P
+.RS
+.EQ
+chartype "binary" \[+-]
+define frac ! { $1 } over { $2 } !
+x = frac(- b \[+-] sqrt { b sup 2 - 4 a c }, 2 a)
+.EN
+.RE
+.\}
+.RE
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+\[lq]Typesetting Mathematics\[em]User's Guide\[rq]
+(2nd edition),
+by Brian W.\& Kernighan
+and Lorinda L.\& Cherry,
+1978,
+AT&T Bell Laboratories Computing Science Technical Report No.\& 17.
+.
+.
+.P
+.IR The\~\*[tx]book ,
+by Donald E.\& Knuth,
+1984,
+Addison-Wesley Professional.
+.
+Appendix\~G
+discusses many of the parameters from section \[lq]Customization\[rq]
+above in greater detail.
+.
+.
+.P
+.MR groff_char 7 ,
+particularly subsections \[lq]Logical symbols\[rq],
+\[lq]Mathematical symbols\[rq],
+and \[lq]Greek glyphs\[rq],
+documents a variety of special character escape sequences useful in
+mathematical typesetting.
+.
+.
+.P
+.MR groff 1 ,
+.MR \%troff 1 ,
+.MR \%pic 1 ,
+.MR groff_font 5
+.
+.
+.\" Clean up.
+.rm tx
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_eqn_1_man_C]
+.do rr *groff_eqn_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" tab-width: 12
+.\" End:
+.\" vim: set filetype=groff tabstop=12 textwidth=72:

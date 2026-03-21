@@ -1,0 +1,265 @@
+.TH groff_rfc1345 7 "2 July 2023" "groff 1.23.0"
+.SH Name
+groff_rfc1345 \- special character names from RFC 1345 and Vim digraphs
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (c) 2021 Dorai Sitaram
+.\"
+.\" Permission is hereby granted, free of charge, to any person
+.\" obtaining a copy of this software and associated documentation files
+.\" (the "Software"), to deal in the Software without restriction,
+.\" including without limitation the rights to use, copy, modify, merge,
+.\" publish, distribute, sublicense, and/or sell copies of the Software,
+.\" and to permit persons to whom the Software is furnished to do so,
+.\" subject to the following conditions:
+.\"
+.\" The above copyright notice and this permission notice (including the
+.\" next paragraph) shall be included in all copies or substantial
+.\" portions of the Software.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+.\" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+.\" NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+.\" BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+.\" ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+.\" CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+.\" SOFTWARE.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_groff_rfc1345_7_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The file
+.I rfc1345.tmac
+defines special character escape sequences for
+.MR groff 7
+based on the glyph mnemonics specified in RFC 1345 and the digraph table
+of the text editor Vim.
+.
+Each escape sequence translates to a Unicode code point,
+and will render correctly if the underlying font is a Unicode font that
+covers the code point.
+.
+.
+.PP
+For example,
+.RB \[lq] \[rs][Rx] \[rq]
+is the \[lq]recipe\[rq] or \[lq]prescription take\[rq] symbol,
+and maps to the code point U+211E.
+.
+.I groff
+lets you write it as
+.RB \[lq] \[rs][u211E] \[rq],
+but
+.RB \[lq] \[rs][Rx] \[rq]
+is more mnemonic.
+.
+.
+.PP
+For a list of the glyph names provided,
+please see the file
+.IR rfc1345.tmac ,
+which contains definitions of the form
+.
+.RS
+.EX
+\&.char \[rs][Rx] \[rs][u211E]    \[rs]" PRESCRIPTION TAKE
+.EE
+.RE
+.
+where
+.BR .char 's
+first argument defines a
+.I groff
+special character escape sequence with a mnemonic glyph name,
+its second argument is a special character escape sequence based on the
+code point,
+and the comment describes the glyph defined.
+.
+.
+.PP
+The RFC 1345 glyph names cover a wide range of Unicode code points,
+including
+supplemental Latin,
+Greek,
+Cyrillic,
+Hebrew,
+Arabic,
+Hiragana,
+Katakana,
+and Bopomofo letters,
+punctuation,
+math notation,
+currency
+symbols,
+industrial and entertainment icons,
+and box-drawing symbols.
+.
+.
+.PP
+The Vim digraph table is practically a subset of RFC 1345
+(being limited to two-character mnemonics),
+but,
+as a newer implementation,
+adds four mnemonics not specified in the RFC
+(the horizontal ellipsis,
+the Euro sign,
+and two mappings for the rouble sign).
+.
+These have also been added to
+.IR rfc1345.tmac .
+.
+.
+.PP
+.I rfc1345.tmac
+contains a total of 1,696 glyph names.
+.
+It is not an
+error to load
+.I rfc1345.tmac
+if your font does not have all the glyphs,
+as long as it contains the glyphs that you actually use in your
+document.
+.
+.
+.PP
+The RFC 1345 mnemonics are not identical in every case to the mappings
+for special character glyph names that are built in to
+.IR groff ;
+for example,
+.RB \[lq] \[rs][<<] \[rq]
+means the \[lq]much less than\[rq] sign (U+226A) when
+.I rfc1345.tmac
+is not loaded and this special character is not otherwise defined by a
+document or macro package.
+.
+.I rfc1345.tmac
+redefines
+.RB \[lq] \[rs][<<] \[rq]
+to the \[lq]left-pointing double angle quotation mark\[rq] (U+00AB).
+.
+See
+.MR groff_char 7
+for the full list of predefined special character escape sequences.
+.
+.
+.\" ====================================================================
+.SS Usage
+.\" ====================================================================
+.
+Load the
+.I rfc1345.tmac
+file.
+.
+This can be done by either adding
+.RB \[lq] ".mso rfc1345.tmac" \[rq]
+to your document before the first use of any of the glyph names the
+macro file defines,
+or by using the
+.MR \%troff 1
+option
+.RB \[lq] "\-m rfc1345" \[rq]
+from the shell.
+.
+.
+.\" ====================================================================
+.SS Bugs
+.\" ====================================================================
+.
+As the
+.I groff
+Texinfo manual notes,
+\[lq][o]nly the current font is checked for ligatures and kerns;
+neither special fonts nor entities defined with the
+.B char
+request
+(and its siblings)
+are taken into account.\[rq]
+.
+Many of the characters defined in
+.I rfc1345.tmac
+are accented Latin letters,
+and will be affected by this deficiency,
+.UR https://\:savannah\:.gnu\:.org/\:bugs/\:?59932
+producing subpar typography
+.UE .
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:rfc1345\:.tmac
+implements the character mappings.
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+.I rfc1345\:.tmac
+was contributed by
+.MT ds26gte@\:yahoo\:.com
+Dorai Sitaram
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.UR https://\:tools\:.ietf\:.org/\:html/\:rfc1345
+RFC 1345
+.UE ,
+by Keld Simonsen,
+June 1992.
+.
+.
+.PP
+The Vim digraph table can be listed using the
+.MR vim 1
+command
+.RB \[lq] ":help \%digraph\-table" \[rq].
+.
+.
+.PP
+.MR groff_char 7
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_groff_rfc1345_7_man_C]
+.do rr *groff_groff_rfc1345_7_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

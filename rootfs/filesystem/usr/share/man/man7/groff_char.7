@@ -1,0 +1,2282 @@
+'\" t
+.TH groff_char 7 "2 July 2023" "groff 1.23.0"
+.SH Name
+groff_char \- GNU
+.I roff
+special character and glyph repertoire
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1989-2023 Free Software Foundation, Inc.
+.\"
+.\" This file is part of groff (GNU roff), which is a free software
+.\" project.
+.\"
+.\" You can redistribute it and/or modify it under the terms of the GNU
+.\" General Public License as published by the Free Software Foundation,
+.\" either version 2 of the License, or (at your option) any later
+.\" version.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.
+.\"
+.\" If not, see <http://www.gnu.org/licenses/gpl-2.0.html>.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_groff_char_7_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The GNU
+.I roff
+typesetting system has a large glyph repertoire suitable for production
+of varied literary,
+professional,
+technical,
+and mathematical documents.
+.
+.I groff
+works with
+.I characters;
+an output device renders
+.I glyphs.
+.
+.IR groff 's
+input character set is restricted to that defined by the standards
+ISO Latin-1
+(ISO 8859-1)
+and CCSID \[lq]code page\[rq] 1047
+(an EBCDIC arrangement of Latin-1).
+.
+For ease of document maintenance in UTF-8 environments,
+it is advisable to use only the Unicode basic Latin code points,
+a subset of all of the foregoing historically referred to as \%US-ASCII,
+.\" Yes, a subset, albeit a permutation as well in the cp1047 case.
+which has only 94 visible,
+printable code points.
+.\" In groff, 0x20 SP is mapped to a space node, not a glyph node, and
+.\" all kinds of special behavior attaches to such nodes, so we count
+.\" only to 94 and not 95 as is often done in other ASCII contexts.
+In
+.I groff,
+these are termed
+.I "ordinary characters."
+.
+Often,
+many more are desired in output.
+.
+.
+.P
+AT&T
+.I troff
+in the 1970s faced a similar problem:
+the available typesetter's glyph repertoire differed from that of the
+computers that controlled it.
+.
+.IR troff 's \" AT&T
+solution was a form of escape sequence known as a
+.I special character
+to access several dozen additional glyphs available in the fonts
+prepared for mounting in the phototypesetter.
+.
+These glyphs were mapped onto a two-character name space for a degree
+of mnemonic convenience;
+for example,
+the escape sequence
+.B \e(aa
+encoded an acute accent and
+.B \e(sc
+a section sign.
+.
+.
+.P
+.I groff
+has lifted historical
+.I roff
+limitations on special character name lengths,
+but recognizes and retains compatibility with the historical names.
+.
+.I groff
+expands the lexicon of glyphs available by name and permits users to
+define their own special character escape sequences with the
+.B char
+request.
+.
+Special character names are
+.I groff
+identifiers;
+see section \[lq]Identifiers\[rq] in
+.MR groff 7 .
+.
+Our discussion uses the terms \[lq]glyph name\[rq] and \[lq]special
+character name\[rq] interchangeably;
+we assume no character translations or redefinitions.
+.
+.
+.P
+This document lists all of the glyph names predefined by
+.IR groff 's
+font description files and presents the systematic notation by which it
+enables access to arbitrary Unicode code points and construction of
+composite glyphs.
+.
+Glyphs listed may be unavailable,
+or may vary in appearance,
+depending on the output device and font chosen when the page was
+formatted.
+.
+This page was rendered for device
+.B \*[.T]
+using font
+.BR \n[.fn] .
+.
+.
+.P
+A few escape sequences that are not
+.I groff
+special characters also produce glyphs;
+these exist for syntactical or historical reasons.
+.
+.BR \e\[aq] ,
+.BR \e\[ga] ,
+.BR \e\- ,
+and
+.B \e_
+are translated on input to the special character escape sequences
+.BR \e[aa] ,
+.BR \e[ga] ,
+.BR \e[\-] ,
+and
+.BR \e[ul] ,
+respectively.
+.
+Others include
+.BR \e\e ,
+.B \e.\&
+(backslash-dot),
+and
+.BR \ee ;
+see
+.MR groff 7 .
+.
+A small number of special characters represent glyphs that are not
+encoded in Unicode;
+examples include the baseline rule
+.B \e[ru]
+and the Bell System logo
+.B \e[bs].
+.
+.
+.P
+In
+.IR groff ,
+you can test output device support for any character
+(ordinary or special)
+with the conditional expression operator
+.RB \[lq] c \[rq].
+.
+.RS
+.\" https://www.bell-labs.com/usr/dmr/www/ ("In 1984, ...")
+.EX
+\&.ie c \e[bs] \e{Welcome to the \e[bs] Bell System;
+did you get the Wehrmacht helmet or the Death Star?\e}
+\&.el No Bell System logo.
+.EE
+.RE
+.
+.
+.P
+For brevity in the remainder of this document,
+we shall refer to systems conforming to the
+ISO 646:1991 IRV,
+ISO 8859,
+or
+ISO 10646 (\[lq]Unicode\[rq])
+character encoding standards as \[lq]ISO\[rq] systems,
+and those employing IBM code page 1047 as \[lq]EBCDIC\[rq] systems.
+.
+That said,
+EBCDIC systems that support
+.I groff
+are known to also support UTF-8.
+.
+.
+.P
+While
+.I groff
+accepts eight-bit encoded input,
+not all such code points are valid as input.
+.
+.\" src/libs/libgroff/invalid.cpp
+On ISO platforms,
+character codes
+0,
+11,
+13\[en]31,
+and
+128\[en]159
+are invalid.
+.
+(This is all C0 and C1 controls except for
+SOH through LF
+[Control+A to Control+J],
+and FF
+[Control+L].)
+.
+On EBCDIC platforms,
+0,
+8\[en]9,
+11,
+13\[en]20,
+23\[en]31,
+and
+48\[en]63
+are invalid.
+.
+Some of these code points are used by
+.I groff
+for internal purposes,
+which is one reason it does not support UTF-8 natively.
+.
+.
+.\" ====================================================================
+.SS "Fundamental character set"
+.\" ====================================================================
+.
+The ordinary characters catalogued above,
+plus the space,
+tab,
+newline,
+and leader (Control+A),
+form the fundamental character
+set for
+.I groff
+input;
+anything in the language,
+even over one million code points in Unicode,
+can be expressed using it.
+.
+On ISO systems,
+code points in the range 33\[en]126 comprise a common set of
+printable glyphs in all of the aforementioned ISO character encoding
+standards.
+.
+It is this character set and
+(with some noteworthy exceptions)
+the corresponding glyph repertoire for which AT&T
+.I troff
+was implemented.
+.
+On EBCDIC systems,
+printable characters are in the range 66\[en]201 and 203\[en]254;
+those without counterparts in the ISO range 33\[en]126 are discussed
+in the next subsection.
+.\" From this point, do not talk about numerical character assignments.
+.
+.
+.P
+All of the following characters map to glyphs as you would expect.
+.
+.TS
+center box;
+Lf(CR).
+! # $ % & ( ) * + , . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ ] _
+a b c d e f g h i j k l m n o p q r s t u v w x y z { | }
+.TE
+.\" The bottom border of that box is practically kissin' the tittles.
+.if t .sp 0.2v
+.
+The remaining ordinary characters surprise computing professionals and
+others intimately familiar with the ISO character encodings.
+.
+The developers of AT&T
+.I troff
+chose mappings for them that would be useful for typesetting technical
+literature in a broad range of scientific disciplines:
+Bell Labs used the system for preparation of AT&T's patent filings with
+the U.S.\& government.
+.
+Further,
+the prevailing character encoding standard in the 1970s,
+USAS X3.4-1968 (\[lq]ASCII\[rq]),
+deliberately supported semantic ambiguity at some code points,
+and outright substitution at several others,
+to suit the localization demands of various national standards bodies.
+.
+.
+.P
+The table below presents the seven exceptional code points
+with their typical keycap engravings,
+their glyph mappings and semantics in
+.I roff
+systems,
+and the escape sequences producing the Unicode basic Latin character
+they replace.
+.
+The first,
+the neutral double quote,
+is a partial exception because it does represent itself,
+but since the
+.I roff
+language also uses it to quote macro arguments,
+.I groff
+supports a special character escape sequence as an alternative form so
+that the glyph can be easily included in macro arguments without
+requiring the user to master the quoting rules that AT&T
+.I troff
+required in that context.
+.
+(Some requests,
+like
+.BR ds ,
+also treat
+.B \[dq]
+non-literally.)
+.
+Furthermore,
+not all of the special character escape sequences are portable to AT&T
+.I troff
+and all of its descendants;
+these
+.I groff
+extensions are presented using its special character form
+.BR \[rs][] ,
+whereas portable special character escape sequences are shown in the
+traditional
+.B \[rs](
+form.
+.
+.B \[rs]\-
+and
+.B \[rs]e
+are portable to all known
+.IR troff s.
+.
+.B \[rs]e
+means \[lq]the glyph of the current escape character\[rq];
+it therefore can produce unexpected output if the
+.B ec
+request is used.
+.
+On devices with a limited glyph repertoire,
+glyphs in the \[lq]keycap\[rq] and \[lq]appearance\[rq] columns on the
+same row of the table may look identical;
+except for the neutral double quote,
+this will
+.I not
+be the case on more-capable devices.
+.
+Review your document using as many different output devices as possible.
+.
+.
+.P
+.TS
+center box;
+L L L.
+Keycap	Appearance and meaning	Special character and meaning
+_
+"	" neutral double quote	\f[CR]\[rs][dq]\f[] neutral double quote
+\[aq]	\[cq] closing single quote	\f[CR]\[rs][aq]\f[] neutral apostrophe
+\-	- hyphen	\f[CR]\[rs]\-\f[] or \f[CR]\[rs][\-]\f[] minus sign/Unix dash
+\[rs]	(escape character)	\f[CR]\[rs]e\f[] or \f[CR]\[rs][rs]\f[] reverse solidus
+\[ha]	\[u02C6] modifier circumflex	\f[CR]\[rs](ha\f[] circumflex/caret/\[lq]hat\[rq]
+\[ga]	\[oq] opening single quote	\f[CR]\[rs](ga\f[] grave accent
+\[ti]	\[u02DC] modifier tilde	\f[CR]\[rs](ti\f[] tilde
+.TE
+.
+.
+.P
+The hyphen-minus is a particularly unfortunate case of overloading.
+.
+Its awkward name in ISO 8859 and later standards reflects the many
+distinguishable purposes to which it had already been put by the 1980s,
+including
+a hyphen,
+a minus sign,
+and
+(alone or in repetition)
+dashes of varying widths.
+.
+For best results in
+.I roff
+systems,
+use the
+.RB \[lq] \- \[rq]
+character in input outside an escape sequence
+.I only
+to mean a hyphen,
+as in the phrase \[lq]long-term\[rq].
+.
+For a minus sign in running text or a Unix command-line option dash,
+use
+.B \[rs]\-
+(or
+.B \[rs][\-]
+in
+.I groff
+if you find it helps the clarity of the source document).
+.
+(Another minus sign,
+for use in mathematical equations,
+is available as
+.BR \[rs][mi] ).
+.
+AT&T
+.I troff
+supported em-dashes as
+.BR \[rs](em ,
+as does
+.IR groff .
+.
+.
+.P
+The special character escape sequence for the apostrophe as a neutral
+single quote is typically needed only in technical content;
+typing words like \[lq]can't\[rq] and \[lq]Anne's\[rq] in a natural way
+will render correctly,
+because in ordinary prose an apostrophe is typeset either as a closing
+single quotation mark or as a neutral single quote,
+depending on the capabilities of the output device.
+.
+By contrast,
+special character escape sequences should be used for quotation marks
+unless portability to limited or historical
+.I troff
+implementations is necessary;
+on those systems,
+the input convention is to pair the grave accent with the apostrophe for
+single quotes,
+and to double both characters for double quotes.
+.
+AT&T
+.I troff
+defined no special characters for quotation marks or the apostrophe.
+.
+Repeated single quotes
+(\[oq]\[oq]thus\[cq]\[cq])
+will be visually distinguishable from double quotes
+(\[lq]thus\[rq])
+on terminal devices,
+and perhaps on others
+(depending on the font selected).
+.
+.TS
+tab(@) center box;
+L L.
+AT&T \f[I]troff\f[] input@recommended \f[I]groff\f[] input
+_
+.T&
+Lf(CR) Lf(CR).
+A Winter\[aq]s Tale@A Winter\[aq]s Tale
+\[ga]U.K.\& outer quotes\[aq]@\[rs][oq]U.K.\& outer quotes\[rs][cq]
+\[ga]U.K.\& \[ga]\[ga]inner\[aq]\[aq] quotes\[aq]\
+@\[rs][oq]U.K.\& \[rs][lq]inner\[rs][rq] quotes\[rs][cq]
+\[ga]\[ga]U.S.\& outer quotes\[aq]\[aq]\
+@\[rs][lq]U.S.\& outer quotes\[rs][rq]
+\[ga]\[ga]U.S.\& \[ga]inner\[aq] quotes\[aq]\[aq]\
+@\[rs][lq]U.S.\& \[rs][oq]inner\[rs][cq] quotes\[rs][rq]
+.TE
+.\" Keep bottom border of box from sitting on the ascenders below.
+.if t .sp 0.2v
+.
+If you frequently require quotation marks in your document,
+see if the macro package you're using supplies strings or macros to
+facilitate quotation,
+or define them yourself
+(except in man pages).
+.
+.
+.P
+Using Unicode basic Latin characters to compose boxes and lines is
+ill-advised.
+.
+.I roff
+systems have special characters for drawing horizontal and vertical
+lines;
+see subsection \[lq]Rules and lines\[rq] below.
+.
+Preprocessors like
+.MR \%tbl 1
+and
+.MR \%pic 1
+draw boxes and will produce the best possible output for the device,
+falling back to basic Latin glyphs only when necessary.
+.
+.
+.\" ====================================================================
+.SS "Eight-bit encodings and Latin-1 supplement"
+.\" ====================================================================
+.
+ISO 646 is a seven-bit code encoding 128 code points;
+eight-bit codes are twice the size.
+.
+ISO 8859-1 and code page 1047 allocated the additional space to what
+Unicode calls \[lq]C1 controls\[rq]
+(control characters)
+and the \[lq]Latin-1 supplement\[rq].
+.
+The C1 controls are neither printable nor usable as
+.I groff
+input.
+.
+.
+.P
+Two Latin-1 supplement characters are handled specially on input.
+.
+.I \%troff
+never produces them as output.
+.
+.
+.TP
+NBSP
+encodes a no-break space;
+it is mapped to
+.BR \[rs]\[ti] ,
+the adjustable non-breaking space escape sequence.
+.
+.
+.TP
+SHY
+encodes a soft hyphen;
+it is mapped to
+.BR \[rs]% ,
+the hyphenation control escape sequence.
+.
+.
+.P
+The remaining characters in the Latin-1 supplement represent
+themselves.
+.
+Although they can be specified directly with the keyboard on systems
+configured to use Latin-1 as the character encoding,
+it is more portable,
+both to other
+.I roff
+systems and to UTF-8 environments,
+to use their special character escape sequences,
+shown below.
+.
+The glyph descriptions we use are non-standard in some cases,
+for brevity.
+.
+.
+.P
+.TS
+L2 Lf(CR)1 L L2 Lf(CR)1 L.
+\[r!]	\e[r!]	inverted exclamation mark	\[~N]	\e[\[ti]N]	N tilde
+\[ct]	\e[ct]	cent sign	\[`O]	\e[\[ga]O]	O grave
+\[Po]	\e[Po]	pound sign	\['O]	\e[\[aq]O]	O acute
+\[Cs]	\e[Cs]	currency sign	\[^O]	\e[\[ha]O]	O circumflex
+\[Ye]	\e[Ye]	yen sign	\[~O]	\e[\[ti]O]	O tilde
+\[bb]	\e[bb]	broken bar	\[:O]	\e[:O]	O dieresis
+\[sc]	\e[sc]	section sign	\[mu]	\e[mu]	multiplication sign
+\[ad]	\e[ad]	dieresis accent	\[/O]	\e[/O]	O slash
+\[co]	\e[co]	copyright sign	\[`U]	\e[\[ga]U]	U grave
+\[Of]	\e[Of]	feminine ordinal indicator	\['U]	\e[\[aq]U]	U acute
+\[Fo]	\e[Fo]	left double chevron	\[^U]	\e[\[ha]U]	U circumflex
+\[no]	\e[no]	logical not	\[:U]	\e[:U]	U dieresis
+\[rg]	\e[rg]	registered sign	\['Y]	\e[\[aq]Y]	Y acute
+\[a-]	\e[a\-]	macron accent	\[TP]	\e[TP]	uppercase thorn
+\[de]	\e[de]	degree sign	\[ss]	\e[ss]	lowercase sharp s
+\[+-]	\e[+\-]	plus-minus	\[`a]	\e[\[ga]a]	a grave
+\[S2]	\e[S2]	superscript two	\['a]	\e[\[aq]a]	a acute
+\[S3]	\e[S3]	superscript three	\[^a]	\e[\[ha]a]	a circumflex
+\[aa]	\e[aa]	acute accent	\[~a]	\e[\[ti]a]	a tilde
+\[mc]	\e[mc]	micro sign	\[:a]	\e[:a]	a dieresis
+\[ps]	\e[ps]	pilcrow sign	\[oa]	\e[oa]	a ring
+\[pc]	\e[pc]	centered period	\[ae]	\e[ae]	ae ligature
+\[ac]	\e[ac]	cedilla accent	\[,c]	\e[,c]	c cedilla
+\[S1]	\e[S1]	superscript one	\[`e]	\e[\[ga]e]	e grave
+\[Om]	\e[Om]	masculine ordinal indicator	\['e]	\e[\[aq]e]	e acute
+\[Fc]	\e[Fc]	right double chevron	\[^e]	\e[\[ha]e]	e circumflex
+\[14]	\e[14]	one quarter symbol	\[:e]	\e[:e]	e dieresis
+\[12]	\e[12]	one half symbol	\[`i]	\e[\[ga]i]	i grave
+\[34]	\e[34]	three quarters symbol	\['i]	\e[\[aq]i]	e acute
+\[r?]	\e[r?]	inverted question mark	\[^i]	\e[\[ha]i]	i circumflex
+\[`A]	\e[\[ga]A]	A grave	\[:i]	\e[:i]	i dieresis
+\['A]	\e[\[aq]A]	A acute	\[Sd]	\e[Sd]	lowercase eth
+\[^A]	\e[\[ha]A]	A circumflex	\[~n]	\e[\[ti]n]	n tilde
+\[~A]	\e[\[ti]A]	A tilde	\[`o]	\e[\[ga]o]	o grave
+\[:A]	\e[:A]	A dieresis	\['o]	\e[\[aq]o]	o acute
+\[oA]	\e[oA]	A ring	\[^o]	\e[\[ha]o]	o circumflex
+\[AE]	\e[AE]	AE ligature	\[~o]	\e[\[ti]o]	o tilde
+\[,C]	\e[,C]	C cedilla	\[:o]	\e[:o]	o dieresis
+\[`E]	\e[\[ga]E]	E grave	\[di]	\e[di]	division sign
+\['E]	\e[\[aq]E]	E acute	\[/o]	\e[/o]	o slash
+\[^E]	\e[\[ha]E]	E circumflex	\[`u]	\e[\[ga]u]	u grave
+\[:E]	\e[:E]	E dieresis	\['u]	\e[\[aq]u]	u acute
+\[`I]	\e[\[ga]I]	I grave	\[^u]	\e[\[ha]u]	u circumflex
+\['I]	\e[\[aq]I]	I acute	\[:u]	\e[:u]	u dieresis
+\[^I]	\e[\[ha]I]	I circumflex	\['y]	\e[\[aq]y]	y acute
+\[:I]	\e[:I]	I dieresis	\[Tp]	\e[Tp]	lowercase thorn
+\[-D]	\e[\-D]	uppercase eth	\[:y]	\e[:y]	y dieresis
+.TE
+.
+.
+.\" ====================================================================
+.SS "Special character escape forms"
+.\" ====================================================================
+.
+Glyphs that lack a character code in the basic Latin repertoire to
+directly represent them are entered by one of several special character
+escape forms.
+.
+Such glyphs can be simple or composite,
+and accessed either by name or numerically by code point.
+.
+Code points and combining properties are determined by character
+encoding standards,
+whereas glyph names as used here originated in AT&T
+.I troff \" AT&T
+special character escape sequences.
+.
+Predefined glyph names use only characters in the basic Latin
+repertoire.
+.
+.
+.TP
+.BI \[rs]( gl
+is a special character escape sequence for the glyph with the
+two-character name
+.IR gl .
+.
+This is the original syntax form supported by AT&T
+.IR troff .
+.
+The acute accent,
+.BR \[rs](aa ,
+is an example.
+.
+.
+.TP
+.BI \[rs]C\[aq] glyph-name \[aq]
+is a special character escape sequence for
+.IR glyph-name ,
+which can be of arbitrary length.
+.
+The delimiter,
+shown here as a neutral apostrophe,
+can be any character not occurring in
+.IR glyph-name .
+.
+This syntax form was introduced in later versions of AT&T
+device-independent
+.IR troff . \" AT&T
+.
+The foregoing acute accent example can be expressed
+as
+.BR \[rs]C\[aq]aa\[aq] .
+.
+.
+.TP
+.BI \[rs][ glyph-name ]
+is a special character escape sequence for
+.IR glyph-name ,
+which can be of arbitrary length but must not contain a closing square
+bracket
+.RB \[lq] ] \[rq].
+.
+(No glyph names predefined by
+.I groff
+employ
+.RB \[lq] ] \[rq].)
+.
+The foregoing acute accent example can be expressed in
+.I groff
+as
+.BR \[rs][aa] .
+.
+.
+.P
+.BI \[rs]C\[aq] c \[aq]
+and
+.BI \[rs][ c ]
+are not synonyms for the ordinary character
+.RI \[lq] c \[rq],
+but request the special character named
+.RB \[lq] \[rs] \c
+.IR c \[rq].
+.
+For example,
+.RB \[lq] \[rs][a] \[rq]
+is not \[lq]a\[rq],
+but rather a special character with the internal glyph name
+(used in font description files and diagnostic messages)
+.BR \[rs]a ,
+which is typically undefined.
+.
+The only such glyph name
+.I groff
+predefines is the minus sign,
+which can therefore be accessed as
+.B \[rs]C\[aq]\-\[aq]
+or
+.BR \[rs][\-] .
+.
+.
+.TP
+.BI \[rs][ "base-char composite-1 composite-2"\~\c
+\&.\|.\|.\~\c
+.IB composite-n ]
+is a composite glyph.
+.
+Glyphs like a lowercase \[lq]e\[rq] with an acute accent,
+as in the word \[lq]caf\[e aa]\[rq],
+can be expressed as
+.BR "\[rs][e aa]" .
+.
+See subsection \[lq]Accents\[rq] below for a table of combining glyph
+names.
+.
+.
+.P
+Unicode encodes far more characters than
+.I groff
+has glyph names for;
+special character escape forms based on numerical code points enable
+access to any of them.
+.
+Frequently used glyphs or glyph combinations can be stored in strings,
+and new glyph names can be created
+.I "ad hoc"
+with the
+.B char
+request;
+see
+.MR groff 7 .
+.
+.
+.TP
+.BI \[rs][u nnnn\c
+.RI [ n\c
+.RI [ n ]]\c
+.B ]
+is a Unicode numeric special character escape sequence.
+.
+Any Unicode code point can be accessed with four to six hexadecimal
+digits,
+with hexadecimal letters accepted in uppercase form only.
+.
+Thus,
+.B \[rs][u02DA]
+accesses the (spacing) ring accent,
+producing \[lq]\[u02DA]\[rq].
+.
+.
+.\" Use "GNU troff" in this paragraph because the contrast with AT&T
+.\" troff, which antedated Unicode, is important, and that contrast is
+.\" obscured with the default empty command prefix on "troff".
+.P
+Unicode code points can be composed as well;
+when they are,
+GNU
+.I troff \" GNU
+requires NFD
+(Normalization Form D),
+where all Unicode glyphs are maximally decomposed.
+.
+(Exception:
+precomposed characters in the Latin-1 supplement described above are
+also accepted.
+.
+Do not count on this exception remaining in a future
+GNU
+.I troff \" GNU
+that accepts UTF-8 input directly.)
+.
+.
+Thus,
+GNU
+.I troff \" GNU
+accepts
+.RB \[lq]caf \[rs][\[aq]e] \[rq],
+.RB \[lq]caf \[rs][e\~aa] \[rq],
+and
+.RB \[lq]caf \[rs][u0065_0301] \[rq],
+as ways to input \[lq]caf\['e]\[rq].
+.
+(Due to its legacy 8-bit encoding compatibility,
+at present it also accepts
+.RB \[lq]caf \[rs][u00E9] \[rq]
+on ISO Latin-1 systems.)
+.
+.
+.TP
+.BI \[rs][u base-char\c
+[\c
+.BI _ combining-component\c
+].\|.\|.]
+constructs a composite glyph from Unicode numeric special character
+escape sequences.
+.
+The code points of the base glyph and the combining components are each
+expressed in hexadecimal,
+with an underscore
+.RB ( _ )
+separating each component.
+.
+Thus,
+.B \[rs][u006E_0303]
+produces \[lq]\[u006E_0303]\[rq].
+.
+.
+.TP
+.BI \[rs][char nnn ]
+expresses an eight-bit code point where
+.I nnn
+is the code point of the character,
+a decimal number between 0 and\~255
+without leading zeroes.
+.
+This legacy numeric special character escape sequence is used to map
+characters onto glyphs via the
+.B trin
+request in macro files loaded by
+.MR grotty 1 .
+.
+.
+.\" ====================================================================
+.SH "Glyph tables"
+.\" ====================================================================
+.
+In this section,
+.IR groff 's
+glyph name repertoire is presented in tabular form.
+.
+The meanings of the columns are as follows.
+.
+.
+.TP 8n
+.B Output
+shows the glyph as it appears on the device used to render this
+document;
+although it can have a notably different shape on other devices
+(and is subject to user-directed translation and replacement),
+.I groff
+attempts reasonable equivalency on all output devices.
+.
+.
+.TP
+.B Input
+shows the
+.I groff
+character
+(ordinary or special)
+that normally produces the glyph.
+.
+Some code points have multiple glyph names.
+.
+.
+.TP
+.B Unicode
+is the code point notation for the glyph or combining glyph sequence as
+described in subsection \[lq]Special character escape forms\[rq] above.
+.
+It corresponds to the standard notation for Unicode short identifiers
+such that
+.IR groff 's
+.BI u nnnn
+is equivalent to Unicode's
+.RI U+ nnnn .
+.\" And thereby hangs a tale...
+.\" https://unicode.org/mail-arch/unicode-ml/y2005-m11/0060.html
+.
+.
+.TP
+.B Notes
+describes the glyph,
+elucidating the mnemonic value of the glyph name where possible.
+.
+.
+.IP
+A plus sign \[lq]+\[rq] indicates that the glyph name appears in the
+AT&T
+.I troff
+user's manual,
+CSTR\~#54
+(1992 revision).
+.
+When using the AT&T special character syntax
+.BI \[rs]( xx\c
+, widespread portability can be expected from such names.
+.
+.
+.IP
+Entries marked with \[lq]***\[rq] denote glyphs used for mathematical
+purposes.
+.
+On typesetting devices,
+such glyphs are typically drawn from a
+.I special
+font
+(see
+.MR groff_font 5 ).
+.
+Often,
+such glyphs lack bold or italic style forms or have metrics that look
+incongruous in ordinary prose.
+.
+A few which are not uncommon in running text have \[lq]text
+variants\[rq],
+which should work better in that context.
+.
+Conversely,
+a handful of glyphs that are normally drawn from a text font may be
+required in mathematical equations.
+.
+Both sets of exceptions are noted in the tables where they appear
+(\[lq]Logical symbols\[rq] and \[lq]Mathematical symbols\[rq]).
+.
+.
+.\" ====================================================================
+.SS "Basic Latin"
+.\" ====================================================================
+.
+Apart from basic Latin characters with special mappings,
+described in subsection \[lq]Fundamental character set\[rq] above,
+a few others in that range have special character glyph names.
+.
+.\" XXX: I surmise that...
+These were defined for ease of input on non-U.S.\& keyboards lacking
+keycaps for them,
+or for symmetry with other special character glyph names serving a
+similar purpose.
+.
+.
+.P
+The vertical bar is overloaded;
+the
+.B \[rs][ba]
+and
+.B \[rs][or]
+escape sequences may render differently.
+.
+See subsection \[lq]Mathematical symbols\[rq] below for special variants
+of the plus,
+minus,
+and equals
+signs normally drawn from this range.
+.
+.
+.P
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[dq]	\e[dq]	u0022	neutral double quote
+\[sh]	\e[sh]	u0023	number sign
+\[Do]	\e[Do]	u0024	dollar sign
+\[aq]	\e[aq]	u0027	apostrophe, neutral single quote
+\[sl]	\e[sl]	u002F	slash, solidus +
+\[at]	\e[at]	u0040	at sign
+\[lB]	\e[lB]	u005B	left square bracket
+\[rs]	\e[rs]	u005C	reverse solidus
+\[rB]	\e[rB]	u005D	right square bracket
+\[ha]	\e[ha]	u005E	circumflex, caret, \[lq]hat\[rq]
+\[lC]	\e[lC]	u007B	left brace
+|	|	u007C	bar
+\[ba]	\e[ba]	u007C	bar
+\[or]	\e[or]	u007C	bitwise or +
+\[rC]	\e[rC]	u007D	right brace
+\[ti]	\e[ti]	u007E	tilde
+.TE
+.
+.
+.\" ====================================================================
+.SS "Supplementary Latin letters"
+.\" ====================================================================
+.
+Historically,
+.B \[rs][ss]
+could be considered a ligature of \[lq]sz\[rq].
+.
+An uppercase form is available as
+.BR \[rs][u1E9E] ,
+but in the German language it is of specialized use;
+\[ss] does
+.I not
+normally uppercase-transform to it,
+but rather to \[lq]SS\[rq].
+.
+\[lq]Lowercase f with hook\[rq] is also used as a function symbol;
+see subsection \[lq]Mathematical symbols\[rq] below.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[-D]	\e[\-D]	u00D0	uppercase eth
+\[Sd]	\e[Sd]	u00F0	lowercase eth
+\[TP]	\e[TP]	u00DE	uppercase thorn
+\[Tp]	\e[Tp]	u00FE	lowercase thorn
+\[ss]	\e[ss]	u00DF	lowercase sharp s
+\[.i]	\e[.i]	u0131	i without tittle
+\[.j]	\e[.j]	u0237	j without tittle
+\[Fn]	\e[Fn]	u0192	lowercase f with hook, function
+\[/L]	\e[/L]	u0141	L with stroke
+\[/l]	\e[/l]	u0142	l with stroke
+\[/O]	\e[/O]	u00D8	O with stroke
+\[/o]	\e[/o]	u00F8	o with stroke
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS "Ligatures and digraphs"
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[ff]	\e[ff]	u0066_0066	ff ligature +
+\[fi]	\e[fi]	u0066_0069	fi ligature +
+\[fl]	\e[fl]	u0066_006C	fl ligature +
+\[Fi]	\e[Fi]	u0066_0066_0069	ffi ligature +
+\[Fl]	\e[Fl]	u0066_0066_006C	ffl ligature +
+\[AE]	\e[AE]	u00C6	AE ligature
+\[ae]	\e[ae]	u00E6	ae ligature
+\[OE]	\e[OE]	u0152	OE ligature
+\[oe]	\e[oe]	u0153	oe ligature
+\[IJ]	\e[IJ]	u0132	IJ digraph
+\[ij]	\e[ij]	u0133	ij digraph
+.TE
+.
+.
+.\" ====================================================================
+.SS Accents
+.\" ====================================================================
+.
+Normally,
+the formatting of a special character advances the drawing position as
+an ordinary character does.
+.
+.IR groff 's
+.B composite
+request designates a special character as combining.
+.
+The
+.I composite.tmac
+macro file,
+loaded automatically by the default
+.IR troffrc ,
+maps the following special characters to the combining characters shown
+below.
+.
+The non-combining code point in parentheses is used when the special
+character occurs in isolation
+(compare
+.RB \[lq] "caf\[rs][e aa]" \[rq]
+and
+.RB \[lq] "caf\[rs][aa]e" \[rq]).
+.
+.
+.P
+.if t .ne 3v
+.if n .ne 4v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[a"]	\e[a"]	u030B (u02DD)	double acute accent
+\[a-]	\e[a\-]	u0304 (u00AF)	macron accent
+\[a.]	\e[a.]	u0307 (u02D9)	dot accent
+\[a^]	\e[a\[ha]]	u0302 (u005E)	circumflex accent
+\[aa]	\e[aa]	u0301 (u00B4)	acute accent +
+\[ga]	\e[ga]	u0300 (u0060)	grave accent +
+\[ab]	\e[ab]	u0306 (u02D8)	breve accent
+\[ac]	\e[ac]	u0327 (u00B8)	cedilla accent
+\[ad]	\e[ad]	u0308 (u00A8)	dieresis accent
+\[ah]	\e[ah]	u030C (u02C7)	caron accent
+\[ao]	\e[ao]	u030A (u02DA)	ring accent
+\[a~]	\e[a\[ti]]	u0303 (u007E)	tilde accent
+\[ho]	\e[ho]	u0328 (u02DB)	hook accent
+.TE
+.
+.
+.\" ====================================================================
+.SS "Accented characters"
+.\" ====================================================================
+.
+All of these glyphs can be composed using combining glyph names as
+described in subsection \[lq]Special character escape forms\[rq] above;
+the names below are short aliases for convenience.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\['A]	\e[\[aq]A]	u0041_0301	A acute
+\['C]	\e[\[aq]C]	u0043_0301	C acute
+\['E]	\e[\[aq]E]	u0045_0301	E acute
+\['I]	\e[\[aq]I]	u0049_0301	I acute
+\['O]	\e[\[aq]O]	u004F_0301	O acute
+\['U]	\e[\[aq]U]	u0055_0301	U acute
+\['Y]	\e[\[aq]Y]	u0059_0301	Y acute
+\['a]	\e[\[aq]a]	u0061_0301	a acute
+\['c]	\e[\[aq]c]	u0063_0301	c acute
+\['e]	\e[\[aq]e]	u0065_0301	e acute
+\['i]	\e[\[aq]i]	u0069_0301	i acute
+\['o]	\e[\[aq]o]	u006F_0301	o acute
+\['u]	\e[\[aq]u]	u0075_0301	u acute
+\['y]	\e[\[aq]y]	u0079_0301	y acute
+
+\[:A]	\e[:A]	u0041_0308	A dieresis
+\[:E]	\e[:E]	u0045_0308	E dieresis
+\[:I]	\e[:I]	u0049_0308	I dieresis
+\[:O]	\e[:O]	u004F_0308	O dieresis
+\[:U]	\e[:U]	u0055_0308	U dieresis
+\[:Y]	\e[:Y]	u0059_0308	Y dieresis
+\[:a]	\e[:a]	u0061_0308	a dieresis
+\[:e]	\e[:e]	u0065_0308	e dieresis
+\[:i]	\e[:i]	u0069_0308	i dieresis
+\[:o]	\e[:o]	u006F_0308	o dieresis
+\[:u]	\e[:u]	u0075_0308	u dieresis
+\[:y]	\e[:y]	u0079_0308	y dieresis
+
+\[^A]	\e[\[ha]A]	u0041_0302	A circumflex
+\[^E]	\e[\[ha]E]	u0045_0302	E circumflex
+\[^I]	\e[\[ha]I]	u0049_0302	I circumflex
+\[^O]	\e[\[ha]O]	u004F_0302	O circumflex
+\[^U]	\e[\[ha]U]	u0055_0302	U circumflex
+\[^a]	\e[\[ha]a]	u0061_0302	a circumflex
+\[^e]	\e[\[ha]e]	u0065_0302	e circumflex
+\[^i]	\e[\[ha]i]	u0069_0302	i circumflex
+\[^o]	\e[\[ha]o]	u006F_0302	o circumflex
+\[^u]	\e[\[ha]u]	u0075_0302	u circumflex
+
+\[`A]	\e[\[ga]A]	u0041_0300	A grave
+\[`E]	\e[\[ga]E]	u0045_0300	E grave
+\[`I]	\e[\[ga]I]	u0049_0300	I grave
+\[`O]	\e[\[ga]O]	u004F_0300	O grave
+\[`U]	\e[\[ga]U]	u0055_0300	U grave
+\[`a]	\e[\[ga]a]	u0061_0300	a grave
+\[`e]	\e[\[ga]e]	u0065_0300	e grave
+\[`i]	\e[\[ga]i]	u0069_0300	i grave
+\[`o]	\e[\[ga]o]	u006F_0300	o grave
+\[`u]	\e[\[ga]u]	u0075_0300	u grave
+
+\[~A]	\e[\[ti]A]	u0041_0303	A tilde
+\[~N]	\e[\[ti]N]	u004E_0303	N tilde
+\[~O]	\e[\[ti]O]	u004F_0303	O tilde
+\[~a]	\e[\[ti]a]	u0061_0303	a tilde
+\[~n]	\e[\[ti]n]	u006E_0303	n tilde
+\[~o]	\e[\[ti]o]	u006F_0303	o tilde
+
+\[vS]	\e[vS]	u0053_030C	S caron
+\[vs]	\e[vs]	u0073_030C	s caron
+\[vZ]	\e[vZ]	u005A_030C	Z caron
+\[vz]	\e[vz]	u007A_030C	z caron
+
+\[,C]	\e[,C]	u0043_0327	C cedilla
+\[,c]	\e[,c]	u0063_0327	c cedilla
+
+\[oA]	\e[oA]	u0041_030A	A ring
+\[oa]	\e[oa]	u0061_030A	a ring
+.TE
+.
+.
+.\" ====================================================================
+.SS "Quotation marks"
+.\" ====================================================================
+.
+The neutral double quote,
+often useful when documenting programming languages,
+is also available as a special character for convenient embedding in
+macro arguments;
+see subsection \[lq]Fundamental character set\[rq] above.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[Bq]	\e[Bq]	u201E	low double comma quote
+\[bq]	\e[bq]	u201A	low single comma quote
+\[lq]	\e[lq]	u201C	left double quote
+\[rq]	\e[rq]	u201D	right double quote
+\[oq]	\e[oq]	u2018	single opening (left) quote
+\[cq]	\e[cq]	u2019	single closing (right) quote
+\[aq]	\e[aq]	u0027	apostrophe, neutral single quote
+\[dq]	"	u0022	neutral double quote
+\[dq]	\e[dq]	u0022	neutral double quote
+\[Fo]	\e[Fo]	u00AB	left double chevron
+\[Fc]	\e[Fc]	u00BB	right double chevron
+\[fo]	\e[fo]	u2039	left single chevron
+\[fc]	\e[fc]	u203A	right single chevron
+.TE
+.
+.
+.\" ====================================================================
+.SS Punctuation
+.\" ====================================================================
+.
+The Unicode name for U+00B7 is \[lq]middle dot\[rq],
+which is unfortunately confusable with the
+.I groff
+mnemonic for the visually similar but semantically distinct
+multiplication dot;
+see subsection \[lq]Mathematical symbols\[rq] below.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[r!]	\e[r!]	u00A1	inverted exclamation mark
+\[r?]	\e[r?]	u00BF	inverted question mark
+\[pc]	\e[pc]	u00B7	centered period
+\[em]	\e[em]	u2014	em-dash +
+\[en]	\e[en]	u2013	en-dash
+\[hy]	\e[hy]	u2010	hyphen +
+.TE
+.
+.
+.\" ====================================================================
+.SS Brackets
+.\" ====================================================================
+.
+On typesetting devices,
+the bracket extensions are font-invariant glyphs;
+that is,
+they are rendered the same way regardless of font
+(with a drawing escape sequence).
+.
+On terminals,
+they are
+.I not
+font-invariant;
+.I groff
+maps them rather arbitrarily to U+23AA
+(\[lq]curly bracket extension\[rq]).
+.
+In AT&T
+.IR troff ,
+only one glyph was available to vertically extend
+brackets,
+braces,
+and
+parentheses:
+.BR \[rs](bv .
+.
+.
+.
+.P
+Not all devices supply bracket pieces that can be piled up with
+.B \[rs]b
+due to the restrictions of the escape's piling algorithm.
+.
+A general solution to build brackets out of pieces is the following
+macro:
+.
+.
+.RS
+.EX
+\&.\e" Make a pile centered vertically 0.5em above the baseline.
+\&.\e" The first argument is placed at the top.
+\&.\e" The pile is returned in string \[aq]pile\[aq].
+\&.eo
+\&.de pile\-make
+\&.\&  nr pile\-wd 0
+\&.\&  nr pile\-ht 0
+\&.\&  ds pile\-args
+\&.\&
+\&.\&  nr pile\-# \en[.$]
+\&.\&  while \en[pile\-#] \e{\e
+\&.\&    nr pile\-wd (\en[pile\-wd] >? \ew\[aq]\e$[\en[pile\-#]]\[aq])
+\&.\&    nr pile\-ht +(\en[rst] \- \en[rsb])
+\&.\&    as pile\-args \ev\[aq]\en[rsb]u\[aq]\e"
+\&.\&    as pile\-args \eZ\[aq]\e$[\en[pile\-#]]\[aq]\e"
+\&.\&    as pile\-args \ev\[aq]\-\en[rst]u\[aq]\e"
+\&.\&    nr pile\-# \-1
+\&.\&  \e}
+\&.\&
+\&.\&  ds pile \ev\[aq](\-0.5m + (\en[pile\-ht]u / 2u))\[aq]\e"
+\&.\&  as pile \e*[pile\-args]\e"
+\&.\&  as pile \ev\[aq]((\en[pile\-ht]u / 2u) + 0.5m)\[aq]\e"
+\&.\&  as pile \eh\[aq]\en[pile\-wd]u\[aq]\e"
+\&..
+\&.ec
+.EE
+.RE
+.
+.
+.P
+Another complication is the fact that some glyphs which represent
+bracket pieces in AT&T
+.I troff
+can be used for other mathematical symbols as well,
+for example
+.B \[rs](lf
+and
+.BR \[rs](rf ,
+which provide the floor operator.
+.
+Some output devices,
+such as
+.BR dvi ,
+don't unify such glyphs.
+.
+For this reason,
+the glyphs
+.BR \[rs][lf] ,
+.BR \[rs][rf] ,
+.BR \[rs][lc] ,
+and
+.B \[rs][rc]
+are not unified with similar-looking bracket pieces.
+.
+In
+.IR groff ,
+only glyphs with long names are guaranteed to pile up correctly for all
+devices\[em]provided those glyphs are available.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[lB]	[	u005B	left square bracket
+\[lB]	\e[lB]	u005B	left square bracket
+\[rB]	]	u005D	right square bracket
+\[rB]	\e[rB]	u005D	right square bracket
+\[lC]	{	u007B	left brace
+\[lC]	\e[lC]	u007B	left brace
+\[rC]	}	u007D	right brace
+\[rC]	\e[rC]	u007D	right brace
+\[la]	\e[la]	u27E8	left angle bracket
+\[ra]	\e[ra]	u27E9	right angle bracket
+\[bv]	\e[bv]	u23AA	brace vertical extension + ***
+\[braceex]	\e[braceex]	u23AA	brace vertical extension
+
+\[bracketlefttp]	\e[bracketlefttp]	u23A1	left square bracket top
+\[bracketleftex]	\e[bracketleftex]	u23A2	left square bracket extension
+\[bracketleftbt]	\e[bracketleftbt]	u23A3	left square bracket bottom
+
+\[bracketrighttp]	\e[bracketrighttp]	u23A4	right square bracket top
+\[bracketrightex]	\e[bracketrightex]	u23A5	right square bracket extension
+\[bracketrightbt]	\e[bracketrightbt]	u23A6	right square bracket bottom
+
+\[lt]	\e[lt]	u23A7	left brace top +
+\[lk]	\e[lk]	u23A8	left brace middle +
+\[lb]	\e[lb]	u23A9	left brace bottom +
+\[bracelefttp]	\e[bracelefttp]	u23A7	left brace top
+\[braceleftmid]	\e[braceleftmid]	u23A8	left brace middle
+\[braceleftbt]	\e[braceleftbt]	u23A9	left brace bottom
+\[braceleftex]	\e[braceleftex]	u23AA	left brace extension
+
+\[rt]	\e[rt]	u23AB	right brace top +
+\[rk]	\e[rk]	u23AC	right brace middle +
+\[rb]	\e[rb]	u23AD	right brace bottom +
+\[bracerighttp]	\e[bracerighttp]	u23AB	right brace top
+\[bracerightmid]	\e[bracerightmid]	u23AC	right brace middle
+\[bracerightbt]	\e[bracerightbt]	u23AD	right brace bottom
+\[bracerightex]	\e[bracerightex]	u23AA	right brace extension
+
+\[parenlefttp]	\e[parenlefttp]	u239B	left parenthesis top
+\[parenleftex]	\e[parenleftex]	u239C	left parenthesis extension
+\[parenleftbt]	\e[parenleftbt]	u239D	left parenthesis bottom
+\[parenrighttp]	\e[parenrighttp]	u239E	right parenthesis top
+\[parenrightex]	\e[parenrightex]	u239F	right parenthesis extension
+\[parenrightbt]	\e[parenrightbt]	u23A0	right parenthesis bottom
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS Arrows
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[<-]	\e[<\-]	u2190	horizontal arrow left +
+\[->]	\e[\->]	u2192	horizontal arrow right +
+\[<>]	\e[<>]	u2194	bidirectional horizontal arrow
+\[da]	\e[da]	u2193	vertical arrow down +
+\[ua]	\e[ua]	u2191	vertical arrow up +
+\[va]	\e[va]	u2195	bidirectional vertical arrow
+\[lA]	\e[lA]	u21D0	horizontal double arrow left
+\[rA]	\e[rA]	u21D2	horizontal double arrow right
+\[hA]	\e[hA]	u21D4	bidirectional horizontal double arrow
+\[dA]	\e[dA]	u21D3	vertical double arrow down
+\[uA]	\e[uA]	u21D1	vertical double arrow up
+\[vA]	\e[vA]	u21D5	bidirectional vertical double arrow
+\[an]	\e[an]	u23AF	horizontal arrow extension
+.TE
+.
+.
+.\" ====================================================================
+.SS "Rules and lines"
+.\" ====================================================================
+.
+On typesetting devices,
+the font-invariant glyphs
+(see subsection \[lq]Brackets\[rq] above)
+.BR \[rs][br] ,
+.BR \[rs][ul] ,
+and
+.B \[rs][rn]
+form corners when adjacent;
+they can be used to build boxes.
+.
+On terminal devices,
+they are mapped as shown in the table.
+.
+The Unicode-derived names of these three glyphs are approximations.
+.
+.
+.P
+The input character
+.B _
+always accesses the underscore glyph in a font;
+.\" unless one isn't available, but this seems to be only a theoretical
+.\" concern--what font doesn't support every ASCII codepoint these days?
+.BR \[rs][ul] ,
+by contrast,
+may be font-invariant on typesetting devices.
+.
+.
+.P
+The baseline rule
+.B \[rs][ru]
+is a font-invariant glyph,
+namely a rule of one-half em.
+.
+.
+.P
+In AT&T
+.IR troff , \" AT&T
+.B \[rs][rn]
+also served as a one\~en extension of the square root symbol.
+.
+.I groff
+favors
+.B \[rs][radicalex]
+for this purpose;
+see subsection \[lq]Mathematical symbols\[rq] below.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+|	|	u007C	bar
+\[ba]	\e[ba]	u007C	bar
+\[br]	\e[br]	u2502	box rule +
+\&_	\&_	u005F	underscore, low line +
+\[ul]	\e[ul]	---	underrule +
+\[rn]	\e[rn]	u203E	overline +
+\[ru]	\e[ru]	---	baseline rule +
+\[bb]	\e[bb]	u00A6	broken bar
+\[sl]	/	u002F	slash, solidus +
+\[sl]	\e[sl]	u002F	slash, solidus +
+\[rs]	\e[rs]	u005C	reverse solidus
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS "Text markers"
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[ci]	\e[ci]	u25CB	circle +
+\[bu]	\e[bu]	u2022	bullet +
+\[dg]	\e[dg]	u2020	dagger +
+\[dd]	\e[dd]	u2021	double dagger +
+\[lz]	\e[lz]	u25CA	lozenge, diamond
+\[sq]	\e[sq]	u25A1	square +
+\[ps]	\e[ps]	u00B6	pilcrow sign
+\[sc]	\e[sc]	u00A7	section sign +
+\[lh]	\e[lh]	u261C	hand pointing left +
+\[rh]	\e[rh]	u261E	hand pointing right +
+\[at]	@	u0040	at sign
+\[at]	\e[at]	u0040	at sign
+\[sh]	#	u0023	number sign
+\[sh]	\e[sh]	u0023	number sign
+\[CR]	\e[CR]	u21B5	carriage return
+\[OK]	\e[OK]	u2713	check mark
+.TE
+.
+.\" ====================================================================
+.SS "Legal symbols"
+.\" ====================================================================
+.
+The Bell System logo is not supported in
+.IR groff .
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[co]	\e[co]	u00A9	copyright sign +
+\[rg]	\e[rg]	u00AE	registered sign +
+\[tm]	\e[tm]	u2122	trade mark sign
+\[bs]	\e[bs]	---	Bell System logo +
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS "Currency symbols"
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[Do]	$	u0024	dollar sign
+\[Do]	\e[Do]	u0024	dollar sign
+\[ct]	\e[ct]	u00A2	cent sign +
+\[eu]	\e[eu]	u20AC	Euro sign
+\[Eu]	\e[Eu]	u20AC	variant Euro sign
+\[Ye]	\e[Ye]	u00A5	yen sign
+\[Po]	\e[Po]	u00A3	pound sign
+\[Cs]	\e[Cs]	u00A4	currency sign
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS Units
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[de]	\e[de]	u00B0	degree sign +
+\[%0]	\e[%0]	u2030	per thousand, per mille sign
+\[fm]	\e[fm]	u2032	arc minute sign, foot mark +
+\[sd]	\e[sd]	u2033	arc second sign
+\[mc]	\e[mc]	u00B5	micro sign
+\[Of]	\e[Of]	u00AA	feminine ordinal indicator
+\[Om]	\e[Om]	u00BA	masculine ordinal indicator
+.TE
+.
+.
+.\" ====================================================================
+.SS "Logical symbols"
+.\" ====================================================================
+.
+The variants of the not sign may differ in appearance or spacing
+depending on the device and font selected.
+.
+Unicode does not encode a discrete \[lq]bitwise or\[rq] sign:
+on typesetting devices,
+it is drawn shorter than the bar,
+about the same height as a capital letter.
+.
+Terminal devices unify
+.B \[rs][ba]
+and
+.BR \[rs][or] .
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[AN]	\e[AN]	u2227	logical and
+\[OR]	\e[OR]	u2228	logical or
+\[no]	\e[no]	u00AC	logical not + ***
+\[tno]	\e[tno]	u00AC	text variant of \f[B]\e[no]\f[]
+\[te]	\e[te]	u2203	there exists
+\[fa]	\e[fa]	u2200	for all
+\[st]	\e[st]	u220B	such that
+\[3d]	\e[3d]	u2234	therefore
+\[tf]	\e[tf]	u2234	therefore
+|	|	u007C	bar
+\[or]	\e[or]	u007C	bitwise or +
+.TE
+.
+.
+.\" ====================================================================
+.SS "Mathematical symbols"
+.\" ====================================================================
+.
+.B \[rs][Fn]
+also appears in subsection \[lq]Supplementary Latin letters\[rq] above.
+.
+Observe the two varieties of the
+plus-minus,
+multiplication,
+and division signs;
+.BR \[rs][+\-] ,
+.BR \[rs][mu] ,
+and
+.B \[rs][di]
+are normally drawn from the special font,
+but have text font variants.
+.
+Also be aware of three glyphs available in special font variants that
+are normally drawn from text fonts:
+the plus,
+minus,
+and equals signs.
+.
+These variants may differ in appearance or spacing depending on the
+device and font selected.
+.
+.
+.P
+In AT&T
+.IR troff ,
+.B \[rs](rn
+(\[lq]root en extender\[rq])
+served as the horizontal extension of the radical
+(square root)
+sign,
+.BR \[rs](sr ,
+and was drawn at the maximum height of the typeface's bounding box;
+this enabled the special character to double as an overline
+(see subsection \[lq]Rules and lines\[rq] above).
+.
+A contemporary font's radical sign might not ascend to such an extreme.
+.
+In
+.IR groff ,
+you can instead use
+.B \[rs][radicalex]
+to continue the radical sign
+.BR \[rs][sr] ;
+these special characters are intended for use with text fonts.
+.
+.B \[rs][sqrt]
+and
+.B \[rs][sqrtex]
+are their counterparts with mathematical spacing.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[12]	\e[12]	u00BD	one half symbol +
+\[14]	\e[14]	u00BC	one quarter symbol +
+\[34]	\e[34]	u00BE	three quarters symbol +
+\[18]	\e[18]	u215B	one eighth symbol
+\[38]	\e[38]	u215C	three eighths symbol
+\[58]	\e[58]	u215D	five eighths symbol
+\[78]	\e[78]	u215E	seven eighths symbol
+\[S1]	\e[S1]	u00B9	superscript one
+\[S2]	\e[S2]	u00B2	superscript two
+\[S3]	\e[S3]	u00B3	superscript three
+
++	+	u002B	plus
+\[pl]	\e[pl]	u002B	special variant of plus + ***
+\-	\e[\-]	u002D	minus
+\[mi]	\e[mi]	u2212	special variant of minus + ***
+\[-+]	\e[\-+]	u2213	minus-plus
+\[+-]	\e[+\-]	u00B1	plus-minus + ***
+\[t+-]	\e[t+\-]	u00B1	text variant of \f[B]\e[+\-]\f[]
+\[md]	\e[md]	u22C5	multiplication dot
+\[mu]	\e[mu]	u00D7	multiplication sign + ***
+\[tmu]	\e[tmu]	u00D7	text variant of \f[B]\e[mu]\f[]
+\[c*]	\e[c*]	u2297	circled times
+\[c+]	\e[c+]	u2295	circled plus
+\[di]	\e[di]	u00F7	division sign + ***
+\[tdi]	\e[tdi]	u00F7	text variant of \f[B]\e[di]\f[]
+\[f/]	\e[f/]	u2044	fraction slash
+*	*	u002A	asterisk
+\[**]	\e[**]	u2217	mathematical asterisk +
+
+\[<=]	\e[<=]	u2264	less than or equal to +
+\[>=]	\e[>=]	u2265	greater than or equal to +
+\[<<]	\e[<<]	u226A	much less than
+\[>>]	\e[>>]	u226B	much greater than
+\&=	\&=	u003D	equals
+\[eq]	\e[eq]	u003D	special variant of equals + ***
+\[!=]	\e[!=]	u003D_0338	not equals +
+\[==]	\e[==]	u2261	equivalent +
+\[ne]	\e[ne]	u2261_0338	not equivalent
+\[=~]	\e[=\[ti]]	u2245	approximately equal to
+\[|=]	\e[|=]	u2243	asymptotically equal to +
+\[ti]	\e[ti]	u007E	tilde +
+\[ap]	\e[ap]	u223C	similar to, tilde operator +
+\[~~]	\e[\[ti]\[ti]]	u2248	almost equal to
+\[~=]	\e[\[ti]=]	u2248	almost equal to
+\[pt]	\e[pt]	u221D	proportional to +
+
+\[es]	\e[es]	u2205	empty set +
+\[mo]	\e[mo]	u2208	element of a set +
+\[nm]	\e[nm]	u2208_0338	not element of set
+\[sb]	\e[sb]	u2282	proper subset +
+\[nb]	\e[nb]	u2282_0338	not subset
+\[sp]	\e[sp]	u2283	proper superset +
+\[nc]	\e[nc]	u2283_0338	not superset
+\[ib]	\e[ib]	u2286	subset or equal +
+\[ip]	\e[ip]	u2287	superset or equal +
+\[ca]	\e[ca]	u2229	intersection, cap +
+\[cu]	\e[cu]	u222A	union, cup +
+
+\[/_]	\e[/_]	u2220	angle
+\[pp]	\e[pp]	u22A5	perpendicular
+\[is]	\e[is]	u222B	integral +
+\[integral]	\e[integral]	u222B	integral ***
+\[sum]	\e[sum]	u2211	summation ***
+\[product]	\e[product]	u220F	product ***
+\[coproduct]	\e[coproduct]	u2210	coproduct ***
+\[gr]	\e[gr]	u2207	gradient +
+\[sr]	\e[sr]	u221A	radical sign, square root +
+\[rn]	\e[rn]	u203E	overline +
+\[radicalex]	\e[radicalex]	---	radical extension
+\[sqrt]	\e[sqrt]	u221A	radical sign, square root ***
+\[sqrtex]	\e[sqrtex]	---	radical extension ***
+
+\[lc]	\e[lc]	u2308	left ceiling +
+\[rc]	\e[rc]	u2309	right ceiling +
+\[lf]	\e[lf]	u230A	left floor +
+\[rf]	\e[rf]	u230B	right floor +
+
+\[if]	\e[if]	u221E	infinity +
+\[Ah]	\e[Ah]	u2135	aleph symbol
+\[Fn]	\e[Fn]	u0192	lowercase f with hook, function
+\[Im]	\e[Im]	u2111	blackletter I, imaginary part
+\[Re]	\e[Re]	u211C	blackletter R, real part
+\[wp]	\e[wp]	u2118	Weierstrass p
+\[pd]	\e[pd]	u2202	partial differential
+\[-h]	\e[\-h]	u210F	h bar
+\[hbar]	\e[hbar]	u210F	h bar
+.TE
+.
+.
+.\" ====================================================================
+.SS "Greek glyphs"
+.\" ====================================================================
+.
+These glyphs are intended for technical use,
+not for typesetting Greek language text;
+normally,
+the uppercase letters have upright shape,
+and the lowercase ones are slanted.
+.
+.
+.P
+.if t .ne 2v
+.if n .ne 3v \" account for horizontal rule
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[*A]	\e[*A]	u0391	uppercase alpha +
+\[*B]	\e[*B]	u0392	uppercase beta +
+\[*G]	\e[*G]	u0393	uppercase gamma +
+\[*D]	\e[*D]	u0394	uppercase delta +
+\[*E]	\e[*E]	u0395	uppercase epsilon +
+\[*Z]	\e[*Z]	u0396	uppercase zeta +
+\[*Y]	\e[*Y]	u0397	uppercase eta +
+\[*H]	\e[*H]	u0398	uppercase theta +
+\[*I]	\e[*I]	u0399	uppercase iota +
+\[*K]	\e[*K]	u039A	uppercase kappa +
+\[*L]	\e[*L]	u039B	uppercase lambda +
+\[*M]	\e[*M]	u039C	uppercase mu +
+\[*N]	\e[*N]	u039D	uppercase nu +
+\[*C]	\e[*C]	u039E	uppercase xi +
+\[*O]	\e[*O]	u039F	uppercase omicron +
+\[*P]	\e[*P]	u03A0	uppercase pi +
+\[*R]	\e[*R]	u03A1	uppercase rho +
+\[*S]	\e[*S]	u03A3	uppercase sigma +
+\[*T]	\e[*T]	u03A4	uppercase tau +
+\[*U]	\e[*U]	u03A5	uppercase upsilon +
+\[*F]	\e[*F]	u03A6	uppercase phi +
+\[*X]	\e[*X]	u03A7	uppercase chi +
+\[*Q]	\e[*Q]	u03A8	uppercase psi +
+\[*W]	\e[*W]	u03A9	uppercase omega +
+
+\[*a]	\e[*a]	u03B1	lowercase alpha +
+\[*b]	\e[*b]	u03B2	lowercase beta +
+\[*g]	\e[*g]	u03B3	lowercase gamma +
+\[*d]	\e[*d]	u03B4	lowercase delta +
+\[*e]	\e[*e]	u03B5	lowercase epsilon +
+\[*z]	\e[*z]	u03B6	lowercase zeta +
+\[*y]	\e[*y]	u03B7	lowercase eta +
+\[*h]	\e[*h]	u03B8	lowercase theta +
+\[*i]	\e[*i]	u03B9	lowercase iota +
+\[*k]	\e[*k]	u03BA	lowercase kappa +
+\[*l]	\e[*l]	u03BB	lowercase lambda +
+\[*m]	\e[*m]	u03BC	lowercase mu +
+\[*n]	\e[*n]	u03BD	lowercase nu +
+\[*c]	\e[*c]	u03BE	lowercase xi +
+\[*o]	\e[*o]	u03BF	lowercase omicron +
+\[*p]	\e[*p]	u03C0	lowercase pi +
+\[*r]	\e[*r]	u03C1	lowercase rho +
+\[*s]	\e[*s]	u03C3	lowercase sigma +
+\[*t]	\e[*t]	u03C4	lowercase tau +
+\[*u]	\e[*u]	u03C5	lowercase upsilon +
+\[*f]	\e[*f]	u03D5	lowercase phi +
+\[*x]	\e[*x]	u03C7	lowercase chi +
+\[*q]	\e[*q]	u03C8	lowercase psi +
+\[*w]	\e[*w]	u03C9	lowercase omega +
+
+\[+e]	\e[+e]	u03F5	variant epsilon (lunate)
+\[+h]	\e[+h]	u03D1	variant theta (cursive form)
+\[+p]	\e[+p]	u03D6	variant pi (similar to omega)
+\[+f]	\e[+f]	u03C6	variant phi (curly shape)
+\[ts]	\e[ts]	u03C2	terminal lowercase sigma +
+.TE
+.
+.
+.br
+.if t .ne 4v
+.if n .ne 5v \" account for horizontal rule
+.\" ====================================================================
+.SS "Playing card symbols"
+.\" ====================================================================
+.
+.TS
+L L L Lx.
+Output	Input	Unicode	Notes
+_
+.T&
+L Lf(CR) L Lx.
+\[CL]	\e[CL]	u2663	solid club suit
+\[SP]	\e[SP]	u2660	solid spade suit
+\[HE]	\e[HE]	u2665	solid heart suit
+\[DI]	\e[DI]	u2666	solid diamond suit
+.TE
+.
+.
+.\" ====================================================================
+.SH History
+.\" ====================================================================
+.
+A consideration of the typefaces originally available to AT&T
+.I nroff \" AT&T
+and
+.I troff \" AT&T
+illuminates many conventions that one might regard as idiosyncratic
+fifty years afterward.
+.
+(See section \[lq]History\[rq] of
+.MR roff 7
+for more context.)
+.
+The face used by the Teletype Model\~37 terminals of the Murray Hill
+Unix Room was based on ASCII,
+but assigned multiple meanings to several code points,
+as suggested by that standard.
+.
+Decimal 34
+.RB ( \[dq] )
+served as a dieresis accent and neutral double quotation mark;
+decimal 39
+.RB ( \[aq] )
+as an acute accent,
+apostrophe,
+and closing (right) single quotation mark;
+decimal 45
+.RB ( \[-] )
+as a hyphen and a minus sign;
+decimal 94
+.RB ( \[ha] )
+as a circumflex accent and caret;
+decimal 96
+.RB ( \[ga] )
+as a grave accent and opening (left) single quotation mark;
+and decimal 126
+.RB ( \[ti] )
+as a tilde accent and
+(with a half-line motion)
+swung dash.
+.
+The Model\~37 bore an optional extended character set offering upright
+Greek letters and several mathematical symbols;
+these were documented as early as the
+.IR kbd (VII)
+man page of the
+(First Edition)
+.I Unix Programmer's Manual.
+.
+.
+.br
+.ne 2v
+.P
+At the time Graphic Systems delivered the C/A/T phototypesetter to AT&T,
+the ASCII character set was not considered a standard basis for a glyph
+repertoire by traditional typographers.
+.
+In the stock Times roman,
+italic,
+and bold styles available,
+several ASCII characters were not present at all,
+nor was most of the Teletype's extended character set.
+.
+AT&T commissioned a \[lq]special\[rq] font to ensure no loss of
+repertoire.
+.
+.
+.br
+.ne 2v
+.P
+A representation of the coverage of the C/A/T's text fonts follows.
+.
+The glyph resembling an underscore is a baseline rule,
+and that resembling a vertical line is a box rule.
+.
+In italics,
+the box rule was not slanted.
+.
+We also observe that the hyphen and minus sign were already
+\[lq]de-unified\[rq] by the fonts provided;
+a decision whither to map an input \[lq]\-\[rq] therefore had to be
+taken.
+.
+.
+.br
+.if t .ne 5v
+.if t .ne 7v \" account for box border
+.P
+.TS
+center box;
+Lf(R).
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+0 1 2 3 4 5 6 7 8 9 \[fi] \[fl] \[Fi] \[Fl]
+! $ % & ( ) \[oq] \[cq] * + \- . , / : ; = ? [ ] \[br]
+\[bu] \[sq] \[em] \[hy] \[ru] \[14] \[12] \[34] \
+\[de] \[dg] \[fm] \[ct] \[rg] \[co]
+.TE
+.
+.
+.P
+The special font supplied the missing ASCII and Teletype extended
+glyphs,
+among several others.
+.
+The plus,
+minus,
+and equals signs appeared in the special font despite availability in
+text fonts \[lq]to insulate the appearance of equations from the choice
+of standard [read: text] fonts\[rq]\[em]a priority since
+.I troff \" AT&T
+was turned to the task of mathematical typesetting as soon as it was
+developed.
+.
+.
+.P
+We note that AT&T took the opportunity to de-unify the apostrophe/right
+single quotation mark from the acute accent
+(a choice ISO later duplicated in its 8859 series of standards).
+.
+A slash intended to be mirror-symmetric with the backslash was also
+included,
+as was the Bell System logo;
+we do not attempt to depict the latter.
+.
+.
+.br
+.if t .ne 5v
+.if t .ne 7v \" account for box border
+.P
+.TS
+center box;
+Lf(I),Lf(R).
+\[*a] \[*b] \[*g] \[*d] \[*e] \[*z] \[*y] \[*h] \[*i] \[*k] \[*l] \
+\[*m] \[*n] \[*c] \[*o] \[*p] \[*r] \[*s] \[ts] \[*t] \[*u] \[*f] \
+\[*x] \[*q] \[*w]
+\[*G] \[*D] \[*H] \[*L] \[*C] \[*P] \[*S] \[*U] \[*F] \[*Q] \[*W]
+\[dq] \[aa] \[rs] \[ha] \[ul] \[ga] \[ti] \[sl] < > { } # @ \
+\[pl] \[mi] \[eq] \[**]
+.\" We use \[radicalex] instead of \[rn] for more reliable simulation of
+.\" the typeface shown in Table I of CSTR #54 (1976); see subsection
+.\" "Mathematical symbols" above.
+\[>=] \[<=] \[==] \[~=] \[ap] \[!=] \
+\[ua] \[da] \[<-] \[->] \[mu] \[di] \[+-] \
+\[if] \[pd] \[gr] \[no] \[is] \[pt] \[sr] \[radicalex] \
+\[cu] \[ca] \[sb] \[sp] \[ib] \[ip] \[es] \[mo]
+\[sc] \[dd] \[lh] \[rh] \[or] \[ci] \
+\[lt] \[lb] \[rt] \[rb] \[lk] \[rk] \[bv] \[lf] \[rf] \[lc] \[rc]
+.TE
+.
+.
+.P
+One ASCII character as rendered by the Model 37 was apparently
+abandoned.
+.
+That device printed decimal 124 (\[or]) as a broken vertical line,
+like Unicode U+00A6 (\[bb]).
+.
+No equivalent was available on the C/A/T;
+the box rule
+.BR \[rs][br] ,
+brace vertical extension
+.\" CSTR #54 (1976 edition) called this the "bold vertical", probably
+.\" because it was thicker than the box rule and matched the thickness
+.\" of the bracket pieces \(lt, \(lb, \(rt, \(rb, \(lk, \(rk, and so on.
+.\" Saying "bold" could be misleading because it appeared only in the
+.\" special font, not a bold text font.
+.BR \[rs][bv] ,
+and \[lq]or\[rq] operator
+.B \[rs][or]
+were used as contextually appropriate.
+.
+.
+.P
+.\" In the Holt, Reinhart, Winston edition of the _Unix Programmer's
+.\" Manual_, Revised and Expanded Version, Volume 2 (1983), the square
+.\" \(sq in Times bold is _not_ shown as filled on page 226.
+.\"
+.\" ...but in the AT&T USG Unix 4.0 manual (ca. 1981), typeset on the
+.\" Autologic APS-5, the Times bold \(sq _is_ filled.
+.\"
+.\" https://www.tuhs.org/Archive/Documentation/Manuals/Unix_4.0/
+.\"   Volume_1/00_Annotated_Table_of_Contents.pdf
+.\"   Volume_1/C.1.2_NROFF_TROFF_Users_Manual.pdf
+.\" -- GBR
+Devices supported by AT&T device-independent
+.I troff
+exhibited some differences in glyph detail.
+.
+For example,
+on the Autologic APS-5 phototypesetter,
+the square
+.B \[rs](sq
+became filled in the Times bold face.
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+The files below are loaded automatically by the default
+.IR troffrc .
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%composite\:.tmac
+assigns alternate mappings for identifiers after the first in a
+composite special character escape sequence.
+.
+See subsection \[lq]Accents\[rq] above.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%fallbacks\:.tmac
+defines fallback mappings for Unicode code points such as the increment
+sign (U+2206) and upper- and lowercase Roman numerals.
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+This document was written by
+.MT jjc@\:jclark\:.com
+James Clark
+.ME ,
+with additions by
+.MT wl@\:gnu\:.org
+Werner Lemberg
+.ME
+and
+.MT groff\-bernd\:.warken\-72@\:web\:.de
+Bernd Warken
+.ME ,
+revised to use
+.MR \%tbl 1
+by
+.MT esr@\:thyrsus\:.com
+Eric S.\& Raymond
+.ME ,
+and largely rewritten by
+.MT g.branden\:.robinson@\:gmail\:.com
+G.\& Branden Robinson
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is the primary
+.I groff
+manual.
+.
+Section \[lq]Using Symbols\[rq] may be of particular note.
+.
+You can browse it interactively with \[lq]info \[aq](groff) Using
+Symbols\[aq]\[rq].
+.
+.
+.P
+\[lq]An extension to the
+.I troff
+character set for Europe\[rq],
+E.G.\& Keizer,
+K.J.\& Simonsen,
+J.\& Akkerhuis;
+EUUG Newsletter,
+Volume 9,
+No.\& 2,
+Summer 1989
+.
+.
+.P
+.UR http://\:www\:.unicode\:.org
+The Unicode Standard
+.UE
+.
+.
+.br
+.ne 2v
+.P
+.UR https://\:www\:.aivosto\:.com/\:articles/\:charsets\-7bit\:.html
+\[lq]7-bit Character Sets\[rq]
+.UE
+by Tuomas Salste documents the inherent ambiguity and configurable code
+points of the ASCII encoding standard.
+.
+.
+.P
+\[lq]Nroff/Troff User's Manual\[rq]
+by Joseph F.\& Ossanna,
+1976,
+AT&T Bell Laboratories Computing Science Technical Report No.\& 54,
+features two tables that throw light on the glyph repertoire available
+to \[lq]typesetter
+.IR roff \[rq]
+when it was first written.
+.
+Be careful of re-typeset versions of this document that can be found on
+the Internet.
+.
+Some do not accurately represent the original document:
+several glyphs are obviously missing.
+.
+More subtly,
+lowercase Greek letters are rendered upright,
+not slanted as they appeared in the C/A/T's special font and as expected
+by
+.I troff \" AT&T
+users.
+.
+.
+.P
+.MR groff_rfc1345 7
+describes an alternative set of special character glyph names,
+which extends and in some cases overrides the definitions listed above.
+.
+.
+.P
+.MR groff 1 ,
+.MR troff 1 ,
+.MR groff 7
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_groff_char_7_man_C]
+.do rr *groff_groff_char_7_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" tab-width: 20
+.\" End:
+.\" vim: set filetype=groff tabstop=20 textwidth=72:

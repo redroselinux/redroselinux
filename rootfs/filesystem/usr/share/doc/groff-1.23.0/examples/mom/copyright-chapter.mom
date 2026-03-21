@@ -1,0 +1,160 @@
+.\" -*- mode: text; coding: utf-8; -*-
+\#
+\# Copyright (C) 2019-2020 Free Software Foundation, Inc.
+\#
+\# Copying and distribution of this file, with or without modification,
+\# are permitted in any medium without royalty provided the copyright
+\# notice and this notice are preserved.
+\#
+.ig
+***Template for creating a copyright page, DOCTYPE CHAPTER***
+.
+Mom documents comprised of chapters using DOCTYPE CHAPTER require
+the START macro to begin each chapter, and the COLLATE macro to join
+it to the subsequent chapter.
+.
+A copyright page (also called an edition page), which is not a
+chapter, should be treated as a DOCTYPE DEFAULT.  The text of
+the copyright page is entered after START and joined to the first
+chapter (DOCTYPE CHAPTER) with COLLATE.
+.
+Copyright pages are not identified by a title or heading, however
+they require a TITLE in order to be included in PDF viewer outlines
+and the Table of Contents.  Supplying '.TITLE "Copyright"'
+but disabling the DOCHEADER achieves both these requirements.
+.
+Pagination should also be disabled for the copyright page.  Both
+docheader and pagination should be re-enabled before the START of
+the first chapter.
+..
+.
+.\" Cover setup
+.
+.\" By default, mom uses the last TITLE macro before START for the
+.\" title that appears on the cover.  Since the TITLE is "Copyright,"
+.\" mom needs to be told explicitly to use a different title.
+.
+.\" Cover and PDF viewer setup
+.
+.DOCTITLE "Book Title"
+.TITLE DOC_COVER \
+  "\*[$DOCTITLE]" \" Title for the cover page
+.AUTHOR \
+  "Book Author"
+.DOC_COVER \
+  TITLE AUTHOR
+.PDF_TITLE  \
+  "DOCTYPE CHAPTER with copyright page" \" For PDF viewer titlebar
+.
+.\" Copyright page setup
+.
+.PRINTSTYLE TYPESET
+.DOCTYPE    DEFAULT \" Copyright page is not a chapter.
+.
+.DOCHEADER  off 1i  \" Turn off docheader for copyright page.
+.                   \" Begin text 1 inch from page top.
+.PAGINATION off     \" Disable pagination for copyright page.
+.
+.TITLE "Copyright"  \" Required for the PDF viewer outline; does not
+.                   \" get printed because docheader is disabled.
+.NO_TOC_ENTRY       \" So copyright page is not included in the TOC
+.
+.START              \" Begin example copyright page
+All rights reserved.  No part of this publication may be reproduced,
+distributed, or transmitted in any form or by any means, including
+photocopying, recording, or other electronic or mechanical methods,
+without the prior written permission of the publisher, except
+in the case of brief quotations embodied in critical reviews
+and certain other noncommercial uses permitted by copyright
+law.  For permission requests, write to the publisher, addressed
+“Attention: Permissions Coordinator,” at the address below.
+.SP
+.LEFT
+Copyright \[co]2019 Copyright Holder
+.SP
+Additional information...
+.TOC_AFTER_HERE \" Place TOC after copyright page.
+.
+.COLLATE
+.
+.\" Chapter setup
+.
+.DOCTYPE CHAPTER  \" Begin using DOCTYPE CHAPTER.
+.TITLE \
+  "\*[$DOCTITLE]" \" Needed for page headers.
+.                 \" Only required before first chapter.
+.CHAPTER 1
+.CHAPTER_TITLE \
+  "Sample Chapter"
+.DOCHEADER        \" Re-enable docheader.
+.PAGINATE         \" Re-enable pagination.
+.PAGENUMBER 1
+.
+.START \" Begin first chapter.
+.PP
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.  Sed at
+ante.  Mauris eleifend, quam a vulputate dictum, massa quam dapibus
+leo, eget vulputate orci purus ut lorem.  In fringilla mi in ligula.
+Pellentesque aliquam quam vel dolor.  Nunc adipiscing.  Sed quam odio,
+tempus ac, aliquam molestie, varius ac, tellus.  Vestibulum ut nulla
+aliquam risus rutrum interdum.  Pellentesque lorem.  Curabitur sit
+amet erat quis risus feugiat viverra.  Pellentesque augue justo,
+sagittis et, lacinia at, venenatis non, arcu.  Nunc nec libero.  In
+cursus dictum risus.  Etiam tristique nisl a nulla.  Ut a orci.
+Curabitur dolor nunc, egestas at, accumsan at, malesuada nec, magna.
+.PP
+Nulla facilisi.  Nunc volutpat.  Vestibulum ante ipsum primis in
+faucibus orci luctus et ultrices posuere cubilia Curae; Ut sit
+amet orci vel mauris blandit vehicula.  Nullam quis enim.  Integer
+dignissim viverra velit.  Curabitur in odio.  In hac habitasse platea
+dictumst.  Ut consequat, tellus eu volutpat varius, justo orci
+elementum dolor, sed imperdiet nulla tellus ut diam.  Vestibulum
+ipsum ante, malesuada quis, tempus ac, placerat sit amet, elit.
+.PP
+Sed eget turpis a pede tempor malesuada.  Vivamus quis mi at leo
+pulvinar hendrerit.  Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus.  Pellentesque aliquet
+lacus vitae pede.  Nullam mollis dolor ac nisi.  Phasellus sit amet
+urna.  Praesent pellentesque sapien sed lacus.  Donec lacinia odio
+in odio.  In sit amet elit.  Maecenas gravida interdum urna.  Integer
+pretium, arcu vitae imperdiet facilisis, elit tellus tempor nisi,
+vel feugiat ante velit sit amet mauris.  Vivamus arcu.  Integer
+pharetra magna ac lacus.  Aliquam vitae sapien in nibh vehicula
+auctor.  Suspendisse leo mauris, pulvinar sed, tempor et, consequat
+ac, lacus.  Proin velit.  Nulla semper lobortis mauris.  Duis urna
+erat, ornare et, imperdiet eu, suscipit sit amet, massa.  Nulla nulla
+nisi, pellentesque at, egestas quis, fringilla eu, diam.
+.PP
+Donec semper, sem nec tristique tempus, justo neque commodo nisl,
+ut gravida sem tellus suscipit nunc.  Aliquam erat volutpat.  Ut
+tincidunt pretium elit.  Aliquam pulvinar.  Nulla cursus.  Suspendisse
+potenti.  Etiam condimentum hendrerit felis.  Duis iaculis aliquam
+enim.  Donec dignissim augue vitae orci.  Curabitur luctus felis a
+metus.  Cum sociis natoque penatibus et magnis dis parturient montes,
+nascetur ridiculus mus.  In varius neque at enim.  Suspendisse massa
+nulla, viverra in, bibendum vitae, tempor quis, lorem.
+.PP
+Donec dapibus orci sit amet elit.  Maecenas rutrum ultrices lectus.
+Aliquam suscipit, lacus a iaculis adipiscing, eros orci pellentesque
+nisl, non pharetra dolor urna nec dolor.  Integer cursus dolor vel
+magna.  Integer ultrices feugiat sem.  Proin nec nibh.  Duis eu dui
+quis nunc sagittis lobortis.  Fusce pharetra, enim ut sodales luctus,
+lectus arcu rhoncus purus, in fringilla augue elit vel lacus.  In
+hac habitasse platea dictumst.  Aliquam erat volutpat.  Fusce iaculis
+elit id tellus.  Ut accumsan malesuada turpis.  Suspendisse potenti.
+Vestibulum lacus augue, lobortis mattis, laoreet in, varius at,
+nisi.  Nunc gravida.  Phasellus faucibus.  In hac habitasse platea
+dictumst.  Integer tempor lacus eget lectus.  Praesent fringilla augue
+fringilla.
+.PP
+Pellentesque aliquam quam vel dolor.  Nunc adipiscing.  Sed quam odio,
+tempus ac, aliquam molestie, varius ac, tellus.  Vestibulum ut nulla
+aliquam risus rutrum interdum.  Pellentesque lorem.  Curabitur sit
+amet erat quis risus feugiat viverra.  Pellentesque augue justo,
+sagittis et, lacinia at, venenatis non, arcu.  Nunc nec libero.  In
+cursus dictum risus.  Etiam tristique nisl a nulla.  Ut a orci.
+.TOC
+.\" Local Variables:
+.\" mode: nroff
+.\" End:
+.\" vim: filetype=groff:

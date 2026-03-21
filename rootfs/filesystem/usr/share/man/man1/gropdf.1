@@ -1,0 +1,1845 @@
+.TH gropdf 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+gropdf \-
+.I groff
+output driver for Portable Document Format
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 2011-2022 Free Software Foundation, Inc.
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of
+.\" this manual under the conditions for verbatim copying, provided that
+.\" the entire resulting derived work is distributed under the terms of
+.\" a permission notice identical to this one.
+.\"
+.\" Permission is granted to copy and distribute translations of this
+.\" manual into another language, under the above conditions for
+.\" modified versions, except that this permission notice may be
+.\" included in translations approved by the Free Software Foundation
+.\" instead of in the original English.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_gropdf_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" This macro definition is poor style from a portability standpoint,
+.\" but it's a good test and demonstration of the standard font
+.\" repertoire for the devices where it has any effect at all, and so
+.\" should be retained.
+.de FT
+.  if '\\*(.T'ps' .ft \\$1
+.  if '\\*(.T'pdf' .ft \\$1
+..
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY gropdf
+.RB [ \-dels ]
+.RB [ \-F\~\c
+.IR font-directory ]
+.RB [ \-I\~\c
+.IR inclusion-directory ]
+.RB [ \-p\~\c
+.IR paper-format ]
+\#.RB [ \-w\~\c
+\#.IR n ]
+.RB [ \-u
+.RI [ cmap-file ]]
+.RB [ \-y\~\c
+.IR foundry ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY gropdf
+.B \-\-help
+.YS
+.
+.
+.SY gropdf
+.B \-v
+.
+.SY gropdf
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The GNU
+.I roff
+PDF output driver translates the output of
+.MR \%troff 1
+into Portable Document Format.
+.
+Normally,
+.I gropdf
+is invoked by
+.MR groff 1
+when the latter is given the
+.RB \[lq] \-T\~pdf \[rq]
+option.
+.
+(In this installation,
+.B \%ps
+is the default output device.)
+.
+Use
+.IR groff 's
+.B \-P
+option to pass any options shown above to
+.IR gropdf .
+.
+If no
+.I file
+arguments are given,
+or if
+.I file
+is \[lq]\-\[rq],
+.I gropdf
+reads the standard input stream.
+.
+Output is written to the standard output stream.
+.
+.
+.P
+See section \[lq]Font installation\[rq] below for a guide to installing
+fonts for
+.IR gropdf .
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-\-help
+displays a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.B \-d
+Include debug information as comments within the PDF.
+.
+Also produces an uncompressed PDF.
+.
+.
+.TP
+.B \-e
+Forces
+.I gropdf
+to embed
+.I all
+fonts (even the 14 base PDF fonts).
+.
+.
+.TP
+.BI \-F " dir"
+Prepend directory
+.IR dir /dev name
+to the search path for font, and device description files;
+.I name
+is the name of the device, usually
+.BR pdf .
+.
+.TP
+.BI \-I\~ dir
+Search the directory
+.I dir
+for files named in
+.B \[rs]X\[aq]pdf: pdfpic\[aq]
+device control commands.
+.
+.B \-I
+may be specified more than once;
+each
+.I dir
+is searched in the given order.
+.
+To search the current working directory before others,
+add
+.RB \[lq] "\-I .\&" \[rq]
+at the desired place;
+it is otherwise searched last.
+.
+.
+.TP
+.B \-l
+Orient the document in landscape format.
+.
+.TP
+.BI \-p " paper-format"
+Set the physical dimensions of the output medium.
+.
+This overrides the
+.BR papersize ,
+.BR paperlength ,
+and
+.B paperwidth
+directives in the
+.I DESC
+file;
+it accepts the same arguments as the
+.B papersize
+directive.
+.
+See
+.MR groff_font 5
+for details.
+.
+.
+.TP
+.B \-s
+Append a comment line to end of PDF showing statistics,
+i.e.\& number of pages in document.
+.
+Ghostscript's
+.B ps2pdf
+complains about this line if it is included, but works anyway.
+.
+.
+.TP
+.BR \-u \~[\c
+.IR cmap-file ]
+.I gropdf
+normally includes a ToUnicode CMap with any font created using
+.I text.enc
+as the encoding file,
+this makes it easier to search for words which contain ligatures.
+.
+You can include your own CMap by specifying a
+.I cmap-file
+or have no CMap at all by omitting the argument.
+.
+.
+.\" .TP
+.\" .BI \-w n
+.\" Lines should be drawn using a thickness of
+.\" .IR n \~\c
+.\" thousandths of an em.
+.\" .
+.\" If this option is not given, the line thickness defaults to
+.\" 0.04\~em.
+.\" .
+.\" .
+.TP
+.BI \-y " foundry"
+Set the foundry to use for selecting fonts of the same name.
+.
+.
+.\" ====================================================================
+.SH Usage
+.\" ====================================================================
+.
+The input to
+.I gropdf
+must be in the format output by
+.MR \%troff 1 .
+.
+This is described in
+.MR groff_out 5 .
+.
+In addition, the device and font description files for the device used
+must meet certain requirements:
+.
+The resolution must be an integer multiple of\~72 times the
+.BR sizescale .
+.
+The
+.B pdf
+device uses a resolution of 72000 and a sizescale of 1000.
+.
+.
+.LP
+The device description file must contain a valid paper format;
+see
+.MR groff_font 5 .
+.
+.I gropdf
+uses the same Type\~1 Adobe PostScript fonts as the
+.B grops
+device driver.
+.
+Although the PDF Standard allows the use of other font types (like
+TrueType) this implementation only accepts the Type\~1 PostScript
+font.
+.
+Fewer Type\~1 fonts are supported natively in PDF documents than the
+standard 35 fonts supported by
+.B grops
+and all PostScript printers, but all the fonts are available since any
+which aren't supported natively are automatically embedded in the
+PDF.
+.
+.
+.LP
+.I gropdf
+supports the concept of foundries,
+that is different versions of basically the same font.
+.
+During install a
+.I Foundry
+file controls where fonts are found and builds
+.I groff
+fonts from the files it discovers on your system.
+.
+.
+.LP
+Each font description file must contain a command
+.
+.IP
+.BI internalname\  psname
+.
+.LP
+which says that the PostScript name of the font is
+.IR psname .
+.
+Lines starting with
+.B #
+and blank lines are ignored.
+.
+The code for each character given in the font file must correspond
+to the code in the default encoding for the font.
+.
+This code can be used with the
+.B \[rs]N
+escape sequence in
+.B troff
+to select the character,
+even if the character does not have a
+.I groff
+name.
+.
+Every character in the font file must exist in the PostScript font, and
+the widths given in the font file must match the widths used
+in the PostScript font.
+.
+.
+.LP
+Note that
+.I gropdf
+is currently only able to display the first 256 glyphs in any font.
+This restriction will be lifted in a later version.
+.
+.
+.\" .LP
+.\" Note that
+.\" .B grops
+.\" is able to display all glyphs in a PostScript font, not only 256.
+.\" .I enc_file
+.\" (or the default encoding if no encoding file specified) just defines
+.\" the order of glyphs for the first 256 characters;
+.\" all other glyphs are accessed with additional encoding vectors which
+.\" .B grops
+.\" produces on the fly.
+.
+.
+.LP
+.I gropdf
+can automatically include the downloadable fonts necessary
+to print the document.
+.
+Fonts may be in PFA or PFB format.
+.LP
+.
+Any downloadable fonts which should, when required, be included by
+.I gropdf
+must be listed in the file
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\:\%download ;
+this should consist of lines of the form
+.
+.IP
+.I
+foundry font filename
+.
+.LP
+where
+.I foundry
+is the foundry name or blank for the default foundry.
+.
+.I font
+is the PostScript name of the font,
+and
+.I filename
+is the name of the file containing the font;
+lines beginning with
+.B #
+and blank lines are ignored;
+fields must be separated by tabs
+(spaces are
+.B not
+allowed);
+.I filename
+is searched for using the same mechanism that is used
+for
+.I groff
+font metric files.
+.
+The
+.I download
+file itself is also sought using this mechanism.
+.
+Foundry names are usually a single character
+(such as \[oq]U\[cq] for the URW foundry)
+or empty for the default foundry.
+.
+This default uses the same fonts as
+.I ghostscript
+uses when it embeds fonts in a PDF file.
+.
+.
+.LP
+In the default setup there are styles called
+.BR R ,
+.BR I ,
+.BR B ,
+and
+.B BI
+mounted at font positions 1 to\~4.
+.
+The fonts are grouped into families
+.BR A ,
+.BR BM ,
+.BR C ,
+.BR H ,
+.BR HN ,
+.BR N ,
+.BR P ,
+and\~\c
+.B T
+having members in each of these styles:
+.
+.RS
+.TP
+.B AR
+.FT AR
+AvantGarde-Book
+.FT
+.
+.TQ
+.B AI
+.FT AI
+AvantGarde-BookOblique
+.FT
+.
+.TQ
+.B AB
+.FT AB
+AvantGarde-Demi
+.FT
+.
+.TQ
+.B ABI
+.FT ABI
+AvantGarde-DemiOblique
+.FT
+.
+.TQ
+.B BMR
+.FT BMR
+Bookman-Light
+.FT
+.
+.TQ
+.B BMI
+.FT BMI
+Bookman-LightItalic
+.FT
+.
+.TQ
+.B BMB
+.FT BMB
+Bookman-Demi
+.FT
+.
+.TQ
+.B BMBI
+.FT BMBI
+Bookman-DemiItalic
+.FT
+.
+.TQ
+.B CR
+.FT CR
+Courier
+.FT
+.
+.TQ
+.B CI
+.FT CI
+Courier-Oblique
+.FT
+.
+.TQ
+.B CB
+.FT CB
+Courier-Bold
+.FT
+.
+.TQ
+.B CBI
+.FT CBI
+Courier-BoldOblique
+.FT
+.
+.TQ
+.B HR
+.FT HR
+Helvetica
+.FT
+.
+.TQ
+.B HI
+.FT HI
+Helvetica-Oblique
+.FT
+.
+.TQ
+.B HB
+.FT HB
+Helvetica-Bold
+.FT
+.
+.TQ
+.B HBI
+.FT HBI
+Helvetica-BoldOblique
+.FT
+.
+.TQ
+.B HNR
+.FT HNR
+Helvetica-Narrow
+.FT
+.
+.TQ
+.B HNI
+.FT HNI
+Helvetica-Narrow-Oblique
+.FT
+.
+.TQ
+.B HNB
+.FT HNB
+Helvetica-Narrow-Bold
+.FT
+.
+.TQ
+.B HNBI
+.FT HNBI
+Helvetica-Narrow-BoldOblique
+.FT
+.
+.TQ
+.B NR
+.FT NR
+NewCenturySchlbk-Roman
+.FT
+.
+.TQ
+.B NI
+.FT NI
+NewCenturySchlbk-Italic
+.FT
+.
+.TQ
+.B NB
+.FT NB
+NewCenturySchlbk-Bold
+.FT
+.
+.TQ
+.B NBI
+.FT NBI
+NewCenturySchlbk-BoldItalic
+.FT
+.
+.TQ
+.B PR
+.FT PR
+Palatino-Roman
+.FT
+.
+.TQ
+.B PI
+.FT PI
+Palatino-Italic
+.FT
+.
+.TQ
+.B PB
+.FT PB
+Palatino-Bold
+.FT
+.
+.TQ
+.B PBI
+.FT PBI
+Palatino-BoldItalic
+.FT
+.
+.TQ
+.B TR
+.FT TR
+Times-Roman
+.FT
+.
+.TQ
+.B TI
+.FT TI
+Times-Italic
+.FT
+.
+.TQ
+.B TB
+.FT TB
+Times-Bold
+.FT
+.
+.TQ
+.B TBI
+.FT TBI
+Times-BoldItalic
+.FT
+.RE
+.
+.
+.LP
+There is also the following font which is not a member of a family:
+.
+.RS
+.TP
+.B ZCMI
+.FT ZCMI
+ZapfChancery-MediumItalic
+.FT
+.RE
+.
+.
+.LP
+There are also some special fonts called
+.B S
+for the PS Symbol font.
+.
+The lower case greek characters are automatically slanted (to match
+the SymbolSlanted font (SS) available to PostScript).
+.
+Zapf Dingbats is available as
+.BR ZD ;
+the \[lq]hand pointing left\[rq] glyph
+.RB ( \[rs][lh] )
+is available since it has been defined using the
+.B \[rs]X\[aq]pdf: xrev\[aq]
+device control command,
+which reverses the direction of letters within words.
+.
+.
+.LP
+The default color for
+.B \[rs]m
+and
+.B \[rs]M
+is black.
+.
+.
+.LP
+.I gropdf
+understands some of the device control commands supported by
+.MR grops 1 .
+.
+.
+.TP
+.B \[rs]X\[aq]ps: invis\[aq]
+Suppress output.
+.
+.
+.TP
+.B \[rs]X\[aq]ps: endinvis\[aq]
+Stop suppressing output.
+.
+.
+.TP
+.BI "\[rs]X\[aq]ps: exec gsave currentpoint 2 copy translate\~" n\~\c
+.B rotate neg exch neg exch translate\[aq]
+where
+.I n
+is the angle of rotation.
+.
+This is to support the
+.B align
+command in
+.MR \%pic 1 .
+.
+.
+.TP
+.B \[rs]X\[aq]ps: exec grestore\[aq]
+Used by
+.MR \%pic 1
+to restore state after rotation.
+.
+.
+.TP
+.BI "\[rs]X\[aq]ps: exec " "n\~" "setlinejoin\[aq]"
+where
+.I n
+can be one of the following values.
+.
+.
+.IP
+0 = Miter join
+.br
+1 = Round join
+.br
+2 = Bevel join
+.
+.
+.TP
+.BI "\[rs]X\[aq]ps: exec " "n " "setlinecap\[aq]"
+where
+.I n
+can be one of the following values.
+.
+.
+.IP
+0 = Butt cap
+.br
+1 = Round cap, and
+.br
+2 = Projecting square cap
+.
+.
+.LP
+.TP
+.BR "\[rs]X\[aq]ps:\~" .\|.\|.\& "\~pdfmark\[aq]"
+All the
+.I pdfmark
+macros installed by using
+.I \-m pdfmark
+or
+.I \-m mspdf
+(see documentation in
+.IR pdfmark.pdf ).
+.
+A subset of these macros are installed automatically when you use
+.B \-Tpdf
+so you should not need to use
+.RB \[lq] "\-m pdfmark" \[rq]
+to access most PDF functionality.
+.
+.
+.LP
+.I gropdf
+also supports a subset of the commands introduced in
+.IR present.tmac .
+.
+Specifically it supports:-
+.
+.
+.IP
+PAUSE
+.br
+BLOCKS
+.br
+BLOCKE
+.
+.
+.LP
+Which allows you to create presentation type PDFs.
+.
+Many of the other
+commands are already available in other macro packages.
+.
+.
+.LP
+These commands are implemented with
+.I groff
+X commands:-
+.
+.
+.LP
+.TP
+.B \[rs]X\[aq]ps: exec %%%%PAUSE\[aq]
+The section before this is treated as a block and is introduced using
+the current
+.B BLOCK
+transition setting
+(see
+.RB \[lq] "\[rs]X\[aq]pdf: transition\[aq]" \[rq]
+below).
+.
+Equivalently,
+.B \%.pdfpause
+is available as a macro.
+.TP
+.B \[rs]X\[aq]ps: exec %%%%BEGINONCE\[aq]
+Any text following this command (up to %%%%ENDONCE) is shown only once,
+the next %%%%PAUSE will remove it.
+If producing a non-presentation PDF, i.e.\&
+ignoring the pauses, see
+.I \%GROPDF_NOSLIDE
+below, this text is ignored.
+.LP
+.TP
+.B \[rs]X\[aq]ps: exec %%%%ENDONCE\[aq]
+This terminates the block defined by %%%%BEGINONCE.
+This pair of commands
+is what implements the \&.BLOCKS Once/.BLOCKE commands in
+.IR present.tmac .
+.
+.
+.LP
+The
+.I mom
+macro package already integrates these extensions,
+so you can build slides with
+.IR mom .
+.
+.
+.LP
+If you use
+.I present.tmac
+with
+.I gropdf
+there is no need to run the program
+.MR presentps 1
+since the output will already be a presentation PDF.
+.
+.
+.LP
+All other
+.B ps:
+tags are silently ignored.
+.
+.
+.LP
+One
+.B \[rs]X
+device control command used by the DVI driver is also recognised.
+.
+.
+.TP
+.BI \[rs]X\[aq]papersize= paper-format \[aq]
+where the
+.I paper-format
+parameter is the same as that to the
+.B papersize
+directive.
+.
+See
+.MR groff_font 5 .
+.
+This means that you can alter the page size at will within the PDF file
+being created by
+.IR gropdf .
+.
+If you do want to change the paper format,
+it must be done before you start creating the page.
+.
+.
+.LP
+.I gropdf
+supports several more device control features using the
+.B pdf:
+tag.
+.
+Some have counterpart
+.I convenience macros
+that take the same arguments and behave equivalently.
+.
+.
+.TP
+.BI "\[rs]X\[aq]pdf: pdfpic\~" file\~\c
+.IR "alignment width height line-length" \[aq]
+Place an image of the specified
+.I width
+containing the PDF drawing from file
+.I file
+of desired
+.I width
+and
+.I height
+(if
+.I height
+is missing or zero then it is scaled proportionally).
+.
+If
+.I alignment
+is
+.B \-L
+the drawing is left-aligned.
+.
+If it is
+.B \-C
+or
+.B \-R
+a
+.I line-length
+greater than the width of the drawing is required as well.
+.
+If
+.I width
+is specified as zero then the width is scaled in proportion to the
+height.
+.
+.\" .IP
+.\" See
+.\" .BR groff_tmac (7)
+.\" for a description of the
+.\" .B PSPIC
+.\" macro which provides a convenient high-level interface for inclusion
+.\" of PostScript graphics.
+.
+.TP
+.B \[rs]X\[aq]pdf: xrev\[aq]
+Toggle the reversal of glyph direction.
+.
+This feature works \[lq]letter by letter\[rq],
+that is,
+each letter in a word is reversed left-to-right,
+not the entire word.
+.
+One application is the reversal of glyphs in the Zapf Dingbats font.
+.
+To restore the normal glyph orientation,
+repeat the command.
+.
+.
+.TP
+.BI "\[rs]X\[aq]pdf: markstart " "/ANN-definition" \[aq]
+.TQ
+.B \[rs]X\[aq]pdf: markend\[aq]
+Macros that support PDF bookmarks use these calls internally to
+start and stop (respectively) the placement of the bookmark's
+.I hot spot;
+the user will have called
+.RB \[lq] .pdfhref\~L \[rq]
+with the text of the hot spot.
+.
+Normally,
+these are never used except from within the
+.I pdfmark
+macros.
+.
+.
+.TP
+.B \[rs]X\[aq]pdf: marksuspend\[aq]
+.TQ
+.B \[rs]X\[aq]pdf: markrestart\[aq]
+If you use a page location trap to produce a header or footer,
+or otherwise interrupt a document's text,
+you need to use these commands if a PDF
+.I hot spot
+crosses a trap boundary;
+otherwise any text output by the trap will be marked as part of the hot
+spot.
+.
+To prevent this error,
+place these device control commands or their corresponding
+convenience macros
+.B \%.pdfmarksuspend
+and
+.B \%.pdfmarkrestart
+at the start and end of the trap macro,
+respectively.
+.
+.
+.TP
+.BI "\[rs]X\[aq]pdf: pagename\~" name \[aq]
+Assign the current page a
+.IR name .
+.
+All documents bear two default names,
+.RB \[oq] top "\[cq] and \[oq]" bottom \[cq].
+.
+The convenience macro for this command is
+.BR \%.pdfpagename .
+.
+.
+.TP
+.BI "\[rs]X'pdf: switchtopage\~" "when name" \[aq]
+Normally each new page is appended to the end of the document,
+this command allows following pages to be inserted at a
+.I \[oq]named\[cq]
+position within the document (see pagename command above).
+.I \[oq]when\[cq]
+can be either
+.RI \[oq] after "\[cq] or \[oq]" before \[cq].
+If it is omitted it defaults to
+.RI \[oq] before \[cq].
+.
+It should be used at the end of the page before you want the switch to
+happen.
+.
+This allows pages such as a TOC to be moved to elsewhere in the
+document,
+but more esoteric uses are possible.
+.
+The convenience macro for this command is
+.BR \%.pdfswitchtopage .
+.
+.
+.TP
+.BI \[rs]X\[aq]pdf:\~transition\~ feature\~\c
+.IB "mode duration dimension motion direction scale bool" \[aq]
+where
+.I feature
+can be either SLIDE or BLOCK.
+When it is SLIDE the transition is used
+when a new slide is introduced to the screen,
+if BLOCK then this transition is used for the individual blocks which
+make up the slide.
+.
+.
+.IP
+.I mode
+is the transition type between slides:-
+.RS
+.IP
+.B Split
+- Two lines sweep across the screen, revealing the new page.
+The lines
+may be either horizontal or vertical and may move inward from the
+edges of the page or outward from the center, as specified by the
+.I dimension
+and
+.I motion
+entries, respectively.
+.br
+.B Blinds
+- Multiple lines, evenly spaced across the screen, synchronously
+sweep in the same direction to reveal the new page.
+The lines may be
+either horizontal or vertical, as specified by the
+.I dimension
+entry.
+Horizontal
+lines move downward; vertical lines move to the right.
+.br
+.B Box
+- A rectangular box sweeps inward from the edges of the page or
+outward from the center, as specified by the
+.I motion
+entry, revealing the new page.
+.br
+.B Wipe
+- A single line sweeps across the screen from one edge to the other in
+the direction specified by the
+.I direction
+entry, revealing the new page.
+.br
+.B Dissolve
+- The old page dissolves gradually to reveal the new one.
+.br
+.B Glitter
+- Similar to Dissolve,
+except that the effect sweeps across the page in a wide band moving from
+one side of the screen to the other in the direction specified by the
+.I direction
+entry.
+.br
+.B R
+- The new page simply replaces the old one with no special transition
+effect; the
+.I direction
+entry shall be ignored.
+.br
+.B Fly
+- (PDF 1.5) Changes are flown out or in (as specified by
+.IR motion ),
+in the
+direction specified by
+.IR direction ,
+to or from a location that is offscreen except
+when
+.I direction
+is
+.BR None .
+.br
+.B Push
+- (PDF 1.5) The old page slides off the screen while the new page
+slides in, pushing the old page out in the direction specified by
+.IR direction .
+.br
+.B Cover
+- (PDF 1.5) The new page slides on to the screen in the direction
+specified by
+.IR direction ,
+covering the old page.
+.br
+.B Uncover
+- (PDF 1.5) The old page slides off the screen in the direction
+specified by
+.IR direction ,
+uncovering the new page in the direction
+specified by
+.IR direction .
+.br
+.B Fade
+- (PDF 1.5) The new page gradually becomes visible through the
+old one.
+.LP
+.RE
+.IP
+.I duration
+is the length of the transition in seconds (default 1).
+.LP
+.IP
+.I dimension
+(Optional;
+.BR Split " and " Blinds
+transition styles only) The dimension in which the
+specified transition effect shall occur:
+.B H
+Horizontal, or
+.B V
+Vertical.
+.LP
+.IP
+.I motion
+(Optional;
+.BR Split ,
+.BR Box " and " Fly
+transition styles only) The direction of motion for
+the specified transition effect:
+.B I
+Inward from the edges of the page, or
+.B O
+Outward from the center of the page.
+.LP
+.IP
+.I direction
+(Optional;
+.BR Wipe ,
+.BR Glitter ,
+.BR Fly ,
+.BR Cover ,
+.BR Uncover " and " Push
+transition styles only)
+The direction in which the specified transition effect shall moves,
+expressed in degrees counterclockwise starting from a left-to-right
+direction.
+If the value is a number, it shall be one of:
+.B 0
+= Left to right,
+.B 90
+= Bottom to top (Wipe only),
+.B 180
+= Right to left (Wipe only),
+.B 270
+= Top to bottom,
+.B 315
+= Top-left to bottom-right (Glitter only)
+The value can be
+.BR None ,
+which is relevant only for the
+.B Fly
+transition when the value of
+.I scale
+is not 1.0.
+.LP
+.IP
+.I scale
+(Optional; PDF 1.5;
+.B Fly
+transition style only) The starting or ending scale at
+which the changes shall be drawn.
+If
+.I motion
+specifies an inward transition, the scale
+of the changes drawn shall progress from
+.I scale
+to 1.0 over the course of the
+transition.
+If
+.I motion
+specifies an outward transition, the scale of the changes drawn
+shall progress from 1.0 to
+.I scale
+over the course of the transition
+.LP
+.IP
+.I bool
+(Optional; PDF 1.5;
+.B Fly
+transition style only) If
+.BR true ,
+the area that shall be flown
+in is rectangular and opaque.
+.LP
+.IP
+This command can be used by calling the macro
+.B .pdftransition
+using the parameters described above.
+Any of the parameters may be
+replaced with a "." which signifies the parameter retains its
+previous value, also any trailing missing parameters are ignored.
+.LP
+.IP
+.B Note:
+not all PDF Readers support any or all these transitions.
+.LP
+.
+.
+.TP
+.BI "\eX\[aq]pdf: background\~" "cmd left top right bottom weight" \[aq]
+.TQ
+.B "\eX\[aq]pdf: background off\[aq]"
+.TQ
+.BI "\eX\[aq]pdf: background footnote\~" bottom \[aq]
+produces a background rectangle on the page,
+where
+.RS
+.TP
+.I cmd
+is the command,
+which can be any of
+.RB \[lq] page | fill | box \[rq]
+in combination.
+.
+Thus,
+.RB \[lq] pagefill \[rq]
+would draw a rectangle which covers the whole current page size
+(in which case the rest of the parameters can be omitted because the box
+dimensions are taken from the current media size).
+.
+.RB \[lq] boxfill \[rq],
+on the other hand,
+requires the given dimensions to place the box.
+.
+Including
+.RB \[lq] fill \[rq]
+in the command will paint the rectangle with the current fill colour
+(as with
+.BR \[rs]M[] )
+and including
+.RB \[lq] box \[rq]
+will give the rectangle a border in the current stroke colour
+(as with
+.BR \[rs]m[] ).
+.
+.
+.IP
+.I cmd
+may also be
+.RB \[lq] off \[rq]
+on its own,
+which will terminate drawing the current box.
+.
+If you have specified a page colour with
+.RB \[lq] pagefill \[rq],
+it is always the first box in the stack,
+and if you specify it again,
+it will replace the first entry.
+.
+Be aware that the
+.RB \[lq]  pagefill \[rq]
+box renders the page opaque,
+so tools that \[lq]watermark\[rq] PDF pages are unlikely to be
+successful.
+.
+To return the background to transparent,
+issue an
+.RB \[lq] off \[rq]
+command with no other boxes open.
+.
+.
+.IP
+Finally,
+.I cmd
+may be
+.RB \[lq] footnote \[rq]
+followed by a new value for
+.IR bottom ,
+which will be used for all open boxes on the current page.
+This is to allow room for footnote areas that grow while a page is
+processed
+(to accommodate multiple footnotes,
+for instance).
+.
+(If the value is negative,
+it is used as an offset from the bottom of the page.)
+.
+.
+.TP
+.I left
+.TQ
+.I top
+.TQ
+.I right
+.TQ
+.I bottom
+are the coordinates of the box.
+.
+The
+.I top
+and
+.I bottom
+coordinates are the minimum and maximum for the box,
+since the actual start of the box is
+.IR groff 's
+drawing position when you issue the command,
+and the bottom of the box is the point where you turn the box
+.RB \[lq] off \[rq].
+.
+The top and bottom coordinates are used only if the box drawing extends
+onto the next page;
+ordinarily,
+they would be set to the header and footer margins.
+.
+.
+.TP
+.I weight
+provides the line width for the border if
+.RB \[lq] box \[rq]
+is included in the command.
+.
+.
+.P
+The convenience macro for this escape sequence is
+.BR .pdfbackground .
+.
+An
+.I sboxes
+macro file is also available;
+see
+.MR groff_tmac 5 .
+.RE
+.
+.
+.\" ====================================================================
+.SS Macros
+.\" ====================================================================
+.
+.IR gropdf 's
+support macros in
+.I pdf\.tmac
+define the convenience macros described above.
+.
+Some features have no direct device control command counterpart.
+.
+.
+.\" pdfhref
+.
+.
+.TP
+.BI ".pdfinfo /" "field content"\~\c
+\&.\|.\|.
+Define PDF metadata.
+.
+.I field
+may be be one of
+.BR Title ,
+.BR Author ,
+.BR Subject ,
+.BR Keywords ,
+or another datum supported by the PDF standard or your reader.
+.
+.I field
+must be prefixed with a slash.
+.
+.
+.\" ====================================================================
+.SS "Importing graphics"
+.\" ====================================================================
+.
+.I gropdf
+supports only the inclusion of other PDF files for inline images.
+.
+Such a PDF file may,
+however,
+contain any of the graphic formats supported by
+the PDF standard,
+such as JPEG/JFIF,
+PNG,
+and GIF.
+.
+Any application that outputs PDF can thus be used to prepare files for
+embedding in documents processed by
+.I groff
+and
+.IR gropdf .
+.
+.
+.P
+The PDF file you wish to insert must be a single page and the drawing
+must just fit inside the media size of the PDF file.
+.
+In
+.MR inkscape 1
+or
+.MR gimp 1 ,
+for example,
+make sure the canvas size just fits the image.
+.
+.
+.P
+The PDF parser
+.I gropdf
+implements has not been rigorously tested with all applications that
+produce PDF.
+.
+If you find a single-page PDF which fails to import properly,
+try processing it with the
+.MR pdftk 1
+program.
+.
+.
+.RS
+.EX
+pdftk\~\c
+.I existing-file\~\c
+output\~\c
+.I new-file
+.EE
+.RE
+.
+You may find that
+.I new-file
+imports successfully.
+.
+.
+.\" ====================================================================
+.SS "TrueType and other font formats"
+.\" ====================================================================
+.
+.I gropdf
+does not yet support any font formats besides Adobe Type 1
+(PFA or PFB).
+.
+.
+.\" ====================================================================
+.SH "Font installation"
+.\" ====================================================================
+.
+The following is a step-by-step font installation guide for
+.I gropdf.
+.
+.
+.IP \[bu] 2n
+Convert your font to something
+.I groff
+understands.
+.
+This is a PostScript Type\~1 font in PFA or PFB format,
+together with an AFM file.
+.
+A PFA file begins as follows.
+.
+.RS
+.RS \" two RS calls to get inboard of IP indentation
+.EX
+%!PS\-AdobeFont\-1.0:
+.EE
+.RE \" but only one to get back to it
+.
+A PFB file contains this string as well,
+preceded by some non-printing bytes.
+.
+In the following steps,
+we will consider the use of CTAN's
+.UR https://\:ctan.org/\:tex\-archive/\:fonts/\:brushscr
+BrushScriptX-Italic
+.UE
+font in PFA format.
+.RE \" now restore left margin
+.
+.
+.IP \[bu]
+Convert the AFM file to a
+.I groff
+font description file with the
+.MR afmtodit 1
+program.
+.
+For instance,
+.
+.RS
+.RS \" two RS calls to get inboard of IP indentation
+.EX
+$ \c
+.B afmtodit BrushScriptX\-Italic.afm text.map BSI
+.EE
+.RE \" but only one to get back to it
+.
+converts the Adobe Font Metric file
+.I BrushScriptX\-Italic.afm
+to the
+.I groff
+font description file
+.IR BSI .
+.RE \" now restore left margin
+.
+.
+.IP
+If you have a font family which provides regular upright (roman),
+bold,
+italic,
+and
+bold-italic styles,
+(where \[lq]italic\[rq] may be \[lq]oblique\[rq] or \[lq]slanted\[rq]),
+we recommend using
+.BR R ,
+.BR B ,
+.BR I ,
+and
+.BR BI ,
+respectively,
+as suffixes to the
+.I groff
+font family name to enable
+.IR groff 's
+font family and style selection features.
+.
+An example is
+.IR groff 's
+built-in support for Times:
+the font family
+name is abbreviated as
+.BR T ,
+and the
+.I groff
+font names are therefore
+.BR TR ,
+.BR TB ,
+.BR TI ,
+and
+.BR TBI .
+.
+In our example,
+however,
+the BrushScriptX font is available in a single style only,
+italic.
+.
+.
+.IP \[bu]
+Install the
+.I groff
+font description file(s) in a
+.I devpdf
+subdirectory in the search path that
+.I groff
+uses for device and font file descriptions.
+.
+See the
+.I GROFF_FONT_PATH
+entry in section \[lq]Environment\[rq] of
+.MR \%troff 1
+for the current value of the font search path.
+.
+While
+.I groff
+doesn't directly use AFM files,
+it is a good idea to store them alongside its font description files.
+.
+.
+.IP \[bu]
+Register fonts in the
+.I devpdf/download
+file so they can be located for embedding in PDF files
+.I gropdf
+generates.
+.
+Only the first
+.I download
+file encountered in the font search path is read.
+.
+If in doubt,
+copy the default
+.I download
+file
+(see section \[lq]Files\[rq] below)
+to the first directory in the font search path and add your fonts there.
+.
+The PostScript font name used by
+.I gropdf
+is stored in the
+.B internalname
+field in the
+.I groff
+font description file.
+.
+(This name does not necessarily resemble the font's file name.)
+.
+If the font in our example had originated from a foundry named
+.BR Z ,
+we would add the following line to
+.IR download .
+.
+.RS
+.RS \" two RS calls to get inboard of IP indentation
+.EX
+Z\[->]BrushScriptX\-Italic\[->]BrushScriptX\-Italic.pfa
+.EE
+.RE \" but only one to get back to it
+.
+A tab character,
+depicted as \[->],
+separates the fields.
+.
+The default foundry has no name:
+its field is empty and
+entries corresponding to it start with a tab character,
+as will the one in our example.
+.RE \" now restore left margin
+.
+.
+.IP \[bu]
+Test the selection and embedding of the new font.
+.
+.RS
+.RS \" two RS calls to get inboard of IP indentation
+.EX
+printf "\[rs]\[rs]f[BSI]Hello, world!\[rs]n" \
+| groff \-T pdf \-P \-e >hello.pdf
+see hello.pdf
+.EE
+.RE
+.RE
+.
+.
+.br
+.ne 5v
+.\" ====================================================================
+.SH Environment
+.\" ====================================================================
+.
+.TP
+.I GROFF_FONT_PATH
+A list of directories in which to seek the selected output device's
+directory of device and font description files.
+.
+If,
+in the
+.I download
+file,
+the font file has been specified with a full path,
+no directories are searched.
+.
+See
+.MR \%troff 1
+and
+.MR groff_font 5 .
+.
+.
+.TP
+.I GROPDF_NOSLIDE
+If set and evaluates to a true value
+(to Perl),
+.\" XXX: The above is inconsistent with the way grotty(1) handles
+.\" "GROFF_NO_SGR".
+.I gropdf
+ignores commands specific to presentation PDFs,
+producing a normal PDF instead.
+.
+.
+.TP
+.I SOURCE_DATE_EPOCH
+A timestamp
+(expressed as seconds since the Unix epoch)
+to use as the output creation timestamp in place of the current time.
+.
+The time is converted to human-readable form using Perl's
+.I \%localtime()
+function and recorded in a PDF comment.
+.
+.
+.TP
+.I TZ
+The time zone to use when converting the current time
+(or value of
+.IR SOURCE_DATE_EPOCH )
+to human-readable form;
+see
+.MR tzset 3 .
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\:DESC
+describes the
+.B pdf
+output device.
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/ F
+describes the font known
+.RI as\~ F
+on device
+.BR pdf .
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\:U\- F
+describes the font
+from the URW foundry
+(versus the Adobe default)
+known
+.RI as\~ F
+on device
+.BR pdf .
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\%download
+lists fonts available for embedding within the PDF document
+(by analogy to the
+.B ps
+device's downloadable font support).
+.
+.
+.\" XXX: Why are we shipping this but not BuildFoundries.pl?
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\%Foundry
+is a data file used by the
+.I groff
+build system to locate PostScript Type\~1 fonts.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devpdf/\:enc/\:\%text\:.enc
+describes the encoding scheme used by most PostScript Type\~1 fonts;
+the
+.B \%encoding
+directive of
+font description files for the
+.B pdf
+device refers to it.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:pdf\:.tmac
+defines macros for use with the
+.B pdf
+output device.
+.
+It is automatically loaded by
+.I troffrc
+when the
+.B pdf
+output device is selected.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:\%pdfpic\:.tmac
+defines the
+.B PDFPIC
+macro for embedding images in a document;
+see
+.MR groff_tmac 5 .
+.
+It is automatically loaded by
+.I troffrc.
+.\"
+.\"
+.\" .TP
+.\" .B /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/pspic.tmac
+.\" Definition of
+.\" .B PSPIC
+.\" macro,
+.\" automatically loaded by
+.\" .BR ps.tmac .
+.\" .
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+.I gropdf
+was written and is maintained by
+.MT deri@\:chuzzlewit\:.myzen\:.co\:.uk
+Deri James
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/\:\%sboxes/\:\%msboxes\:.ms
+.TQ
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/\:\%sboxes/\:\%msboxes\:.pdf
+\[lq]Using PDF boxes with
+.I groff
+and the
+.I ms
+macros\[rq],
+by Deri James.
+.
+.
+.TP
+.I present.tmac
+is part of
+.UR https://\:bob\:.diertens\:.org/\:corner/\:useful/\:gpresent/
+.I gpresent
+.UE ,
+a software package by Bob Diertens that works with
+.I groff
+to produce presentations
+(\[lq]foils\[rq],
+or \[lq]slide decks\[rq]).
+.
+.
+.P
+.MR afmtodit 1 ,
+.MR groff 1 ,
+.MR \%troff 1 ,
+.MR groff_font 5 ,
+.MR groff_out 5
+.\" Not actually referenced in above discussion.
+.\" .BR \%pfbtops (1),
+.\" .BR \%groff_tmac (5),
+.
+.
+.\" Clean up.
+.rm FT
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_gropdf_1_man_C]
+.do rr *groff_gropdf_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

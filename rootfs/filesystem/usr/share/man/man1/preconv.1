@@ -1,0 +1,559 @@
+.TH preconv 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+preconv \- prepare files for typesetting with
+.I groff
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 2006-2020 Free Software Foundation, Inc.
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of
+.\" this manual under the conditions for verbatim copying, provided that
+.\" the entire resulting derived work is distributed under the terms of
+.\" a permission notice identical to this one.
+.\"
+.\" Permission is granted to copy and distribute translations of this
+.\" manual into another language, under the above conditions for
+.\" modified versions, except that this permission notice may be
+.\" included in translations approved by the Free Software Foundation
+.\" instead of in the original English.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_preconv_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY preconv
+.RB [ \-dr ]
+.RB [ \-D\~\c
+.IR fallback-encoding ]
+.RB [ \-e\~\c
+.IR encoding ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY preconv
+.B \-h
+.
+.SY preconv
+.B \-\-help
+.YS
+.
+.
+.SY preconv
+.B \-v
+.
+.SY preconv
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+.I preconv
+reads each
+.IR file ,
+converts its encoded characters to a form
+.MR \%troff 1
+can interpret,
+and sends the result to the standard output stream.
+.
+Currently,
+this means that code points in the range 0\[en]127
+(in US-ASCII,
+ISO\~8859,
+or Unicode)
+remain as-is and the remainder are converted to the
+.I groff
+special character form
+.RB \[lq] \[rs][\c
+.BI u XXXX ]\c
+\[rq],
+where
+.I XXXX
+is a hexadecimal number of four to six digits corresponding to a Unicode
+code point.
+.
+By default,
+.I preconv
+also inserts a
+.I roff
+.B .lf
+request at the beginning of each
+.IR file ,
+identifying it for the benefit of later processing
+(including diagnostic messages);
+the
+.B \-r
+option suppresses this behavior.
+.
+.
+.PP
+In typical usage scenarios,
+.I preconv
+need not be run directly;
+instead it should be invoked with the
+.B \-k
+or
+.B \-K
+options of
+.IR groff .
+.
+If no
+.I file
+operands are given on the command line,
+or if
+.I file
+is
+.RB \[lq] \- \[rq],
+the standard input stream is read.
+.
+.
+.PP
+.I preconv
+tries to find the input encoding with the following algorithm,
+stopping at the first success.
+.
+.
+.IP 1. 4n
+If the input encoding has been explicitly specified with option
+.BR \-e ,
+use it.
+.
+.
+.IP 2.
+If the input starts with a Unicode Byte Order Mark,
+determine the encoding as UTF-8,
+UTF-16,
+or UTF-32 accordingly.
+.
+.
+.IP 3.
+If the input stream is seekable,
+check the first and second input lines for a recognized GNU\~Emacs
+file-local variable identifying the character encoding,
+here referred to as the \[lq]coding tag\[rq] for brevity.
+.
+If found,
+use it.
+.
+.
+.IP 4.
+If the input stream is seekable,
+and if the
+.I uchardet
+library is available on the system,
+use it to try to infer the encoding of the file.
+.
+.
+.IP 5.
+If the
+.B \-D
+option specifies an encoding,
+use it.
+.
+.
+.IP 6.
+Use the encoding specified by the current locale
+.RI ( LC_CTYPE ),
+unless the locale is
+\[lq]C\[rq],
+\[lq]POSIX\[rq],
+or empty,
+in which case assume Latin-1
+(ISO\~8859-1).
+.
+.
+.PP
+The coding tag and
+.I uchardet
+methods in the above procedure rely upon a seekable input stream;
+when
+.I preconv
+reads from a pipe,
+the stream is not seekable,
+and these detection methods are skipped.
+.
+If character encoding detection of your input files is unreliable,
+arrange for one of the other methods to succeed by using
+.IR preconv 's
+.B \-D
+or
+.B \-e
+options,
+or by configuring your locale appropriately.
+.
+.I groff
+also supports a
+.I \%GROFF_ENCODING
+environment variable,
+which can be overridden by its
+.B \-K
+option.
+.
+Valid values for
+(or parameters to)
+all of these are enumerated in the lists of recognized coding tags in
+the next subsection,
+and are further influenced by
+.I iconv
+library support.
+.
+.
+.\" ====================================================================
+.SS "Coding tags"
+.\" ====================================================================
+.
+Text editors that support more than a single character encoding need
+tags within the input files to mark the file's encoding.
+.
+While it is possible to guess the right input encoding with the help of
+heuristics that are reliable for a preponderance of natural language
+texts,
+they are not absolutely reliable.
+.
+Heuristics can fail on inputs that are too short or don't represent a
+natural language.
+.
+.
+.PP
+Consequently,
+.I preconv
+supports the coding tag convention used by GNU\~Emacs
+(with some restrictions).
+.
+This notation appears in specially marked regions of an input file
+designated for \[lq]file-local variables\[rq].
+.
+.
+.PP
+.I preconv
+interprets the following syntax if it occurs in a
+.I roff
+comment
+in the first or second line of the input file.
+.
+Both \[lq]\[rs]"\[rq] and \[lq]\[rs]#\[rq] comment forms are recognized,
+but the control
+(or no-break control)
+character must be the default and must begin the line.
+.
+Similarly,
+the escape character must be the default.
+.
+.
+.RS
+.EX
+.B \-*\- \c
+.RB [.\|.\|. ; ]\~\c
+.B coding: \c
+.I encoding\c
+.RB [ ;\~ .\|.\|.\&]\~\c
+.B \-*\-
+.EE
+.RE
+.
+.
+.PP
+The only variable
+.I preconv
+interprets is \[lq]coding\[rq],
+which can take the values listed below.
+.
+.
+.PP
+The following list comprises all MIME \[lq]charset\[rq] parameter values
+recognized,
+case-insensitively,
+by
+.IR preconv .
+.
+.RS
+\%big5,
+\%cp1047,
+\%euc\-jp,
+\%euc\-kr,
+\%gb2312,
+\%iso\-8859\-1,
+\%iso\-8859\-2,
+\%iso\-8859\-5,
+\%iso\-8859\-7,
+\%iso\-8859\-9,
+\%iso\-8859\-13,
+\%iso\-8859\-15,
+\%koi8\-r,
+\%us\-ascii,
+\%utf\-8,
+\%utf\-16,
+\%utf\-16be,
+\%utf\-16le
+.RE
+.
+.
+.PP
+In addition,
+the following list of other coding tags is recognized,
+each of which is mapped to an appropriate value from the list above.
+.
+.RS
+\%ascii,
+\%chinese\-big5,
+\%chinese\-euc,
+\%chinese\-iso\-8bit,
+\%cn\-big5,
+\%cn\-gb,
+\%cn\-gb\-2312,
+\%cp878,
+\%csascii,
+\%csisolatin1,
+\%cyrillic\-iso\-8bit,
+\%cyrillic\-koi8,
+\%euc\-china,
+\%euc\-cn,
+\%euc\-japan,
+\%euc\-japan\-1990,
+\%euc\-korea,
+\%greek\-iso\-8bit,
+\%iso\-10646/utf8,
+\%iso\-10646/utf\-8,
+\%iso\-latin\-1,
+\%iso\-latin\-2,
+\%iso\-latin\-5,
+\%iso\-latin\-7,
+\%iso\-latin\-9,
+\%japanese\-euc,
+\%japanese\-iso\-8bit,
+\%jis8,
+\%koi8,
+\%korean\-euc,
+\%korean\-iso\-8bit,
+\%latin\-0,
+\%latin1,
+\%latin\-1,
+\%latin\-2,
+\%latin\-5,
+\%latin\-7,
+\%latin\-9,
+\%mule\-utf\-8,
+\%mule\-utf\-16,
+\%mule\-utf\-16be,
+\%mule\-utf\-16\-be,
+\%mule\-utf\-16be\-with\-signature,
+\%mule\-utf\-16le,
+\%mule\-utf\-16\-le,
+\%mule\-utf\-16le\-with\-signature,
+\%utf8,
+\%utf\-16\-be,
+\%utf\-16\-be\-with\-signature,
+\%utf\-16be\-with\-signature,
+\%utf\-16\-le,
+\%utf\-16\-le\-with\-signature,
+\%utf\-16le\-with\-signature
+.RE
+.
+.
+.PP
+Trailing
+\[lq]\-dos\[rq],
+\[lq]\-unix\[rq],
+and
+\[lq]\-mac\[rq]
+suffixes on coding tags
+(which indicate the end-of-line convention used in the file)
+are disregarded for the purpose of comparison with the above tags.
+.
+.
+.\" ====================================================================
+.SS "\f[I]iconv\f[] support"
+.\" ====================================================================
+.
+While
+.I preconv
+recognizes all of the coding tags listed above,
+it is capable on its own of interpreting only three encodings:
+Latin-1,
+code page 1047,
+and UTF-8.
+.
+If
+.I iconv
+support is configured at compile time and available at run time,
+all others are passed to
+.I iconv
+library functions,
+which may recognize many additional encoding strings.
+.
+The command
+.RB \[lq] preconv\~\-v \[rq]
+discloses whether
+.I iconv
+support is configured.
+.
+.
+.PP
+The use of
+.I iconv
+means that characters in the input that encode invalid code points for
+that encoding may be dropped from the output stream or mapped to the
+Unicode replacement character
+(U+FFFD).
+.
+Compare the following examples using the input \[lq]caf\['e]\[rq]
+(note the \[lq]e\[rq] with an acute accent),
+which due to its short length challenges inference of the encoding used.
+.
+.RS
+.EX
+printf \[aq]caf\[rs]351\[rs]n\[aq] | LC_ALL=en_US.UTF\-8 preconv
+printf \[aq]caf\[rs]351\[rs]n\[aq] | preconv \-e us\-ascii
+printf \[aq]caf\[rs]351\[rs]n\[aq] | preconv \-e latin\-1
+.EE
+.RE
+.
+The fate of the accented \[lq]e\[rq] differs in each case.
+.
+In the first,
+.I uchardet
+fails to detect an encoding
+(though the library on your system may behave differently)
+and
+.I preconv
+falls back to the locale settings,
+where octal 351 starts an incomplete UTF-8 sequence and results in the
+Unicode replacement character.
+.
+In the second,
+it is not a representable character in the declared input encoding of
+US-ASCII and is discarded by
+.IR iconv .
+.
+In the last,
+it is correctly detected and mapped.
+.
+.
+.\" ====================================================================
+.SS Limitations
+.\" ====================================================================
+.
+.I preconv
+cannot perform any transformation on input that it cannot see.
+.
+Examples include files that are interpolated by preprocessors that run
+subsequently,
+including
+.MR \%soelim 1 ;
+files included by
+.I \%troff
+itself through
+.RB \[lq] so \[rq]
+and similar requests;
+and string definitions passed to
+.I \%troff
+through its
+.B \-d
+command-line option.
+.
+.
+.P
+.I preconv
+assumes that its input uses the default escape character,
+a backslash
+.BR \[rs] ,
+and writes special character escape sequences accordingly.
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-h
+and
+.B \-\-help
+display a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.B \-d
+Emit debugging messages to the standard error stream.
+.
+.
+.TP
+.BI \-D\~ fallback-encoding
+Report
+.I fallback-encoding
+if all detection methods fail.
+.
+.
+.TP
+.BI \-e\~ encoding
+Skip detection and assume
+.IR encoding ;
+see
+.IR groff 's
+.B \-K
+option.
+.
+.
+.TP
+.B \-r
+Write files \[lq]raw\[rq];
+do not add
+.B .lf
+requests.
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.MR groff 1 ,
+.MR iconv 3 ,
+.MR locale 7
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_preconv_1_man_C]
+.do rr *groff_preconv_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

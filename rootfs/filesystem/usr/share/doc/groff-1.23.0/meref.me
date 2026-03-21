@@ -1,0 +1,2439 @@
+.\" Copyright (c) 1986, 1993
+.\"   The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. [Deleted.  See
+.\"     ftp://ftp.cs.berkeley.edu/pub/4bsd/README.Impt.License.Change]
+.\" 4. Neither the name of the University nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS "AS IS"
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+.\" PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)ref.me	8.2 (Berkeley) 06/01/94
+.\"
+.\" Modified by jjc@jclark.com and g.branden.robinson@gmail.com for
+.\" groff.
+.\"UC 7
+.nr fi 1n
+.nr sx 0
+.\"pn 0
+.ds MO 1.23.0
+.de TL			\" *** title line
+.lp
+.di XX
+..
+.ie \n(.g \{\
+.de DE
+\?\h'|\\n(DIu'\c\?
+..
+.\}
+.el \{\
+.de DE
+\\\\h'|\\\\n(DIu'\\\\c
+..
+.\}
+.am DE
+.br
+.di
+.in +\\n(DIu
+.ti 0
+.XX
+.rm XX
+..
+.ds UG groff\" upright "groff" for use outside of running text
+.ds UM me\" upright "me"
+.ds G \fI\*(UG\fP\"
+.ds N \fInroff\fP\"
+.ds T \fItroff\fP\"
+.ds ME \fI\*(UM\fP\"
+.ds MR \f(BI\*(UM\fP Reference Manual\"
+.\" Compute an indentation for the macro and string synopses based on
+.\" the length of the longest entry.
+.nr DI \w'.sh \(+-N T a b c d e f'+2n
+.he '\*(MR''%'
+.de NR
+.b "\en\\$1" "\\$2"
+..
+.de ST
+.b "\e*\\$1" "\\$2"
+..
+.\"sc
+.\"eh 'USD:20-%''\-me Reference Manual'
+.\"oh '\-me Reference Manual''USD:20-%'
+.+c
+.ce 20
+.sz 14
+.b "\*(MR"
+.sz
+.sp
+.i "for \fR\*(UG \*(UM\fP version \*(MO*"
+.(f
+* based on \fIe.tmac\fP 8.1 from 4.4BSD
+.)f
+.sp 2
+.ul
+Eric P. Allman
+.sp
+.i "Adapted for \fR\*(UG\fP by James Clark and G.\& Branden Robinson"
+.ce 0
+.sp 4
+.pp
+This document describes
+in terse form
+the features
+of the \*(ME macro package
+for \*G.
+Some familiarity with the latter is assumed.
+Specifically,
+the reader should understand
+breaks;
+filling;
+adjustment;
+font selection;
+type sizes;
+the definition and use of
+registers,
+strings,
+and macros;
+and typographical units of measurement:
+points, ems, ens, and vees.
+For a more casual introduction
+to text processing,
+refer to
+.\" the document \" slack phrasing for widow/orphan control
+.q "Writing Papers with \*G using \-\*(ME" .
+.pp
+Many of the package's rendering parameters
+can be adjusted through
+registers,
+strings,
+and macro calls.
+Macro arguments are denoted with lowercase letters for
+numeric values
+(suffixed with a scaling unit if appropriate)
+and with uppercase for text arguments.
+Default parameter values are shown in square brackets.
+The notation
+.i \(+-n
+indicates a numerical value with an optional leading sign.
+Without the sign,
+it assigns a value
+.i n.
+With it,
+it expresses alteration of an existing value by the amount
+.i n.
+\*(ME's font registers may be set only to mounting positions.
+Position zero tells \*(ME to perform no font change;
+the font of the preceding text
+is used instead.
+Position zero is a
+.q pseudo-font ;
+that is,
+it is interpreted and handled by the macros.
+In contrast,
+using position zero
+may produce unexpected results
+in a font selection escape sequence such as
+.b \ef0 ,
+because those are interpreted directly by \*T.
+\*(ME's type size registers support only integral values in points.
+Changes to parameters
+that affect the layout of the page
+(notably page length and vertical margins)
+should be done before calling
+any paragraphing or sectioning macros.
+Normally,
+vertical space is suppressed at the top of a page
+if no text has yet appeared
+(page headers notwithstanding).
+.pp
+\*G measures distances
+in device-specific basic units,
+so it is often necessary
+to specify measurements with a scaling unit.
+For instance,
+to set the paragraph indentation
+to eight ens,
+input
+.q ".nr pi 8n" .
+.q ".nr pi 8"
+makes the paragraph indentation eight basic units,
+or 8/72,000 inches on
+.i grops,
+\*G's PostScript output driver.
+.pp
+Registers and strings
+with names of the form
+.b $ \c
+.bi x
+may be used in expressions and text
+but should not be changed.
+Macros with names of the form
+.b $ \c
+.bi x
+are
+.i hooks,
+called internally by \*(ME,
+and can be redefined
+to alter their function.
+This may be a sensitive operation;
+look at the macro definition in the
+.i e.tmac
+file before changing it.
+If you don't require a given hook,
+(re)define it as empty instead of removing it.
+.pp
+Objects in \*(ME
+follow a rigid naming convention.
+To avoid conflict,
+any user-defined register,
+string,
+or macro
+names should be single numerals or uppercase letters,
+or any longer character sequence
+including at least one uppercase letter.\**
+.(f
+\**
+For portability between BSD and \*G \*(ME,
+limit names to
+two characters,
+and avoid names starting with
+.b [
+(left square bracket).
+.)f
+The names employed
+by any preprocessors in use
+should also not be repurposed.
+.\" dead-tree pagination
+.br
+.ne 8v
+.sh 1 "Paragraphing"
+.TL
+.b .lp
+.DE
+Begin left-aligned paragraph.
+Centering,
+right-alignment,
+and underlining are canceled.
+The font is set to
+.NR (pf
+[1],
+the type size
+to
+.NR (pp
+[10p],
+and vertical spacing
+(text baseline spacing)
+to
+.NR (tv
+[120]%
+of the type size.
+Vertical space of
+.NR (ps
+[0.35v]
+is inserted
+before the paragraph.
+The indentation is reset
+to
+.NR ($i
+[0]
+plus
+.NR (po
+[0]
+unless the paragraph
+is inside a display
+(see
+.b .ba ).
+At least
+the first two output lines
+of the paragraph
+are kept together
+on a page.
+.TL
+.b .pp
+.DE
+Like
+.b .lp ,
+but apply a (further) indentation of
+.NR (pi
+[5n]
+to the first output line.
+.TL
+.b .ip
+.i T
+.i i
+.DE
+Like
+.b .lp ,
+but set the paragraph
+with an optional hanging tag
+.i T
+[empty]
+and the remainder indented by
+.i i
+[\c
+.NR (ii
+[5n]].
+The tag
+.i T
+is
+.q exdented
+(the opposite of
+.i in dented).
+Any spaces in
+.i T
+must be unbreakable.
+If
+.i T
+does not fit in the space
+.i i,
+.b .ip
+breaks the line after
+.i T .
+.TL
+.b .np
+.DE
+Like
+.b .ip ,
+but tag the paragraph with a number in parentheses,
+starting at 1.
+Each subsequent
+.b .np
+call increments it.
+The paragraph number is stored in
+.NR ($p
+and reset to 1 by
+.b .lp ,
+.b .pp ,
+.b .bu ,
+.b .sh ,
+and
+.b .sx .
+.TL
+.b .bu
+.DE
+Like
+.b .ip ,
+except that the tag is a bullet (\(bu).
+No vertical space is inserted
+between adjacent bulleted paragraphs,
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+enabling the construction of compact itemized lists.
+.sh 1 "Sectioning"
+.pp
+Numbered sections
+are similar to paragraphs
+except that a
+section number of the form
+.q 1.2.3
+is automatically
+generated for each.
+\*(ME supports up to six levels of sectioning;
+any given section has a
+.i depth
+that determines
+the quantity of components
+(separated by dots)
+shown in its section number.
+Unnumbered section headings are similar,
+except that no number is prefixed
+to the section title.
+.TL
+.b .sh
+.i \(+-n
+.i T
+.i "a b c d e f"
+.DE
+Begin section with numbered heading
+of depth
+.i \(+-n
+[+0]
+and optional title
+.i T
+[empty].
+Vertical space of
+.NR (ss
+[1v]
+precedes the heading.
+The components
+of the section number
+are maintained in
+.NR ($1
+through
+.NR ($6 ;
+combined,
+they are available in
+.ST ($n .
+Automatic section numbering at all depths begins at 1.
+The heading is set in font
+.NR (sf
+[3]
+at size
+.NR (sp
+[10p]
+and uses the indentation of its parent depth;
+a further indentation of
+.NR (so
+[0]
+is applied only to its output line.
+The section number is followed by a period,
+after which the typeface is set
+to the paragraph font
+.NR (pf
+at size
+.NR (pp
+so that content may follow immediately
+on the same output line.
+.b .sh
+ensures that there is enough room
+to format the section heading
+with the beginning of a paragraph on the same page
+(about 3 lines total).
+If any of
+.i a
+through
+.i f
+[all empty]
+is specified,
+each component of the section number
+is assigned the corresponding argument
+instead of being automatically adjusted.
+A hyphen
+(\c
+.q \- )
+for a component argument
+prevents its alteration.
+If
+.i T
+is an underscore
+(\c
+.q _ ),
+the section depth and numbering are reset,
+the base indentation is not,
+and nothing is output\(em\c
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+this is useful to automatically
+coordinate section numbers with
+chapter numbers.
+If all components are zero,
+no number is output.
+.TL
+.b .sx
+.i \(+-n
+.DE
+Go to section depth
+.i \(+-n
+[\-1],
+but emit no section heading
+and do not increment the section number.
+This has the effect of an
+.b .lp
+call
+at the new depth.
+.TL
+.b .uh
+.i T
+.DE
+Begin unnumbered section.
+Like
+.b .sh ,
+without the section numbering features.
+.TL
+.b .$p
+.i T
+.i B
+.i n
+.DE
+Output section heading.
+.i T
+is the title,
+.i B
+is the concatenated number,
+and
+.i n
+is the depth.
+These parameters are not always present;
+.b .sh
+passes all three,
+.b .uh
+only the first,
+and
+.b .sx
+all three,
+but the first two
+are empty.
+If
+.i n
+is present,
+the section indentation is set to
+.NR (si
+times\~\c
+.i n .
+.TL
+.b .$0
+.i T
+.i B
+.i n
+.DE
+This hook macro,
+normally empty,
+is called automatically
+by
+.b .sh
+and
+.b .uh
+after they call
+.b .$p ,
+and is passed the same arguments.
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+You can define it to,
+for instance,
+automatically put
+each section title
+into a table of contents
+using
+.b .(x
+and
+.b .)x .
+.TL
+.b .$ \c
+.bi n
+.DE
+These hook macros
+(where
+.i n
+is an integer 1\(en6)
+are called by
+.b .$p
+just before it outputs
+a section heading
+of depth
+.i n.
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+They could be used
+to obtain section depth-dependent spacing.
+.sh 1 "Headers, Footers, and Margins"
+.ds TP \(aq\,\fIL\/\fP\(aq\,\fIM\/\fP\(aq\,\fIR\/\fP\(aq
+.pp
+Headers and footers
+are known as
+.i "three-part titles"
+for their left,
+middle,
+and right-hand components
+.i L,
+.i M,
+and
+.i R.
+The components are separated
+by a
+.i delimiter,
+shown here as a neutral apostrophe,
+but which can be any character
+that does not occur in any of the components.
+Any defined title is
+placed on the page automatically,
+set in font
+.NR (tf
+[3]
+at size
+.NR (tp
+[10p].
+Each title definition
+applies starting with the
+.i next
+page;
+titles intended for output on the first page
+should be defined prior to any sectioning or paragraphing macro calls.
+A title
+must be quoted
+if it contains more than two adjacent spaces
+or more than eight spaces total.
+.pp
+The placement
+of headers and footers
+is controlled by four registers
+initialized to values scaled
+with respect to the default type size and vertical spacing.
+.NR (hm
+[4v]
+is the distance from the top of the page
+to the top of the header,
+.NR (fm
+[3v]
+that from the bottom of the page
+to the bottom of the footer,
+.NR (tm
+[7v]
+that from the top of the page
+to the top of the text,
+and
+.NR (bm
+[6v]
+that from the bottom of the page
+to the (nominal) bottom of the text.
+.pp
+\*(ME uses \*T's environment 0 for body text,
+1 for keeps
+(see below),
+and 2 for headers and footers.
+The default line length is two inches less than the page width
+(e.g.,
+6.5i on U.S.\& letter paper).
+The default page offset
+(left margin)
+is determined by the output device;
+it is typically 1.0i on typesetting devices and 0 on terminals.
+.TL
+.b .xl
+.i \(+-n
+.DE
+Set line length to
+.i n
+[see above]
+only in the current environment.
+.TL
+.b .ll
+.i \(+-n
+.DE
+Set line length to
+to
+.i n
+[see above]
+in all environments used by \*(ME,\**
+.(f
+\**
+\*(ME uses only the three environments of AT&T \*T,
+but in GNU \*T,
+the user can create additional ones.
+.b .ll
+works like
+.b .xl
+for the latter.
+.)f
+and store it in
+.NR ($l .
+This macro should not be used
+after output has begun,
+and particularly not in multi-column layouts.
+.TL
+.b .he
+\*(TP
+.DE
+Define header
+to be placed at the top
+of every page.
+.TL
+.b .fo
+\*(TP
+.DE
+Define footer
+to be placed at the bottom
+of every page.
+.TL
+.b .eh
+\*(TP
+.DE
+Define header
+to be placed at the top
+of every even-numbered page.
+.TL
+.b .oh
+\*(TP
+.DE
+Define header
+to be placed at the top
+of every odd-numbered page.
+.TL
+.b .ef
+\*(TP
+.DE
+Define footer
+to be placed at the bottom
+of every even-numbered page.
+.TL
+.b .of
+\*(TP
+.DE
+Define footer
+to be placed at the bottom
+of every odd-numbered page.
+.TL
+.b .hx
+.DE
+Suppress headers and footers
+on the next page.
+.TL
+.b .$h
+.DE
+Output the page header.
+Care should be taken when redefining this macro.
+Doing so
+can disable the
+.b .he ,
+.b .fo ,
+.b .eh ,
+.b .oh ,
+.b .ef ,
+and
+.b .of
+macros,
+as well as the chapter-style title feature
+of
+.b .+c .
+.TL
+.b .$f
+.DE
+Output the page footer;
+the same comments apply
+as to
+.b .$h .
+.TL
+.b .$H
+.DE
+This hook macro is called
+at the top of each page
+(after the header and any
+pending floating keeps are emitted)
+and of each column in multi-column mode.
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+Use it for column headings.
+.sh 1 "Displays"
+.pp
+Display macros enclose material;
+their names are of the form
+.b .( \c
+.bi x
+and
+.b .) \c
+.bi x ,
+and must be paired.
+Not all display types can nest
+with themselves or each other.
+All displays except centered blocks
+and long quotations
+are preceded and followed
+by an extra
+.NR (bs
+[0.35v]
+of vertical space
+and use a vertical spacing of
+.NR (dv
+[120]%.
+Long quotation pre- and post-space is stored in a dedicated register,
+while centered blocks have none;
+both use the vertical spacing of normal text,
+.NR (tv .
+.TL
+.b .(l
+.i A
+.i F
+.DE
+Begin list.
+Text until
+.b .)l
+is set in font
+.NR (df
+[0]
+with filling disabled.
+If
+.i A
+[\c
+.b I ]
+is
+.b I ,
+the list is indented by
+.NR (bi
+[4m];
+if
+.b M ,
+it is set at the left margin;
+if
+.b L ,
+it is left-aligned
+(distinguishably from
+.b M
+only if the base indentation
+is not zero);
+and if
+.b C ,
+the list is centered on a line-by-line basis.
+If
+.i F
+[empty]
+is
+.b F ,
+filling is enabled.
+.TL
+.b .)l
+.DE
+End list.
+.\" dead-tree pagination
+.br
+.ne 4v
+.TL
+.b .(q
+.DE
+Begin long quotation.
+Text until
+.b .)q
+is filled,
+indented on the left and right
+by
+.NR (qi
+[4n],
+preceded and followed
+by
+.NR (qs
+[0.35v]
+space,
+and set at type size
+.NR (qp
+[\-1p].
+.TL
+.b .)q
+.DE
+End long quotation.
+.TL
+.b .(b
+.i A
+.i F
+.DE
+Begin a block,
+a form of
+.i keep:
+\*(ME tries to avoid breaking a page
+or column between
+.b .(b
+and
+.b .)b .
+Such a break is allowed anyway
+if respecting the keep
+would leave more than
+.NR (bt
+[0]
+vees of blank space
+below it.
+If
+.NR (bt
+is zero,
+this threshold feature
+is disabled:
+the break will not occur within the keep.
+The font and
+.i A
+and
+.i F
+arguments are handled as with
+.b .(l .
+.TL
+.b .)b
+.DE
+End block.
+.\" dead-tree pagination
+.br
+.ne 3v
+.TL
+.b .(z
+.i A
+.i F
+.DE
+Begin floating keep.
+Like
+.b .(b ,
+except that
+.i A
+defaults to
+.b M
+and the keep
+.i floats
+to the bottom of the page or column
+if it fits,
+or the top of the next otherwise.
+Its position relative to adjacent formatted text
+is thus flexible.
+.NR (zs
+[1v]
+space
+precedes and follows
+a floating keep.
+.TL
+.b .)z
+.DE
+End floating keep.
+.TL
+.b .(c
+.DE
+Begin centered block.
+Input until
+.b .)c
+is collected,
+its longest output line centered,
+and the remainder aligned with respect to that line;
+contrast with the line-by-line centering obtained with
+\(lq\c
+.b ".(b C" \(rq.
+.TL
+.b .)c
+.DE
+End centered block.
+.sh 1 "Annotations"
+.pp
+Some annotation macros are also mandatorily paired enclosures,
+as display macros are.
+.TL
+.b .(d
+.DE
+Begin delayed text.
+Input until
+.b .)d
+is saved for later output by
+.b .pd .
+Delayed text regions are numbered
+starting at 1;
+the number is kept in
+.NR ($d
+and in the associated string
+.ST # .
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+Endnotes are one application.
+.TL
+.b .)d
+.DE
+End delayed text.
+.NR ($d
+and the associated string
+.ST #
+are incremented.
+.TL
+.b .pd
+.DE
+Emit delayed text:
+output everything accumulated with
+.b .(d
+since the last call to
+.b .pd .
+The delayed text number is reset to 1.
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+This might be used
+at the end of each chapter.
+.TL
+.b .(f
+.DE
+Begin footnote.
+Input until
+.b .)f
+is saved for output
+when the foot of the page is reached.
+Footnotes are numbered
+starting at 1;
+the number is kept in
+.NR ($f
+and in the associated string
+.ST * .
+The text of the footnote
+floats to the bottom
+of the page
+and set in font
+.NR (ff
+[1]
+at size
+.NR (fp
+[8p].
+Each entry
+is preceded by
+.NR (fs
+[0.2v]
+space,
+indented
+.NR (fi
+[3n]
+on its first line,
+and
+.q undented
+(indented from the right margin)
+by
+.NR (fu
+[0].
+Footnotes line up underneath
+columns in the page layout.
+.\" XXX: Quantify when debugged.  See Savannah #58447, #63163, #63164.
+If the footnote's content
+does not fit on the page,
+it carries over
+to the next.
+.TL
+.b .)f
+.DE
+End footnote.
+.NR ($f
+and the associated string
+.ST *
+are incremented
+if the latter has been interpolated
+outside a footnote.
+.TL
+.b .$s
+.DE
+Output footnote separator:
+draw a horizontal line up to 2 inches wide.
+Called by
+.b .(f .
+Any redefinition should produce output
+no more than one vee in height.
+.TL
+.b .(x
+.i X
+.DE
+Begin index entry.
+Input until
+.b .)x
+is saved in an index named
+.i X
+[\c
+.b x ]
+until called up with
+.b .xp.
+Each entry is preceded
+by
+.NR (xs
+[0.2v]
+of vertical space
+and undented by
+.NR (xu
+[0.5i];
+that amount of space is reserved
+on the right end of the line
+for the
+(possibly affixed)
+page number.
+.TL
+.b .)x
+.i P
+.i A
+.DE
+End index entry.
+The entry
+is rendered with a
+.i leader
+(row of dots)
+up to an affix
+(such as a volume number and
+separating punctuation)
+.i A
+[empty]
+followed by
+.i P
+[\c
+.NR % ]
+right-aligned on the last line of the entry.
+If
+.i A
+is specified,
+.i P
+must be as well.
+If
+.i P
+is an underscore,
+the leader,
+.i P,
+and any
+.i A
+are suppressed.
+.TL
+.b .xp
+.i X
+.DE
+Emit index
+.i X
+[\c
+.b x ]
+using the current font and type size
+with display vertical spacing
+(\c
+.NR (dv ).
+.\" dead-tree pagination
+.br
+.ne 4v
+.sh 1 "Columnated Output"
+.TL
+.b .2c
+.i \(+-s
+.i n
+.DE
+Enter multi-column mode,
+formatting text in
+.i n
+[2]
+columns of equal width.
+The column separation
+(\c
+.q gutter )
+is set to
+.i \(+-s
+[4n],
+saved
+in
+.NR ($s ,
+and persists until changed by this macro.
+The
+.i n
+columns with
+.i n \-1
+gutters
+fill the single-column line length;
+each column's line length
+is stored in
+.NR ($l .
+The current column number
+is in
+.NR ($c
+and the number of columns in
+.NR ($m .
+.TL
+.b .1c
+.DE
+Leave multi-column mode;
+return to single-column layout.
+.TL
+.b .bc
+.DE
+Begin new column.
+Like
+.b .bp ,
+but begin a column
+on a new page
+only if necessary.
+.\" dead-tree pagination
+.br
+.ne 4v
+.sh 1 "Type Size and Font Styles"
+.TL
+.b .sz
+.i \(+-p
+.DE
+Set the type size to
+.i \(+-p
+[10p],
+and the vertical spacing per
+.NR (tv .
+These do
+.i not
+persist beyond many \*(ME macro calls:
+paragraph macros reset
+the type size and vertical spacing.
+Similarly,
+headers/footers,
+section headings,
+long quotations,
+footnotes,
+and
+chapter titles
+alter them.
+.pp
+\*(ME assumes that font positions 1 through 4 correspond to
+roman,
+italic,
+bold,
+and bold-italic typefaces,
+respectively.
+Use the
+.b .fp
+request to mount your preferred fonts in these positions.
+.pp
+The following macros
+style or decorate an argument
+.i W
+and accept an optional second argument
+.i X,
+formatted as the previous text without intervening space.
+To suppress a word break after the call,
+populate or suffix
+.i X
+with
+.b \ec .
+.TL
+.b .r
+.i W
+.i X
+.DE
+Set
+.i W
+in the roman style.
+If no parameters,
+change to the roman style.
+.TL
+.b .i
+.i W
+.i X
+.DE
+Set
+.i W
+in italics.
+If no parameters,
+change to the italic style.
+.TL
+.b .b
+.i W
+.i X
+.DE
+Set
+.i W
+in boldface.
+If no parameters,
+switch to the bold style.
+.TL
+.b .bi
+.i W
+.i X
+.DE
+Set
+.i W
+in bold italics.
+If no parameters,
+switch to the bold-italic style.
+.TL
+.b .q
+.i W
+.i X
+.DE
+Quote
+.i W ,
+surrounding it with
+with
+.b \(lq
+and
+.b \(rq .
+.TL
+.b .sm
+.i W
+.i X
+.DE
+Set
+.i W
+one point smaller than the surrounding type.
+It has no effect in \*N mode.
+.TL
+.b .u
+.i W
+.i X
+.DE
+Underline
+.i W.
+On typesetting output devices,
+this is true underlining,
+in contrast to the
+.b .ul
+request,
+which changes to the
+.q "underline font"
+(usually italics in \*G).
+On terminal output devices,
+.i W
+is surrounded by underscores.
+This argument should not be subject to adjustment,
+hyphenation,
+or breaking;
+.b .u
+is reliable only when filling is disabled.
+.TL
+.b .bx
+.i W
+.i X
+.DE
+Set
+.i W
+in a box.
+On typesetting output devices,
+.i W
+is surrounded by rules (lines).
+On terminal output devices,
+.i W
+is simulated with ISO\~6429 color escape sequences
+or surrounded by vertical bars.
+It is not marked specially on
+.i groff 's
+.b html
+output device.
+This argument should not be subject to adjustment,
+hyphenation,
+or breaking;
+.b .bx
+is reliable only when filling is disabled.
+.sh 1 "Preprocessor Support"
+.TL
+.b .EQ
+.i A
+.i T
+.DE
+Begin
+.i \%eqn (1)
+equation.
+If
+.i A
+[\c
+.b C ]
+is
+.b C ,
+the equation is centered;
+if
+.b I ,
+indented by
+.NR (bi
+[4m];
+and if
+.b L ,
+left-aligned.
+.i T
+[empty]
+is a title aligned to the right margin
+next to the equation.
+See
+.q "Typesetting Mathematics \- User's Guide"
+by Brian W. Kernighan
+and Lorinda L. Cherry.
+.TL
+.b .EN
+.i C
+.DE
+End
+.i \%eqn
+equation.
+If
+.i C
+[empty]
+is
+.b C ,
+and the equation is followed immediately
+by another
+.b .EQ ,
+the texts of each are centered together.
+Otherwise,
+the equation is typeset
+within the page or column
+with
+.NR (es
+[0.5v]
+space
+above and below it.
+.TL
+.b .TS
+.i H
+.DE
+Begin (start)
+.i \%tbl (1)
+table.
+Tables are preceded and followed by
+.NR (bs
+of space.
+If
+.i H
+[empty]
+is
+.b H ,
+you can call
+.b .TH
+after some table rows
+to repeat them across columns or pages.
+If you want a table to float,
+surround the
+.b .TS
+and
+.b .TE
+calls with
+.b .(z
+and
+.b .)z
+calls.
+.TL
+.b .TH
+.DE
+With \(lq\c
+.b ".TS H" \(rq,
+end the
+.i \%tbl
+table header.
+.TL
+.b .TE
+.DE
+End
+.i \%tbl
+table.
+.TL
+.b .PS
+.i h
+.i w
+.DE
+Begin
+.i \%pic (1)
+picture.
+.i h
+[empty]
+and
+.i w
+[empty],
+if present,
+scale the image.
+.\" XXX: That's vague, but DWB pic and GNU pic reportedly interpret
+.\" these arguments differently and there's no room here to discuss it.
+.TL
+.b .PE
+.DE
+End
+.i \%pic
+picture,
+leaving the drawing position at the bottom of the picture.
+.TL
+.b .PF
+.DE
+End
+.i \%pic
+picture,
+leaving the drawing position at the top of the picture.
+.TL
+.b .IS
+.DE
+Begin
+.i ideal (1)\**
+picture.
+.(f
+\**
+.i groff
+does not provide an implementation of the
+.i ideal
+preprocessor.
+.)f
+.TL
+.b .IE
+.DE
+End
+.i ideal
+picture,
+leaving the drawing position at the bottom of the picture.
+.TL
+.b .IF
+.DE
+End
+.i ideal
+picture,
+leaving the drawing position at the top of the picture.
+.TL
+.b .GS
+.i A
+.DE
+Begin
+.i \%grn (1)
+picture.
+.i A
+[\c
+.b C ]
+can be
+.b C ,
+.b L ,
+or
+.b R
+to center, left-, or right-align
+the picture.
+.TL
+.b .GE
+.DE
+End
+.i \%grn
+picture,
+leaving the drawing position at the bottom of the picture.
+.TL
+.b .GF
+.DE
+End
+.i \%grn
+picture,
+leaving the drawing position at the top of the picture.
+.sh 1 "Formal Documents"
+.TL
+.b .tp
+.DE
+Begin title page.
+Unusually,
+.b .sp
+calls at the top of the page
+.i are
+honored.
+Headers and footers are suppressed.
+The page number
+is not incremented
+for this page.
+.TL
+.b .++
+.i S
+.i H
+.DE
+Begin a
+.i segment
+of an organized document,
+affecting the values and formatting
+of chapter and page numbers.
+The chapter number in
+.NR (ch
+is reset to\~0.
+A segment uses Arabic numerals
+for chapter and page numbers
+except where noted.
+The mandatory segment type argument
+.i S
+must be one of
+.b C
+for chapters
+(of the main matter),
+.b A
+for appendices
+(uppercase alphabetical chapter numbers),
+.b P
+for preliminary (\(lqfront\(rq) matter
+(such as a foreword;
+lowercase Roman page numbers),
+.b AB
+for an abstract
+(page numbering restarts at 1),
+or
+.b B
+for \(lqback\(rq matter,
+such as a bibliography.
+.b C
+or
+.b A
+may be prefixed with
+.b R ,
+which specifies a restart of page numbering
+when
+.b .+c
+is called within the applicable segment.
+If present,
+the
+.i H
+[empty]
+parameter defines the new header,
+which must be delimited as a three-part title\(em\c
+if it contains spaces,
+it must furthermore be quoted.
+To include the chapter number in
+.i H,
+use the input sequence
+.b "\eEn(ch" .\**
+.(f
+\**
+If you wish to avoid use of the \*G\|\" prevent italic f \ ugliness
+.b \eE
+extension,
+fully
+.i eight
+backslashes must precede
+.q n(ch .
+.)f
+For example,
+\[lq]\c
+.b ".++ RA |||\eEn(ch.%|" \[rq]
+numbers appendices and pages as
+.bi A .\c
+.bi n
+in the right-hand header,
+where
+.i A
+is the appendix letter
+and
+.i n
+is the page number.
+Each subdivision of a segment
+(each chapter,
+appendix,
+etc.\&)
+should be preceded by a
+.b .+c
+call.
+It is easier when using
+\*T to put the front matter
+at the end of the paper,
+so that the table of contents
+can be collected and put out;
+this material can then be resequenced
+by a tool that processes the output format,
+or physically moved
+to the beginning of the printed document.
+.TL
+.b .+c
+.i T
+.DE
+Begin chapter
+(or appendix).
+Reset the footnote number
+in
+.NR ($f
+to 1.
+If the segment type is
+.b RA
+or
+.b RC ,
+reset the page number
+in
+.NR %
+to 1.
+If
+.b .++
+has not been called,
+a segment type of
+.b C
+is assumed.
+If a header is defined,
+it replaces the footer
+on the first page
+of each chapter.
+If a title
+.i T
+[empty]
+is supplied,
+.b .$c
+is called.
+.TL
+.b .$c
+.i T
+.DE
+Format a chapter heading
+centered in boldface.
+The text
+.ST (wc
+[\c
+.b Chapter ]
+is output
+if the segment type is
+.b C
+or
+.b RC,
+or that in
+.ST (wa
+[\c
+.b Appendix ]
+if the segment type is
+.b A
+or
+.b RA.
+The chapter number
+is incremented and output. \" except for abstract and bibliography segs
+If a chapter title
+.i T
+is present,
+it is formatted the same way,
+preceded by vertical space.
+If the segment type is any of
+.b C ,
+.b RC ,
+.b A ,
+or
+.b RA ,
+.b $C
+is called.
+.TL
+.b .$C
+.i K
+.i N
+.i T
+.DE
+This hook macro
+is called by
+.b .+c
+and
+.b .$c .
+.i K
+is the chapter or appendix term supplied by
+.b $c ,
+.i N
+is the chapter or appendix number,
+and
+.i T
+is its title.
+.\" TODO: Move the following application note to meintro.me.in or some
+.\" future non-introductory me(7) usage manual.
+This hook can be used to insert chapter titles
+into a table of contents.
+.sh 1 "Miscellaneous"
+.TL
+.b .ld
+.DE
+Update the
+.NR (y2
+and
+.NR (y4
+registers based on the current value of
+.NR (yr ,
+reinitialize the localized strings
+.ST (dw ,
+.ST (mo ,
+.ST (wa ,
+and
+.ST (wc ,
+and reset
+.ST (td
+based on the foregoing.
+.TL
+.b .re
+.DE
+Reset tab stops to every 0.5i.
+.TL
+.b .ba
+.i \(+-n
+.DE
+Set the base indentation
+to
+.i \(+-n
+[0].
+Paragraphs,
+sections,
+and displays
+are indented by at least this amount,
+stored in
+.NR ($i .
+Titles and footnotes
+are unaffected.
+.TL
+.b .hl
+.DE
+Break and draw a horizontal line
+of the current line length.
+You might call
+.b .hl
+at the beginning and/or end
+of a floating keep
+to differentiate
+the text from a figure.
+.TL
+.b .ep
+.DE
+End this page,
+but do not begin the next page.
+Useful for forcing out footnotes,
+but other than
+that hardly ever used.
+Must be followed by a
+.b .bp
+request or the end of input.
+.\" dead-tree pagination
+.br
+.ne 6v
+.sh 1 "\f(BIroff\fP Support\fR\**"
+.(f
+\**
+These facilities are provided to aid migration of
+\(lqold
+.i roff \(rq
+documents.
+See
+.i roff (7)
+for a history of
+.i roff -related
+typesetting systems.
+.)f
+.pp
+.TL
+.b .ix
+.i \(+-n
+.DE
+Equivalent to \(lq\|\fB\[aq]in \fI\(+-n\/\fR\(rq.
+.TL
+.b .bl
+.i n
+.DE
+Equivalent to \(lq\fB.sp \fIN\/\fR\(rq
+inside a
+.b .(b
+block.
+.TL
+.b .m1
+.i \(+-n
+.DE
+Set/adjust the space between the top of the page
+and the header to/by
+.i \(+-n
+[4v].
+.TL
+.b .m2
+.i \(+-n
+.DE
+Set/adjust the space between the header
+and the first line of text to/by
+.i \(+-n
+[2v].
+.TL
+.b .m3
+.i \(+-n
+.DE
+Set/adjust the space
+between the bottom of the text
+and the footer to/by
+.i \(+-n
+[2v].
+.TL
+.b .m4
+.i \(+-n
+.DE
+Set/adjust the space
+between the footer
+and the bottom of the page to/by
+.i \(+-n
+[4v].
+.TL
+.b .pa
+.i \(+-n
+.DE
+Equivalent to \(lq\fB.bp \fI\(+-n\/\fR\(rq.
+.TL
+.b .ro
+.DE
+Equivalent to \(lq\fB.af % i\fP\(rq.
+.TL
+.b .ar
+.DE
+Equivalent to \(lq\fB.af % 1\fP\(rq.
+.TL
+.b .n1
+.i C
+.DE
+Number output lines starting from 1.
+If
+.i C
+[empty]
+is
+.b C ,
+the line length is reduced
+and correspondingly indented;
+otherwise,
+the page offset is reduced
+to accommodate the line number.
+The amount in all cases is
+.NR (no
+[\ew\(aq0000\(aqu
+(the width of four numerals
+in the current font)].
+.TL
+.b .n2
+.i \(+-n
+.DE
+Stop numbering output lines if
+.i n
+missing,
+otherwise continue with the number modified by
+\(+-\c
+.i n.
+.TL
+.b .sk
+.DE
+Leave the next output page blank
+except for headers and footers.
+This can reserve space
+for a full-page diagram
+produced externally
+and composited in later.
+(To reserve only a partial page,
+use \[lq]\c
+.b .sv \~\c
+.bi n \[rq],
+where
+.i n
+is the amount of space required.
+This space will be output immediately
+if there is room,
+and otherwise
+at the top of the next page.
+If
+.i n
+is greater than the space available
+on an empty page,
+none will be output.)
+.sh 1 "Predefined Strings"
+.TL
+.ST *
+.DE
+Interpolate footnote number bracketed by superscripting strings:
+.ST { \c
+.\" \^ avoids 'f\' bad kerning in Times bold; wrong font metrics?
+.NR ($f \^\c
+.ST } .
+.TL
+.ST #
+.DE
+Interpolate delayed text number surrounded by square brackets:
+.b [ \c
+.NR ($d \c
+.b ] .
+.TL
+.ST {
+.DE
+Begin superscripting:
+move upward and reduce the type size.
+The line height is increased above by
+.NR (sx
+[0.2m]
+to accommodate the superscript.
+In \*N mode,
+output a left square bracket.
+.TL
+.ST }
+.DE
+End superscripting:
+reverse the motion and type size change of
+.ST { .
+In \*N mode,
+output a right square bracket.
+.\" TODO: Move this example to a section on super- and subscripting in
+.\" meintro.
+.\"For example,
+.\"to produce a superscript
+.\"you might type
+.\".b x \c
+.\".ST { \c
+.\".b 2 \c
+.\".ST } ,
+.\"which will render as
+.\".b x\*{2\*}
+.\"on typesetters and as
+.\".b x[2]
+.\"on terminals.
+.TL
+.ST <
+.DE
+Begin subscripting:
+move downward and reduce the type size.
+The line height is increased below by
+.NR (sx
+to accommodate the subscript.
+In \*N mode,
+output a left angle bracket.
+.TL
+.ST >
+.DE
+End subscripting:
+reverse the motion and type size change of
+.ST < .
+In \*N mode,
+output a right angle bracket.
+.\" dead-tree pagination
+.br
+.ne 6v
+.pp
+\*G \*(ME provides localized strings
+to support documents in several input languages;
+see the
+.i groff_tmac (5)
+man page.
+The date-related strings are initialized
+based on the current date
+when the formatter runs.
+To encode a different date in your document,
+change the \*T date registers as desired
+and then call
+.b .ld
+to update the strings.
+The day of the week is
+.i not
+recomputed from a new calendar date;
+.NR (dw
+must be modified manually.
+The strings can also be defined directly.
+.(b L F
+.TL
+.ST (dw
+.DE
+Weekday name.
+.TL
+.ST (mo
+.DE
+Month name.
+.TL
+.ST (td
+.DE
+The date in a form suitable for correspondence.
+Construct other date formats with
+.ST (dw ,
+.NR (dy
+(day of the month),
+.ST (mo ,
+.NR (mo
+(month of the year),
+.NR (y4
+(year),
+and
+.NR (y2
+(year of the century).
+.TL
+.ST (wa
+.DE
+The term
+.b .$c
+uses for
+.q appendix .
+.TL
+.ST (wc
+.DE
+The term
+.b .$c
+uses for
+.q chapter .
+.)b
+.sh 1 "Special Characters"
+.pp
+For modern documents,
+see the
+.i groff_char (7)
+man page.
+.pp
+For rendering of legacy \*(ME documents,
+the macro package defines several strings that construct accent marks
+and two symbols from mathematical set theory.
+These strings are limited in multiple respects:
+they can have a crude appearance,
+they are unrecognizable on character-cell video terminals
+because they rely on overstriking,
+and they cannot in general be \(lqstacked\(rq,
+as is required to correctly render words in
+(for example)
+Vietnamese.
+Preferable \*G alternatives
+are presented alongside them in the following table.
+.sp
+.\" dead-tree pagination
+.ne 2v
+.ta 5n +\w'There exists'u+2n +\w'Usage'u+3n +\w'Example'u+3n \
++\w'Output'u+3n +\w'groff'u+3n +\w'Output'u+3n
+.nf
+.b "	Name	Usage	Example	Output	\f(BIgroff\fP	Output"
+	Acute	\e*\(aq	a\e*\(aq	a\*'	\e[a aa]	\[a aa]
+	Grave	\e*\(ga	e\e*\(ga	e\*`	\e[e ga]	\[e ga]
+	Umlaut	\e*:	u\e*:	u\*:	\e[u ad]	\[u ad]
+	Tilde	\e*\(ti	n\e*\(ti	n\*~	\e[n a\(ti]	\[n a~]
+	Caret	\e*\(ha	e\e*\(ha	e\*^	\e[e a\(ha]	\[e a^]
+	Cedilla	\e*,	c\e*,	c\*,	\e[c ac]	\[c ac]
+	Caron	\e*v	s\e*v	s\*v	\e[s ah]	\[s ah]
+	Ring	\e*o	A\e*o	A\*o	\e[A ao]	\[A ao]
+	There exists	\e*(qe		\*(qe	\e[te]	\[te]
+	For all	\e*(qa		\*(qa	\e[fa]	\[fa]
+.fi
+.pp
+Three further string definitions cause no particular problems but have
+no advantage over \*G special character escape sequences
+apart from portability to BSD Unix systems.
+(The last lacks even that distinction,
+since
+Unix Version\~7 \*T
+supported the
+.b \e(em
+special character.)
+.TL
+.ST (lq
+.DE
+Left double quotation mark.
+Use
+.b \e(lq
+instead.
+.TL
+.ST (rq
+.DE
+Right double quotation mark.
+Use
+.b \e(rq
+instead.
+.TL
+.ST \-
+.DE
+Em dash.
+Use
+.b \e(em
+instead.
+.uh Acknowledgments
+.pp
+Allman would like to thank
+Bob Epstein,
+Bill Joy,
+and Larry Rowe
+for having the courage
+to use the \*(ME macros
+to produce non-trivial papers
+during the development stages;
+Ricki Blau,
+Pamela Humphrey,
+and Jim Joyce
+for their help with the documentation phase;
+peter kessler
+for numerous complaints,
+most accompanied by fixes;
+and the plethora of people who have contributed ideas
+and have given support for the project.
+.bp
+.uh Summary
+.pp
+Almost all macros,
+strings,
+and registers
+available in the \*(ME package
+are summarized below;
+the legacy strings from section
+.q "Special Characters"
+are omitted.
+Selected \*T
+requests,
+registers,
+and escape sequences are included as well;
+those listed can generally be used with impunity.
+The list is sorted by Unicode code point
+(basic Latin subset)
+keyed on the identifier:
+escape and control characters are disregarded,
+as are the escape function selectors for register and string
+interpolation,
+.b n
+and
+.b * .
+.pp
+Each row contains the name of the
+macro (or request),
+register,
+string,
+or escape function;
+a code for the name's type
+(one of the foregoing);
+and its description.
+The type codes are
+.b M
+for a macro or \*T
+request
+(shown prefixed with the control character
+.b . ,
+but the no-break control character
+.b \(aq
+can also be used),
+.b S
+for a string
+(shown using its interpolation syntax,
+.b \e*
+or
+.b \e*( ),
+.b R
+for a register
+(shown using its interpolation syntax,
+.b \en
+or
+.b \en( ),
+and
+.b F
+for a \*T built-in function
+(shown prefixed with the escape character
+.b \e ).
+.pp
+The type code can carry a variety of annotations.
+A section sign \(sc indicates features interpreted by \*T
+rather than the \*(ME package.
+The dagger \(dg and double dagger \(dd identify user-definable macros.
+Those marked with
+\(dd have default definitions;
+changing them may have unexpected side effects.
+The degree sign \(de notes features requiring AT&T device-independent
+\*T extensions
+(ca.\& 1981),
+and a square \(sq labels \*G extensions.
+.de $H
+.ev 1
+.ta \w'\enewline\(sc'u +\w'TYPE'u+2n
+.b "Name	Type	Description"
+.ev
+..
+.sp
+.if t .2c
+.if n .(c
+.(l L
+.$H
+\e\fI\,newline\fP	F\(sc	continue input line
+\e"	F\(sc	comment (to end of input line)
+\e*#	S	delayed text marker
+\e$\fI\,n\fP	F\(sc	interpolate \fIn\/\fPth macro argument
+\en($0	R	section depth
+\&.$0	M\(dg	post-section heading hook
+\en($1	R	first section number component
+\&.$1	M\(dg	pre-section heading depth 1 hook
+\en($2	R	second section number component
+\&.$2	M\(dg	pre-section heading depth 2 hook
+\en($3	R	third section number component
+\&.$3	M\(dg	pre-section heading depth 3 hook
+\en($4	R	fourth section number component
+\&.$4	M\(dg	pre-section heading depth 4 hook
+\en($5	R	fifth section number component
+\&.$5	M\(dg	pre-section heading depth 5 hook
+\en($6	R	sixth section number component
+\&.$6	M\(dg	pre-section heading depth 6 hook
+\&.$C	M\(dg	post-chapter title heading hook
+\&.$H	M\(dg	page/column heading hook
+\en($c	R	current column number
+\&.$c	M\(dd	output chapter number and title
+\en($d	R	delayed text number
+\en($f	R	footnote number
+\&.$f	M\(dd	output footer
+\&.$h	M\(dd	output header
+\en($i	R	paragraph base indentation
+\en($l	R	column width
+\en($m	R	number of available columns
+\e*($n	S	concatenated section number
+\en($p	R	numbered paragraph number
+\&.$p	M\(dd	output section heading
+\en($s	R	column spacing (indentation)
+\&.$s	M\(dd	output footnote area separator
+\e%	F\(sc	control hyphenation
+\en%	R\(sc	current page number
+\e&	F\(sc	dummy character
+\e(\fI\,xx\fP	F\(sc	interpolate special character \fIxx\fP
+\&.(b	M	begin block
+\&.(c	M	begin centered block
+\&.(d	M	begin delayed text
+\&.(f	M	begin footnote
+\&.(l	M	begin list
+\&.(q	M	begin long quotation
+\&.(x	M	begin index entry
+\&.(z	M	begin floating keep
+\e\(aq	F\(sc	acute accent
+\&.)b	M	end block
+\&.)c	M	end centered block
+\&.)d	M	end delayed text
+\&.)f	M	end footnote
+\&.)l	M	end list
+\&.)q	M	end long quotation
+\&.)x	M	end index entry
+\&.)z	M	end floating keep
+\e*\fI\,x\fP	F\(sc	interpolate string \fIx\fP
+\e*(\fI\,xx\fP	F\(sc	interpolate string \fIxx\fP
+\e**	S	footnote marker
+\&.++	M	set document segment type
+\&.+c	M	begin chapter or appendix
+\e\-	F\(sc	minus sign
+\e*\-	S	em dash
+\en(.$	R\(sc	macro parameter count
+\en(.i	R\(sc	current indentation
+\en(.l	R\(sc	current line length
+\en(.p	R\(sc	current page length
+\en(.s	R\(sc	current type size in points
+\e0	F\(sc	unadjustable digit-width space
+\&.1c	M	end multi-column layout
+\&.2c	M	begin multi-column layout
+\e*<	S	begin subscripting
+\e*>	S	end subscripting
+\&.EN	M	end \fIeqn\fP equation
+\&.EQ	M	begin \fIeqn\fP equation
+\&.GE	M\(de	end \fIgrn\fP picture with position at bottom
+\&.GF	M\(de	end \fIgrn\fP picture with position at top
+\&.GS	M\(de	start \fIgrn\fP picture
+\&.IE	M\(de	end \fIideal\fP picture with position at bottom
+\&.IF	M\(de	end \fIideal\fP picture with position at top
+\&.IS	M\(de	start \fIideal\fP picture
+\eL\(aq\fI\,d\/\fP\(aq	F\(sc	draw vertical line of length \fId\fP
+\&.PE	M\(de	end \fIpic\fP picture with position at bottom
+\&.PF	M\(de	end \fIpic\fP picture with position at top
+\&.PS	M\(de	start \fIpic\fP picture
+\&.TE	M	end \fItbl\fP table
+\&.TH	M	end heading for multi-page \fItbl\fP table
+\&.TS	M	begin \fItbl\fP table
+\e\(ha	F\(sc	1/12 em unbreakable hair space
+\e_	F\(sc	underrule
+\e\(ga	F\(sc	grave accent
+\&.ad	M\(sc	set text adjustment mode
+\&.af	M\(sc	assign register format
+\&.am	M\(sc	append to macro
+\&.ar	M	use Arabic numerals for page numbers
+\&.as	M\(sc	append to string
+\&.b	M	embolden argument
+\&.ba	M	set base indentation
+\&.bc	M	begin new column
+\&.bi	M	embolden and italicize argument
+\en(bi	R	display (block) indentation
+\&.bl	M	insert space (even at page top; cf.\& \fB.sp\fP)
+\en(bm	R	distance from text area to page bottom
+\&.bp	M\(sc	begin new page
+\&.br	M\(sc	break output line
+\en(bs	R	display (block) pre/post space
+\en(bt	R	block threshold for keeps
+\&.bx	M	box argument
+\ec	F\(sc	continue output line
+\&.ce	M\(sc	center output lines
+\en(ch	R	current chapter number
+\&.cp	M\(sc\(sq	toggle AT&T \*T compatibility mode
+\&.de	M\(sc	define macro
+\en(df	R	display font
+\&.do	M\(sc\(sq	operate with compatibility mode off
+\&.ds	M\(sc	define string
+\en(dv	R\(sq	vertical spacing of displayed text (%)
+\en(dw	R\(sc	day of the week
+\e*(dw	S	weekday name
+\en(dy	R\(sc	day of the month
+\ee	F\(sc	printable version of escape character \fB\e\fP
+\&.ef	M	set even-numbered page footer
+\&.eh	M	set even-numbered page header
+\&.el	M\(sc	else part of \fB.ie\fP conditional
+\&.ep	M	end page
+\en(es	R	equation pre/post space
+\ef\fI\,f\fP	F\(sc	inline font change to font \fIf\fP
+\ef(\fI\,ff\fP	F\(sc	inline font change to font \fIff\fP
+\&.fc	M\(sc	set field characters
+\en(ff	R	footnote font
+\&.fi	M\(sc	enable filling
+\en(fi	R	footnote indentation (first line only)
+\en(fm	R	footer margin
+\&.fo	M	set footer
+\&.fp	M	mount font at position
+\en(fp	R	footnote type size in points
+\en(fs	R	footnote prespace
+\en(fu	R	footnote undent (right indentation)
+\eh\(aq\fI\,d\/\fP\(aq	F\(sc	move distance \fId\fP horizontally
+\&.hc	M\(sc	set hyphenation character
+\&.he	M	set header
+\&.hl	M	draw horizontal line
+\en(hm	R	header margin
+\&.hx	M	suppress next page's headers/footers
+\&.hy	M\(sc	set automatic hyphenation mode
+\&.i	M	italicize argument
+\&.ie	M\(sc	conditional with \fB.el\fP
+\&.if	M\(sc	conditional
+\en(ii	R	indented paragraph indentation
+\&.in	M\(sc	set indentation (transient; cf.\& \fB.ba\fP)
+\&.ip	M	begin indented paragraph
+\&.ix	M	set indentation without break
+\el\(aq\fI\,d\/\fP\(aq	F\(sc	draw horizontal line of length \fId\fP
+\&.lc	M\(sc	set leader repetition character
+\&.ld	M\(sq	reset localization and date info
+\&.ll	M	set line length in \fIme\fP environments
+\&.lp	M	begin fully left-aligned paragraph
+\e*(lq	S	left double quotation mark
+\&.ls	M\(sc	set multi-line spacing
+\&.m1	M	set page top to header distance
+\&.m2	M	set header to text distance
+\&.m3	M	set text to footer distance
+\&.m4	M	set footer to page bottom distance
+\&.mc	M\(sc	set margin character
+\&.mk	M\(sc	mark vertical position (see \fB.rt\fP)
+\en(mo	R\(sc	month of the year
+\e*(mo	S	month name
+\en\fI\,x\fP	F\(sc	interpolate register \fIx\fP
+\en(\fI\,xx\fP	F\(sc	interpolate register \fIxx\fP
+\&.n1	M	begin output line numbering
+\&.n2	M	end or alter output line numbering
+\&.na	M\(sc	disable adjustment
+\&.ne	M\(sc	need vertical space
+\&.nf	M\(sc	disable filling
+\&.nh	M\(sc	disable automatic hyphenation
+\en(no	R\(sq	line numbering offset
+\&.np	M	begin numbered paragraph
+\&.nr	M\(sc	set register
+\&.ns	M\(sc	begin no-space mode
+\&.of	M	set odd-numbered page footer
+\&.oh	M	set odd-numbered page header
+\&.pa	M	begin page
+\&.pd	M	output delayed text
+\en(pf	R	paragraph font
+\en(pi	R	paragraph indentation
+\&.pl	M\(sc	set page length
+\&.pn	M\(sc	set next page number
+\&.po	M\(sc	set page offset
+\en(po	R	paragraph offset
+\&.pp	M	begin first-line indented paragraph
+\en(pp	R	paragraph type size in points
+\en(ps	R	paragraph prespace
+\&.q	M	quote argument
+\en(qi	R	long quotation left/right indentation
+\en(qp	R	long quotation type size in points
+\en(qs	R	long quotation pre/post space
+\&.r	M	set argument in roman
+\&.re	M	reset tab stops
+\&.rj	M\(sq	right-align output lines
+\&.rm	M\(sc	remove macro, string, or request
+\&.rn	M\(sc	rename macro, string, or request
+\&.ro	M	use Roman numerals for page numbers
+\e*(rq	S	right double quotation mark
+\&.rr	M\(sc	remove register
+\&.rs	M\(sc	restore spacing (end no-space mode)
+\&.rt	M\(sc	return to vertical position set by \fB.mk\fP
+\es\(aq\fI\,\(+-n\/\fP\(aq	F\(sc\(de	inline type size change\
+ to/by \fIn\fP points
+\en(sf	R	section title font
+\&.sh	M	begin numbered section
+\en(si	R	section indentation per level of depth
+\&.sk	M	skip next page
+\&.sm	M	set argument at smaller type size
+\&.so	M\(sc	source (interpolate) input file
+\en(so	R	additional section title offset
+\&.sp	M\(sc	insert space (except at page top; cf.\& \fB.bl\fP)
+\en(sp	R	section title type size in points
+\en(ss	R	section prespace
+\&.sx	M	change section depth
+\en(sx	R\(sq	super/subscript line height increase
+\&.sz	M	set type size and vertical spacing
+\&.ta	M\(sc	set tab stops
+\&.tc	M\(sc	set tab repetition character
+\e*(td	S	today's date
+\en(tf	R	title font
+\&.ti	M\(sc	temporary indentation (next line only)
+\&.tl	M\(sc	output three-part title
+\en(tm	R	distance from page top to text area
+\&.tp	M	begin title page
+\en(tp	R	title type size in points
+\&.tr	M\(sc	translate characters
+\en(tv	R\(sq	vertical spacing of text (%)
+\&.u	M	underline argument
+\&.uh	M	begin unnumbered section
+\&.ul	M\(sc	underline output lines
+\ev\(aq\fI\,d\/\fP\(aq	F\(sc	move distance \fId\fP vertically
+\ew\(aq\fI\,S\/\fP\(aq	F\(sc	interpolate formatted width of \fIS\fP
+\e*(wa	S\(sq	term for \(lqappendix\(rq used by \fB.$c\fP
+\e*(wc	S\(sq	term for \(lqchapter\(rq used by \fB.$c\fP
+\&.xl	M	set line length (current environment)
+\&.xp	M	output index
+\en(xs	R	index entry prespace
+\en(xu	R	index undent (right indentation)
+\en(y2	R\(sq	year of the century
+\en(y4	R\(sq	year
+\en(yr	R\(sc	year minus 1900
+\en(zs	R	floating keep pre/post space
+\e{	F\(sc	begin conditional group
+\e*{	S	begin superscripting
+\e|	F\(sc	1/6 em unbreakable thin space
+\e}	F\(sc	end conditional group
+\e*}	S	end superscripting
+\e\(ti	F\(sc\(sq	unbreakable word space
+.)l
+.if n .)c
+.ds $H \" empty
+.\" If we're laying out the final column, `1c` will produce an
+.\" unnecessary empty page.  If we're not, omitting `1c` will format a
+.\" column of headers with nothing underneath.
+.if \n($c<\n($m .1c
+.\" Local Variables:
+.\" mode: nroff
+.\" End:
+.\" vim: filetype=groff:

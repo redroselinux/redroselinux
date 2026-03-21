@@ -1,0 +1,8055 @@
+'\" t
+.TH groff 7 "2 July 2023" "groff 1.23.0"
+.SH Name
+groff \- GNU
+.I roff
+language reference
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 2000-2023 Free Software Foundation, Inc.
+.\"
+.\" This file is part of groff, the GNU roff type-setting system.
+.\"
+.\" Permission is granted to copy, distribute and/or modify this
+.\" document under the terms of the GNU Free Documentation License,
+.\" Version 1.3 or any later version published by the Free Software
+.\" Foundation; with no Invariant Sections, with no Front-Cover Texts,
+.\" and with no Back-Cover Texts.
+.\"
+.\" A copy of the Free Documentation License is included as a file
+.\" called FDL in the main directory of the groff source package.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_groff_7_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.\" Setup
+.\" ====================================================================
+.
+.\" Man pages should not define page-local macros.  Most of these were
+.\" written long ago; someday we'll revise the page without them.
+.
+.\" ====================================================================
+.\" start a macro, escape sequence, or register definition
+.
+.de TPx
+.  TP 10n
+..
+.\" ====================================================================
+.\" .Text anything ...
+.\"
+.\" All arguments are printed as text.
+.\"
+.de Text
+.  nop \)\\$*
+..
+.
+.\" ========= characters =========
+.
+.de squoted_char
+.  Text \[oq]\f[CB]\\$1\f[]\[cq]\\$2
+..
+.de dquoted_char
+.  Text \[lq]\f[CB]\\$1\f[]\[rq]\\$2
+..
+.\" ========= requests =========
+.
+.\" synopsis of a request
+.de REQ
+.  ie \\n[.$]=1 \{\
+.    Text \f[CB]\\$1\f[]
+.  \}
+.  el \{\
+.    Text \f[CB]\\$1\~\f[]\f[I]\\$2\f[]
+.  \}
+..
+.
+.\" reference of a request
+.de request
+.  ie (\\n[.$] < 2) \
+.    B \\$*
+.  el \
+.    BR \\$*
+..
+.
+.\" ========= numeric elements =========
+.
+.\" number with a trailing unit
+.de scalednumber
+.  Text \\$1\^\f[CB]\\$2\f[]\\$3\f[R]
+.  ft P
+..
+.
+.\" representation of units within the text
+.de scaleindicator
+.  Text \f[CB]\\$1\f[]\\$2\f[R]
+.  ft P
+..
+.
+.\" representation of mathematical operators within the text
+.de operator
+.  squoted_char \\$@
+..
+.
+.
+.\" ========= escape sequences =========
+.
+.\" ====================================================================
+.\" .ESC name [arg]
+.\"
+.\" Synopsis of an escape sequence, optionally with argument
+.\" Args   : 1 or 2; 'name' obligatory, 'arg' optional
+.\"   name : suitable name for an escape sequence (c, (xy, [long])
+.\"   arg  : arbitrary word
+.\" Result : prints \namearg, where 'name' is in CB, 'arg' in I
+.\"
+.de ESC
+.  Text "\f[CB]\e\\$1\,\f[I]\\$2\/\fR"
+..
+.\" ====================================================================
+.\" .ESC[] name arg
+.\"
+.\" Synopsis for escape sequence with a bracketed long argument
+.\" Args   : 2 obligatory
+.\"   name : suitable name for an escape sequence (c, (xy, [long])
+.\"   arg  : arbitrary text
+.\" Result : prints \name[arg], where 'name' is in CB, 'arg' in I
+.\"
+.de ESC[]
+.  Text "\f[CB]\e\\$1\[lB]\f[]\,\f[I]\\$2\/\f[]\f[CB]\[rB]\f[]"
+..
+.\" ====================================================================
+.\" .ESCq name arg
+.\"
+.\" Synopsis for escape sequence with a bracketed long argument
+.\" Args   : 2 obligatory
+.\"   name : suitable name for an escape sequence (c, (xy, [long])
+.\"   arg  : arbitrary text
+.\" Result : prints \name'arg', where 'name' is in CB, 'arg' in I
+.\"
+.de ESCq
+.  Text "\f[CB]\e\\$1\[aq]\f[]\,\f[I]\\$2\/\f[]\f[CB]\[aq]\f[]"
+..
+.\" ====================================================================
+.\" .ESC? arg
+.\"
+.\" Synopsis for escape sequence with a bracketed long argument
+.\" Args   : 1 obligatory
+.\"   arg  : arbitrary text
+.\" Result : prints '\?arg\?', where the '\?' are in CB, 'arg' in I
+.\"
+.de ESC?
+.  Text "\f[CB]\e?\,\f[I]\\$1\/\f[CB]\[rs]?\f[R]"
+..
+.\" ====================================================================
+.\" .esc name [punct]
+.\"
+.\" Reference of an escape sequence (no args), possibly punctuation
+.\" Args    : 1 obligatory
+.\"   name  : suitable name for an escape sequence (c, (xy, [long])
+.\"   punct : arbitrary
+.\" Result  : prints \name, where 'name' is in B, 'punct' in R
+.\"
+.de esc
+.  ie (\\n[.$] < 2) \
+.    B "\e\\$1"
+.  el \
+.    BR "\e\\$1" \\$2
+..
+.\" ====================================================================
+.\" .escarg name arg [punct]
+.\"
+.\" Reference of an escape sequence (no args)
+.\" Args    : 1 obligatory, 1 optional
+.\"   name  : suitable name for an escape sequence (c, (xy, [long])
+.\"   arg   : arbitrary word
+.\" Result  : prints \namearg, where
+.\"           'name' is in B, 'arg' in I
+.\"
+.de escarg
+.  Text \f[B]\e\\$1\f[]\,\f[I]\\$2\/\f[]\\$3
+..
+.\" ====================================================================
+.\" .esc[] name arg [punct]
+.\"
+.\" Reference for escape sequence with a bracketed long argument
+.\" Args   : 2 obligatory
+.\"   name : suitable name for an escape sequence (c, (xy, [long])
+.\"   arg  : arbitrary text
+.\" Result : prints \name[arg], where 'name' is in CB, 'arg' in CI
+.\"
+.de esc[]
+.  Text \f[CB]\e\\$1\[lB]\f[]\,\f[CI]\\$2\/\f[]\f[CB]\[rB]\f[]\\$3
+..
+.
+.\" ========= strings =========
+.
+.\" synopsis for string, with \*[]
+.de STRING
+.  Text \[rs]*[\f[CB]\\$1\f[]] \\$2
+..
+.\" synopsis for a long string
+.de string
+.  if \n[.$]=0 \
+.    return
+.  Text \f[CB]\[rs]*\[lB]\\$1\[rB]\f[]\\$2
+..
+.
+.\" ========= registers =========
+.
+.\" synopsis for registers, with \n[]
+.de REG
+.  Text \[rs]n[\f[CB]\\$1\f[]]
+..
+.\" reference of a register, without decoration
+.de register
+.  Text register
+.  ie (\\n[.$] < 2) \
+.    B \\$*
+.  el \
+.    BR \\$*
+..
+.
+.\" begin list [piloting a possible extension to man(7)]
+.de LS
+.  nr saved-PD \\n[PD]
+.  nr PD 0
+..
+.
+.\" end list [piloting a possible extension to man(7)]
+.de LE
+.  nr PD \\n[saved-PD]
+..
+.
+.
+.\" end of macro definitions
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+.I groff
+is short for GNU
+.IR roff ,
+a free reimplementation of the AT&T device-independent
+.I troff \" AT&T
+typesetting system.
+.
+See
+.MR roff 7
+for a survey of and background on
+.I roff
+systems.
+.
+.
+.P
+This document is intended as a reference.
+.
+The primary
+.I groff
+manual,
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is a better resource for learners,
+containing many examples and much discussion.
+.
+It is written in Texinfo;
+you can browse it interactively with \[lq]info groff\[rq].
+.
+Additional formats,
+including plain text,
+HTML,
+DVI,
+and PDF,
+may be available in
+.IR /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0 .
+.
+.
+.P
+.I groff
+is also a name for an extended dialect of the
+.I roff
+language.
+.
+We use \[lq]roff\[rq] to denote features that are universal,
+or nearly so,
+among implementations of this family.
+.
+We apply the term \[lq]groff\[rq] to the language documented here,
+the GNU implementation of the overall system,
+the project that develops that system,
+and the command of that name.
+.
+.
+.P
+GNU
+.IR troff , \" GNU
+installed on this system as
+.MR \%troff 1 ,
+is the
+.I formatter:
+a program that reads device and font descriptions
+(\c
+.MR groff_font 5 ),
+interprets the
+.I groff
+language expressed in text input files,
+and translates that input into a device-independent output format
+(\c
+.MR groff_out 5 )
+that is usually then post-processed by an output driver to produce
+PostScript,
+PDF,
+HTML,
+DVI,
+or terminal output.
+.
+.
+.\" ====================================================================
+.SH "Input format"
+.\" ====================================================================
+.
+Input to GNU
+.I troff \" GNU
+is organized into lines separated by the Unix newline character
+(U+000A),
+and must be in one of two character encodings it can recognize:
+IBM code page 1047 on EBCDIC systems,
+and ISO\~Latin-1 (8859-1) otherwise.
+.
+Use of ISO\~646-1991:IRV (\[lq]US-ASCII\[rq]) or (equivalently) the
+\[lq]Basic Latin\[rq]
+subset of ISO\~10646 (\[lq]Unicode\[rq]) is recommended;
+see
+.MR groff_char 7 .
+.
+The
+.MR preconv 1
+preprocessor transforms other encodings,
+including UTF-8,
+to satisfy
+.IR \%troff 's
+requirements.
+.
+.
+.\" ====================================================================
+.SH "Syntax characters"
+.\" ====================================================================
+.
+Several input characters are syntactically significant to
+.IR groff .
+.
+.
+.IP . 4n
+A dot at the beginning of an input line marks it as a
+.I control line.
+.
+It can also follow the
+.request .el
+and
+.request .nop
+requests,
+and the condition in
+.request .if ,
+.request .ie ,
+and
+.request .while
+requests.
+.
+The control character invokes requests and calls macros by the name that
+follows it.
+.
+The
+.request .cc
+request can change the control character.
+.
+.
+.IP \[aq]
+The neutral apostrophe is the
+.I "no-break control character,"
+recognized where the control character is.
+.
+It suppresses the (first) break implied by the
+.request .bp ,
+.request .cf ,
+.request .fi ,
+.request .fl ,
+.request .in ,
+.request .nf ,
+.request .rj ,
+.request .sp ,
+.request .ti ,
+and
+.request .trf
+requests.
+.
+The requested operation takes effect at the next break.
+.
+It makes
+.request .br
+nilpotent.
+.
+The no-break control character can be changed with the
+.request .c2
+request.
+.
+When formatted,
+.RB \[lq] \[aq] \[rq]
+may be typeset as a typographical quotation mark;
+use the
+.esc [aq]
+special character escape sequence to format a neutral apostrophe glyph.
+.
+.
+.IP \[dq]
+The neutral double quote can be used to enclose arguments to macros and
+strings,
+and is required if those arguments contain space or tab characters.
+.
+In the
+.request .ds ,
+.request .ds1 ,
+.request .as ,
+and
+.request .as1
+requests,
+an initial neutral double quote in the second argument is stripped off
+to allow embedding of leading spaces.
+.
+To include a double quote inside a quoted argument,
+use the
+.esc [dq]
+special character escape sequence
+(which also serves to typeset the glyph in text).
+.
+.
+.IP \[rs]
+A backslash introduces an escape sequence.
+.
+The escape character can be changed with the
+.request .ec
+request;
+.request .eo
+disables escape sequence recognition.
+.
+Use the
+.esc [rs]
+special character escape sequence to format a backslash glyph,
+and
+.esc e
+to typeset the glyph of the current escape character.
+.
+.
+.IP (
+An opening parenthesis is special only in certain escape sequences;
+when recognized,
+it introduces an argument of exactly two characters.
+.
+.I groff
+offers the more flexible square bracket syntax.
+.
+.
+.IP [
+An opening bracket is special only in certain escape sequences;
+when recognized,
+it introduces an argument (list) of any length,
+not including a closing bracket.
+.
+.
+.IP ]
+A closing bracket is special only when an escape sequence using an
+opening bracket as an argument delimiter is being interpreted.
+.
+It ends the argument (list).
+.
+.
+.P
+Additionally,
+the Control+A character (U+0001) in text is interpreted as a
+.I leader
+(see below).
+.
+.
+.P
+Horizontal white space characters are significant to
+.I groff,
+but trailing spaces on text lines are ignored.
+.\" slack text for widow/orphan control: trailing tabs are not
+.
+.
+.TP 8n
+.I space
+Space characters separate arguments in request invocations,
+macro calls,
+and string interpolations.
+.
+In text,
+they separate words.
+.
+Multiple adjacent space characters in text cause
+.I groff
+to attempt end-of-sentence detection on the preceding word
+(and trailing punctuation).
+.
+The amount of space between words and sentences is controlled by the
+.request .ss
+request.
+.
+When filling is enabled
+(the default),
+a line may be broken at a space.
+.
+When adjustment is enabled
+(the default),
+inter-word spaces are expanded until the output line reaches the
+configured length.
+.
+An adjustable but non-breaking space is available with
+.esc \[ti] .
+.
+To get a space of fixed width,
+use one of the escape sequences
+.squoted_char "\[rs]\~"
+(the escape character followed by a space),
+.esc 0 ,
+.esc | ,
+.esc \[ha] ,
+or
+.esc h ;
+see section \[lq]Escape sequences\[rq] below.
+.
+.
+.TP
+.I newline
+In text,
+a newline puts an inter-word space onto the output and,
+if filling is enabled,
+triggers end-of-sentence recognition on the preceding text.
+.
+See section \[lq]Line continuation\[rq] below.
+.
+.
+.TP
+.I tab
+A tab character in text causes the drawing position to advance to the
+next defined tab stop.
+.
+.
+.\" ====================================================================
+.SH "Tabs and leaders"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Tabs and
+.\" Leaders".
+The formatter interprets input horizontal tab characters
+(\[lq]tabs\[rq]) and Control+A characters (\[lq]leaders\[rq]) into
+movements to the next tab stop.
+.
+Tabs simply move to the next tab stop;
+leaders place enough periods to fill the space.
+.
+Tab stops are by default located every half inch measured from the
+drawing position corresponding to the beginning of the input line;
+see section \[lq]Page geometry\[rq] of
+.MR roff 7 .
+.
+Tabs and leaders do not cause breaks and therefore do not interrupt
+filling.
+.
+Tab stops can be configured with the
+.B ta
+request,
+and tab and leader glyphs with the
+.B tc
+and
+.B lc
+requests,
+respectively.
+.\" END Keep (roughly) parallel with groff.texi node "Tabs and Leaders".
+.
+.
+.\" ====================================================================
+.SH "Line continuation"
+.\" ====================================================================
+.
+When filling is enabled,
+input and output line breaks generally do not correspond.
+.
+The
+.I roff
+language therefore distinguishes input and output line continuation.
+.
+.
+.P
+A backslash
+.B \[rs]
+immediately followed by a newline,
+sometimes discussed as
+.BI \[rs] newline\c
+,
+suppresses the effects of that newline
+on the input.
+.
+The next input line thus retains the classification of its predecessor
+as a control or text line.
+.
+.BI \[rs] newline
+is useful for managing line lengths in the input during document
+maintenance;
+you can break an input line in the middle of a request invocation,
+macro call,
+or escape sequence.
+.
+Input line continuation is invisible to the formatter,
+with two exceptions:
+the
+.B \[or]
+operator recognizes the new input line,
+and the input line counter register
+.B .c
+is incremented.
+.
+.
+.P
+The
+.esc c
+escape sequence continues an
+.I output
+line.
+.
+Nothing on the input line after it is formatted.
+.
+In contrast to
+.BI \[rs] newline\c
+,
+a line after
+.esc c
+is treated as a new input line,
+so a control character is recognized at its beginning.
+.
+The visual results depend on whether filling is enabled.
+.
+An intervening control line that causes a break overrides
+.esc c ,
+flushing out the pending output line in the usual way.
+.
+The
+.register .int
+contains a positive value if the last output line was continued with
+.esc c ;
+this datum is associated with the
+environment.
+.
+.
+.\" ====================================================================
+.SH Colors
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Colors".
+.I groff
+supports color output with a variety of color spaces and up to 16 bits
+per channel.
+.
+Some devices,
+particularly terminals,
+may be more limited.
+.
+When color support is enabled,
+two colors are current at any given time:
+the
+.I stroke color,
+with which glyphs,
+rules (lines),
+and geometric objects like circles and polygons are drawn,
+and the
+.I fill color,
+which can be used to paint the interior of a closed geometric figure.
+.
+The
+.BR color ,
+.BR defcolor ,
+.BR gcolor ,
+and
+.B fcolor
+requests;
+.B \[rs]m
+and
+.B \[rs]M
+escape sequences;
+and
+.BR .color ,
+.BR .m ,
+and
+.B .M
+registers exercise color support.
+.
+.
+.P
+Each output device has a color named
+.RB \[lq] default \[rq],
+which cannot be redefined.
+.
+A device's default stroke and fill colors are not necessarily the same.
+.
+For the
+.BR dvi ,
+.BR html ,
+.BR pdf ,
+.BR ps ,
+and
+.B xhtml
+output devices,
+.I \%troff
+automatically loads a macro file defining many color names at startup.
+.
+By the same mechanism,
+the devices supported by
+.MR grotty 1
+recognize the eight standard ISO\~6429/ECMA-48 color names
+(also known vulgarly as \[lq]ANSI colors\[rq]).
+.\" END Keep (roughly) parallel with groff.texi node "Colors".
+.
+.
+.br
+.ne 3v
+.\" ====================================================================
+.SH Measurements
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Measurements".
+Numeric parameters that specify measurements are expressed as
+integers or decimal fractions with an optional
+.I scaling unit
+suffixed.
+.
+A scaling unit is a letter that immediately follows the last digit of a
+number.
+.
+Digits after the decimal point are optional.
+.
+.
+.P
+Measurements are scaled by the scaling unit and stored internally
+(with any fractional part discarded)
+in basic units.
+.
+The device resolution can therefore be obtained by storing a value of
+.RB \[lq] 1i \[rq]
+to a register.
+.
+The only constraint on the basic unit is that it is at least as small as
+any other unit.
+.\" That's a fib.  A device resolution of around 2^31 would surely also
+.\" cause problems.  But nobody does that.
+.
+.
+.P
+.LS
+.TP
+.B u
+Basic unit.
+.
+.TP
+.B i
+Inch;
+defined as 2.54\~centimeters.
+.
+.TP
+.B c
+Centimeter.
+.
+.TP
+.B p
+Point;
+a typesetter's unit used for measuring type size.
+.
+There are 72\~points to an inch.
+.
+.TP
+.B P
+Pica;
+another typesetter's unit.
+.
+There are 6\~picas to an inch and 12\~points to a pica.
+.
+.TP
+.BR s ,\~ z
+Scaled points and multiplication by the output device's
+.I sizescale
+parameter,
+respectively.
+.
+.TP
+.B f
+Multiplication by 65,536;
+.
+scales decimal fractions in the interval [0, 1] to 16-bit unsigned
+integers.
+.LE
+.
+.
+.P
+The magnitudes of other scaling units depend on the text formatting
+parameters in effect.
+.
+.
+.P
+.LS
+.TP
+.B m
+Em;
+an em is equal to the current type size in points.
+.
+.TP
+.B n
+En;
+an en is one-half em.
+.
+.TP
+.B v
+Vee;
+distance between text baselines.
+.
+.TP
+.B M
+Hundredth of an em.
+.LE
+.\" END Keep (roughly) parallel with groff.texi node "Measurements".
+.
+.
+.\" ====================================================================
+.SS "Motion quanta"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Motion Quanta".
+An output device's basic unit
+.B u
+is not necessarily its smallest addressable length;
+.B u
+can be smaller to avoid problems with integer roundoff.
+.
+The minimum distances that a device can work with in the horizontal and
+vertical directions are termed its
+.I "motion quanta,"
+stored in the
+.B .H
+and
+.B .V
+registers,
+respectively.
+.
+Measurements are rounded to applicable motion quanta.
+.
+Half-quantum fractions round toward zero.
+.\" END Keep (roughly) parallel with groff.texi node "Motion Quanta".
+.
+.
+.\" ====================================================================
+.SS "Default units"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Default Units".
+A general-purpose register
+(one created or updated with the
+.B nr
+request;
+see section \[lq]Registers\[rq] below)
+is implicitly dimensionless,
+or reckoned in basic units if interpreted in a measurement context.
+.
+But it is convenient for many requests and escape sequences to infer a
+scaling unit for an argument if none is specified.
+.
+An explicit scaling unit
+(not after a closing parenthesis)
+can override an undesirable default.
+.
+Effectively,
+the default unit is suffixed to the expression if a scaling unit is not
+already present.
+.
+GNU
+.IR troff 's \" GNU
+use of integer arithmetic should also be kept in mind;
+see below.
+.\" END Keep (roughly) parallel with groff.texi node "Default Units".
+.
+.
+.\" ====================================================================
+.SH "Numeric expressions"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Numeric
+.\" expressions".
+A
+.I numeric expression
+evaluates to an integer.
+.
+The following operators are recognized.
+.\"evaluates to an integer:
+.\"it can be as simple as a literal
+.\".RB \[lq] 0 \[rq]
+.\"or it can be a complex sequence of register and string interpolations
+.\"interleaved with measurement operators.
+.
+.
+.P
+.TS
+Rf(CR) L.
++	addition
+\-	subtraction
+*	multiplication
+/	truncating division
+%	modulus
+_
+\f[R]unary\f[] +	assertion, motion, incrementation
+\f[R]unary\f[] \-	negation, motion, decrementation
+_
+;	scaling
+>?	maximum
+<?	minimum
+_
+<	less than
+>	greater than
+<=	less than or equal
+>=	greater than or equal
+\&=	equal
+==	equal
+_
+&	logical conjunction (\[lq]and\[rq])
+:	logical disjunction (\[lq]or\[rq])
+!	logical complementation (\[lq]not\[rq])
+_
+( )	precedence
+_
+|	boundary-relative motion
+.TE
+.
+.
+.P
+.I \%troff
+provides a set of mathematical and logical operators familiar to
+programmers\[em]as well as some unusual ones\[em]but supports only
+integer arithmetic.
+.
+(Provision is made for interpreting and
+reporting decimal fractions in certain cases.)
+.
+The internal data type used for computing results is usually a 32-bit
+signed integer,
+which suffices to represent magnitudes within a range of \[+-]2
+billion.
+.
+(If that's not enough, see
+.MR groff_tmac 5
+for the
+.I 62bit.tmac
+macro package.)
+.
+.
+.P
+Arithmetic infix operators perform a function on the numeric expressions
+to their left and right;
+they are
+.B +
+(addition),
+.B \-
+(subtraction),
+.B *
+(multiplication),
+.B /
+(truncating division),
+and
+.B %
+(modulus).
+.
+.I Truncating division
+rounds to the integer nearer to zero,
+no matter how large the fractional portion.
+.
+Overflow and division
+(or modulus)
+by zero are errors and abort evaluation of a numeric expression.
+.
+.
+.P
+Arithmetic unary operators operate on the numeric expression to their
+right;
+they are
+.B \-
+(negation)
+and
+.B +
+(assertion\[em]for completeness;
+it does nothing).
+.
+The unary minus must often be used with parentheses to avoid confusion
+with the decrementation operator,
+discussed below.
+.
+.
+.P
+The sign of the modulus of operands of mixed signs is determined by the
+sign of the first.
+.
+Division and modulus operators satisfy the following property:
+given a
+.RI dividend\~ a
+and a
+.RI divisor\~ b ,
+a
+.RI quotient\~ q
+formed by
+.RB \[lq] "(a / b)" \[rq]
+and a
+.RI remainder\~ r
+by
+.RB \[lq] "(a % b)" \[rq],
+then
+.IR qb \~+\~ r \~=\~ a .
+.
+.
+.P
+GNU
+.IR troff 's \" GNU
+scaling operator,
+used with parentheses as
+.BI ( c ; e )\c
+,
+evaluates a numeric
+.RI expression\~ e
+.RI using\~ c
+as the default scaling unit.
+.
+If
+.I c
+is omitted,
+scaling units are ignored in the evaluation
+.RI of\~ e .
+.
+GNU
+.I troff \" GNU
+also provides a pair of operators to compute the extrema of two
+operands:
+.B >?\&
+(maximum)
+and
+.B <?\&
+(minimum).
+.
+.
+.P
+Comparison operators comprise
+.B <
+(less than),
+.B >
+(greater than),
+.B <=
+(less than or equal),
+.B >=
+(greater than or equal),
+and
+.B =
+(equal).
+.
+.B ==
+is a synonym for
+.BR = .
+.
+When evaluated,
+a comparison is replaced with
+.RB \[lq] 0 \[rq]
+if it is false and
+.RB \[lq] 1 \[rq]
+if true.
+.
+In the
+.I roff
+language,
+positive values are true,
+others false.
+.
+.
+.P
+We can operate on truth values with the logical operators
+.B &
+(logical conjunction or \[lq]and\[rq])
+and
+.B :
+(logical disjunction or \[lq]or\[rq]).
+.
+They evaluate as comparison operators do.
+.
+A logical complementation (\[lq]not\[rq]) operator,
+.B !\&,
+works only within
+.RB \[lq] if \[rq],
+.RB \[lq] ie \[rq],
+and
+.RB \[lq] while \[rq]
+requests.
+.
+.\" This is worded to avoid implying that the operator doesn't apply to
+.\" conditional expressions in general, albeit without mentioning them
+.\" because they're out of scope.
+Furthermore,
+.B !\&
+is recognized only at the beginning of a numeric expression not
+contained by another numeric expression.
+.
+In other words,
+it must be the \[lq]outermost\[rq] operator.
+.
+Including it elsewhere in the expression produces a warning in the
+.RB \%\[lq] number \[rq]
+category
+(see
+.MR \%troff 1 ),
+and its expression evaluates false.
+.
+This unfortunate limitation maintains compatibility with AT&T
+.IR troff .\" AT&T
+.
+Test a numeric expression for falsity by comparing it to a false value.
+.
+.
+.P
+The
+.I roff
+language has no operator precedence:
+expressions are evaluated strictly from left to right,
+in contrast to schoolhouse arithmetic.
+.
+Use parentheses
+.B ( )
+to impose a desired precedence upon subexpressions.
+.
+.
+.P
+For many requests and escape sequences that cause motion on the page,
+the unary operators
+.B +
+and
+.B \-
+work differently when leading a numeric expression.
+.
+They then indicate a motion relative to the drawing position:
+positive is down in vertical contexts,
+right in horizontal ones.
+.
+.
+.P
+.B +
+and
+.B \-
+are also treated differently by the following requests and escape
+sequences:
+.BR bp ,
+.BR in ,
+.BR ll ,
+.BR pl ,
+.BR pn ,
+.BR po ,
+.BR ps ,
+.BR pvs ,
+.BR rt ,
+.BR ti ,
+.BR \[rs]H ,
+.BR \[rs]R ,
+and
+.BR \[rs]s .
+.
+Here,
+leading plus and minus signs serve as incrementation and decrementation
+operators,
+respectively.
+.
+To negate an expression,
+subtract it from zero
+or include the unary minus in parentheses with its argument.
+.\" @xref{Setting Registers}, for examples.
+.
+.
+.P
+A leading
+.B \[or]
+operator indicates a motion relative not to the drawing position but to
+a boundary.
+.
+For horizontal motions,
+the measurement specifies a distance relative to a drawing position
+corresponding to the beginning of the
+.I input
+line.
+.
+By default,
+tab stops reckon movements in this way.
+Most escape sequences do not;
+.\" XXX: Which ones do?
+.B \[or]
+tells them to do so.
+.
+For vertical motions,
+the
+.B \[or]
+operator specifies a distance from the first text baseline on the page
+or in the current diversion,
+using the current vertical spacing.
+.
+.
+.P
+The
+.B \[rs]B
+escape sequence tests its argument for validity as a numeric expression.
+.
+.
+.br
+.ne 2v
+.P
+A register interpolated as an operand in a numeric expression must have
+an Arabic format;
+luckily,
+this is the default.\" @xref{Assigning Register Formats}.
+.
+.
+.P
+Due to the way arguments are parsed,
+spaces are not allowed in numeric expressions unless the (sub)expression
+containing them is surrounded by parentheses.
+.\"@xref{Request and Macro Arguments}, and @ref{Conditionals and Loops}.
+.\" END Keep (roughly) parallel with groff.texi node "Numeric
+.\" expressions".
+.
+.
+.\" ====================================================================
+.SH Identifiers
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Identifiers".
+An
+.I identifier
+labels a GNU
+.I troff \" GNU
+datum such as a register,
+name
+(macro,
+string,
+or diversion),
+typeface,
+color,
+special character,
+character class,
+environment,
+or stream.
+.
+Valid identifiers consist of one or more ordinary characters.
+.
+An
+.I ordinary character
+is an input character that is not the escape character,
+a leader,
+tab,
+newline,
+or invalid as GNU
+.I troff \" GNU
+input.
+.
+.
+.\" XXX: We might move this discussion earlier since it is applicable to
+.\" troff input in general, and include a reference to the `trin`
+.\" request.
+.P
+Invalid input characters are subset of control characters
+(from the sets \[lq]C0 Controls\[rq] and \[lq]C1 Controls\[rq] as
+Unicode describes them).
+.
+When
+.I \%troff
+encounters one in an identifier,
+it produces a warning in category
+.RB \%\[lq] input \[rq]
+(see section \[lq]Warnings\[rq] in
+.MR \%troff 1 ).
+.
+They are removed during interpretation:
+an identifier \[lq]foo\[rq],
+followed by an invalid
+character and then \[lq]bar\[rq],
+is processed as \[lq]foobar\[rq].
+.
+.
+.P
+On a machine using the ISO 646,
+8859,
+or 10646 character encodings,
+invalid input characters are
+.BR 0x00 ,
+.BR 0x08 ,
+.BR 0x0B ,
+.BR 0x0D \[en] 0x1F ,
+and
+.BR 0x80 \[en] 0x9F .
+.
+On an EBCDIC host,
+they are
+.BR 0x00 \[en] 0x01 ,
+.BR 0x08 ,
+.BR 0x09 ,
+.BR 0x0B ,
+.BR 0x0D \[en] 0x14 ,
+.BR 0x17 \[en] 0x1F ,
+and
+.BR 0x30 \[en] 0x3F .
+.
+Some of these code points are used by
+.I \%troff
+internally,
+making it non-trivial to extend the program to accept UTF-8 or other
+encodings that use characters from these ranges.
+.
+.
+.P
+An identifier with a closing bracket (\[lq]]\[rq]) in its name can't be
+accessed with bracket-form escape sequences that expect an identifier as
+a parameter.
+.
+Similarly,
+the
+identifier \[lq](\[rq] can't be interpolated
+.I except
+with bracket forms.
+.
+.
+.P
+If you begin a macro,
+string,
+or diversion name with either of the characters \[lq][\[rq] or
+\[lq]]\[rq],
+you foreclose use of the
+.MR \%refer 1
+preprocessor,
+which recognizes \[lq].[\[rq] and \[lq].]\[rq] as bibliographic
+reference delimiters.
+.
+.
+.P
+The escape sequence
+.B \[rs]A
+tests its argument for validity as an identifier.
+.
+.
+.P
+How GNU
+.I troff \" GNU
+handles the interpretation of an undefined identifier depends on the
+context.
+.
+There is no way to invoke an undefined request;
+such syntax is interpreted as a macro call instead.
+.
+If the identifier is interpreted as a string,
+macro,
+or diversion,
+.I \%troff
+emits a warning in category
+.RB \[lq] mac \[rq],
+defines it as empty,
+and interpolates nothing.
+.
+If the identifier is interpreted as a register,
+.I \%troff
+emits a warning in category
+.RB \[lq] reg \[rq],
+initializes it to zero,
+and interpolates that value.
+.
+See section \[lq]Warnings\[rq] in
+.MR \%troff 1 ,
+and subsection \[lq]Interpolating registers\[rq] and section
+\[lq]Strings\[rq] below.
+.
+Attempting to use an undefined
+typeface,
+style,
+special character,
+color,
+character class,
+environment,
+or stream generally provokes an error diagnostic.
+.
+.
+.P
+Identifiers for requests,
+macros,
+strings,
+and diversions share one name
+space;
+special characters and character classes another.
+.
+No other object types do.
+.\" END Keep (roughly) parallel with groff.texi node "Identifiers".
+.
+.
+.\" ====================================================================
+.SH "Control characters"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Control
+.\" Characters".
+.\" The mechanism of using @code{roff}'s control characters to invoke
+.\" requests and call macros was introduced in @ref{Requests and Macros}.
+Control characters are recognized only at the beginning of an input
+line,
+or at the beginning of the branch of a control structure request;
+.\" see @ref{Conditionals and Loops}.
+see section \[lq]Control structures\[rq] below.
+.
+.
+.P
+A few requests cause a break implicitly;
+use the no-break control character to prevent the break.
+.
+Break suppression is its sole behavioral distinction.
+.
+Employing the no-break control character to invoke requests that don't
+cause breaks is harmless but poor style.
+.
+.
+.P
+The control character
+.RB \[lq] .\& \[rq]
+and the no-break control character
+.RB \[lq] \|\[aq]\| \[rq]
+can be changed with the
+.B cc
+and
+.B c2
+requests,
+respectively.
+.
+Within a macro definition,
+.\" you might wish to know
+register
+.B .br
+indicates the control character used to call it.
+.\" END Keep (roughly) parallel with groff.texi node "Control
+.\" Characters".
+.
+.
+.\" ====================================================================
+.SH "Invoking requests"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Invoking
+.\" Requests".
+A control character is optionally followed by tabs and/or spaces and
+then an identifier naming a request or macro.
+.
+The invocation of an unrecognized request is interpreted as a macro
+call.
+.
+Defining a macro with the same name as a request replaces the request.
+.
+Deleting a request name with the
+.B rm
+request makes it unavailable.
+.
+The
+.B als
+request can alias requests,
+permitting them to be wrapped or non-destructively replaced.
+.
+See section \[lq]Strings\[rq] below.
+.
+.
+.br
+.ne 4v
+.P
+There is no inherent limit on argument length or quantity.
+.
+Most requests take one or more arguments,
+and ignore any they do not expect.
+.
+A request may be separated from its arguments by tabs or spaces,
+but only spaces can separate an argument from its successor.
+.
+Only one between arguments is necessary;
+any excess is ignored.
+.
+GNU
+.I troff \" GNU
+does not allow tabs for argument separation.
+.\" @footnote{In compatibility mode, a space is not necessary after a
+.\" request or macro name of two characters' length.  Also, Plan@tie{}9
+.\" @code{troff} allows tabs to separate arguments.}
+.
+.
+.br
+.ne 3v
+.P
+Generally,
+a space
+.I within
+a request argument is not relevant,
+not meaningful,
+or is supported by bespoke provisions,
+as with the
+.B tl
+request's delimiters.
+.
+Some requests,
+like
+.BR ds ,
+interpret the remainder of the control line as a single argument.
+.
+See section \[lq]Strings\[rq] below.
+.
+.
+.P
+Spaces and tabs immediately after a control character are ignored.
+.
+Commonly,
+authors structure the source of documents or macro files with them.
+.\" END Keep (roughly) parallel with groff.texi node "Requests".
+.
+.
+.\" ====================================================================
+.SH "Calling macros"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Calling Macros".
+If a macro of the desired name does not exist when called,
+it is created,
+assigned an empty definition,
+and a warning in category
+.RB \[lq] mac \[rq]
+is emitted.
+.
+Calling an undefined macro
+.I does
+end a macro definition naming it as its end macro
+(see section \[lq]Writing macros\[rq] below).
+.
+.
+.P
+To embed spaces
+.I within
+a macro argument,
+enclose the argument in neutral double quotes
+.RB \[oq] \|\[dq]\| \[cq].
+.
+Horizontal motion escape sequences are sometimes a better choice for
+arguments to be formatted as text.
+.
+.
+.P
+The foregoing raises the question of how to embed neutral double quotes
+or backslashes in macro arguments when
+.I those
+characters are desired as literals.
+.
+In GNU
+.IR troff , \" GNU
+the special character escape sequence
+.B \[rs][rs]
+produces a backslash and
+.B \[rs][dq]
+a neutral double quote.
+.
+.
+.P
+In GNU
+.IR troff 's \" GNU
+AT&T compatibility mode,
+these characters remain available as
+.B \[rs](rs
+and
+.BR \[rs](dq ,
+respectively.
+.
+AT&T
+.I troff \" AT&T
+did not consistently define these special characters,
+.\" It seems that AT&T troff never recognized \(rs, though DWB 3.3
+.\" defined \(bs as an alias of "\" on its "Latin1" device, in
+.\" deliberate(?) collision with the Bell System logo identifier.  It
+.\" also defined \(dq for several devices (pcl, Latin1, nroff, ...)
+.\" along with \(aq.
+but its descendants can be made to support them.
+.
+See
+.MR groff_font 5 .
+.
+If even that is not feasible,
+.\" Nope nope nope--if you're this much of a masochist, go read Texinfo.
+see the \[lq]Calling Macros\[rq] section of the
+.I groff
+Texinfo manual for the complex macro argument quoting rules of AT&T
+.IR troff . \" AT&T
+.\" END Keep (roughly) parallel with groff.texi node "Calling Macros".
+.
+.
+.\" ====================================================================
+.SH "Using escape sequences"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Using Escape
+.\" Sequences".
+Whereas requests must occur on control lines,
+escape sequences can occur intermixed with text and may appear in
+arguments to requests,
+macros,
+and other escape sequences.
+.
+An escape sequence is introduced by the escape character,
+a backslash
+.BR \[rs] .
+.\" (but see the @code{ec} request below)
+.
+The next character selects the escape's function.
+.
+.
+.P
+Escape sequences vary in length.
+.
+Some take an argument,
+and of those,
+some have different syntactical forms for a one-character,
+two-character,
+or arbitrary-length argument.
+.
+Others accept
+.I only
+an arbitrary-length argument.
+.
+In the former scheme,
+a one-character argument follows the function character immediately,
+an opening parenthesis
+.RB \[lq] ( \[rq]
+introduces a two-character argument
+(no closing parenthesis is used),
+and an argument of arbitrary length is enclosed in brackets
+.RB \[lq] [] \[rq].
+.
+In the latter scheme,
+the user selects a delimiter character.
+.
+A few escape sequences are idiosyncratic,
+and support both of the foregoing conventions
+.RB ( \|\[rs]s ),
+designate their own termination sequence
+.RB ( \|\[rs]? ),
+consume input until the next newline
+.RB ( \|\[rs]! ,
+.BR \|\[rs]" ,
+.BR \|\[rs]# ),
+or support an additional modifier character
+.RB ( \|\[rs]s
+again,
+and
+.BR \|\[rs]n ).
+.\" As with requests, use of some escape sequences in source documents
+.\" may interact poorly with a macro package you use; consult its
+.\" documentation to learn of ``safe'' sequences or alternative
+.\" facilities it provides to achieve the desired result.
+.
+.
+.P
+If an escape character is followed by a character that does not
+identify a defined operation,
+the escape character is ignored
+(producing
+a diagnostic of the
+.RB \[lq] escape \[rq]
+warning category,
+which is not enabled by default)
+and the following character is processed normally.
+.
+.
+.P
+Escape sequence interpolation is of higher precedence than escape
+sequence argument interpretation.
+.
+This rule affords flexibility in using escape sequences to construct
+parameters to other escape sequences.
+.
+.
+.P
+The escape character can be interpolated
+.RB ( \[rs]e ).
+.
+Requests permit the escape mechanism to be deactivated
+.RB ( eo )
+and restored,
+or the escape character changed
+.RB ( ec ),
+and to save and restore it
+.RB ( ecs
+and
+.BR ecr ).
+.\" END Keep (roughly) parallel with groff.texi node "Using Escape
+.\" Sequences".
+.
+.
+.\" ====================================================================
+.SH Delimiters
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Delimiters".
+Some escape sequences that require parameters use delimiters.
+.
+The neutral apostrophe
+.B \[aq]
+is a popular choice and shown in this document.
+.
+The neutral double quote
+.B \[dq]
+is also commonly seen.
+.
+Letters,
+numerals,
+and leaders can be used.
+.
+Punctuation characters are likely better choices,
+except for those defined as infix operators in numeric expressions;
+see below.
+.
+.
+.br
+.ne 2v
+.P
+The following escape sequences don't take arguments and thus are allowed
+as delimiters:
+.BI \[rs] space\c
+,
+.BR \[rs]% ,
+.BR \[rs]| ,
+.BR \[rs]\[ha] ,
+.BR \[rs]{ ,
+.BR \[rs]} ,
+.BR \[rs]\[aq] ,
+.BR \[rs]\[ga] ,
+.BR \[rs]\- ,
+.BR \[rs]_ ,
+.BR \[rs]! ,
+.BR \[rs]? ,
+.BR \[rs]) ,
+.BR \[rs]/ ,
+.BR \[rs], ,
+.BR \[rs]& ,
+.BR \[rs]: ,
+.BR \[rs]\[ti] ,
+.BR \[rs]0 ,
+.BR \[rs]a ,
+.BR \[rs]c ,
+.BR \[rs]d ,
+.BR \[rs]e ,
+.BR \[rs]E ,
+.BR \[rs]p ,
+.BR \[rs]r ,
+.BR \[rs]t ,
+and
+.BR \[rs]u .
+.
+However,
+using them this way is discouraged;
+they can make the input confusing to read.
+.
+.
+.P
+A few escape sequences,
+.BR \[rs]A ,
+.BR \[rs]b ,
+.BR \[rs]o ,
+.BR \[rs]w ,
+.BR \[rs]X ,
+and
+.BR \[rs]Z ,
+accept a newline as a delimiter.
+.
+Newlines that serve as delimiters continue to be recognized as input
+line terminators.
+.
+Use of newlines as delimiters in escape sequences is also discouraged.
+.
+.
+.br
+.ne 2v
+.P
+Finally,
+the escape sequences
+.BR \[rs]D ,
+.BR \[rs]h ,
+.BR \[rs]H ,
+.BR \[rs]l ,
+.BR \[rs]L ,
+.BR \[rs]N ,
+.BR \[rs]R ,
+.BR \[rs]s ,
+.BR \[rs]S ,
+.BR \[rs]v ,
+and
+.B \[rs]x
+prohibit many delimiters.
+.
+.
+.RS
+.IP \[bu] 2n
+the numerals 0\[en]9 and the decimal point
+.RB \[lq] . \[rq]
+.
+.
+.IP \[bu]
+the (single-character) operators
+.B +\-/*%<>=&:()
+.
+.
+.IP \[bu]
+any escape sequences other than
+.BR \[rs]% ,
+.BR \[rs]: ,
+.BR \[rs]{ ,
+.BR \[rs]} ,
+.BR \[rs]\[aq] ,
+.BR \[rs]\[ga] ,
+.BR \[rs]\- ,
+.BR \[rs]_ ,
+.BR \[rs]! ,
+.BR \[rs]/ ,
+.BR \[rs]c ,
+.BR \[rs]e ,
+and
+.B \[rs]p
+.RE
+.
+.
+.P
+Delimiter syntax is complex and flexible primarily for historical
+reasons;
+the foregoing restrictions need be kept in mind mainly when using
+.I groff
+in AT&T compatibility mode.
+.
+GNU
+.I troff \" GNU
+keeps track of the nesting depth of escape sequence interpolations,
+so the only characters you need to avoid using as delimiters are those
+that appear in the arguments you input,
+not any that result from interpolation.
+.
+Typically,
+.B \[aq]
+works fine.
+.
+See section \[lq]Implementation differences\[rq] in
+.MR groff_diff 7 .
+.\" END Keep (roughly) parallel with groff.texi node "Delimiters".
+.
+.
+.\" ====================================================================
+.SH "Dummy characters"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Dummy
+.\" Characters".
+As discussed in
+.MR roff 7 ,
+the first character on an input line is treated specially.
+.
+Further,
+formatting a glyph has many
+consequences on formatter state
+(see section \[lq]Environments\[rq] below).
+.
+Occasionally,
+we want to escape this context or embrace some of those consequences
+without actually rendering a glyph to the output.
+.
+.B \[rs]&
+interpolates a dummy character,
+which is constitutive of output but invisible.
+.
+Its presence alters the interpretation context of a subsequent input
+character,
+and enjoys several applications:
+preventing the insertion of extra space after an end-of-sentence
+character,
+preventing interpretation of a control character at the beginning of an
+input line,
+preventing kerning between two glyphs,
+and permitting the
+.B tr
+request to remap a character to \[lq]nothing\[rq].
+.
+.B \[rs])
+works as
+.B \[rs]&
+does,
+except that it does not cancel a pending end-of-sentence state.
+.\" END Keep (roughly) parallel with groff.texi node "Dummy Characters".
+.
+.
+.\" ====================================================================
+.SH "Control structures"
+.\" ====================================================================
+.
+.I groff
+has \[lq]if\[rq] and \[lq]while\[rq] control structures like other
+languages.
+.
+However,
+the syntax for grouping multiple input lines in the branches or bodies
+of these structures is unusual.
+.
+.
+.P
+They have a common form:
+the request name is
+(except for
+.request .el
+\[lq]else\[rq])
+followed by a conditional expression
+.IR cond-expr ;
+the remainder of the line,
+.IR anything ,
+is interpreted as if it were an input line.
+.
+Any quantity of spaces between arguments to requests serves only to
+separate them;
+leading spaces in
+.I anything
+are therefore not seen.
+.
+.I anything
+effectively
+.I cannot
+be omitted;
+if
+.I cond-expr
+is true and
+.I anything
+is empty,
+the newline at the end of the control line is interpreted as a blank
+line
+(and therefore a blank text line).
+.
+.
+.P
+It is frequently desirable for a control structure to govern more than
+one request,
+macro call,
+or text line,
+or a combination of the foregoing.
+.
+The opening and closing brace escape sequences
+.esc {
+and
+.esc }
+perform such grouping.
+.
+Brace escape sequences outside of control structures have no meaning and
+produce no output.
+.
+.
+.P
+.esc {
+should appear
+(after optional spaces and tabs)
+immediately subsequent to the request's conditional expression.
+.
+.esc }
+should appear on a line with other occurrences of itself as necessary to
+match
+.esc {
+sequences.
+.
+It can be preceded by a control character,
+spaces,
+and tabs.
+.
+Input after any quantity of
+.esc }
+sequences on the same line is processed only if all the preceding
+conditions to which they correspond are true.
+.
+Furthermore,
+a
+.esc }
+closing the body of a
+.request .while
+request must be the last such escape sequence on an input line.
+.
+.
+.\" ====================================================================
+.SS "Conditional expressions"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Operators in
+.\" Conditionals".
+The
+.request .if ,
+.request .ie ,
+and
+.request .while
+requests test the truth values of numeric expressions.
+.
+They also support several additional Boolean operators;
+the members of this expanded class are termed
+.IR "conditional expressions" ;
+their truth values are as shown below.
+.
+.
+.br
+.ne 3v
+.P
+.TS
+rf(BI) lB
+rB lx.
+cond-expr\f[R].\|.\|.	.\|.\|.is true if.\|.\|.
+_
+T{
+.BI \[aq] s1 \[aq] s2 \[aq]
+T}	T{
+.I s1
+produces the same formatted output as
+.IR s2 .
+T}
+T{
+.BI c\~ g
+T}	T{
+a glyph
+.I g
+is available.
+T}
+T{
+.BI d\~ m
+T}	T{
+a string,
+macro,
+diversion,
+or request
+.I m
+is defined.
+T}
+e	T{
+the current page number is even.
+T}
+T{
+.BI F\~ f
+T}	T{
+a font named
+.I f
+is available.
+T}
+T{
+.BI m\~ c
+T}	T{
+a color named
+.I c
+is defined.
+T}
+n	T{
+the formatter is in
+.I nroff
+mode.
+T}
+o	T{
+the current page number is odd.
+T}
+T{
+.BI r\~ n
+T}	T{
+a register named
+.I n
+is defined.
+T}
+T{
+.BI S\~ s
+T}	T{
+a font style named
+.I s
+is available.
+T}
+t	T{
+the formatter is in
+.I troff
+mode.
+T}
+v	T{
+n/a
+(historical artifact;
+always false).
+T}
+.TE
+.
+.
+.br
+.ne 2v
+.P
+If the first argument to an
+.BR .if ,
+.BR .ie ,
+or
+.B .while
+request begins with a non-alphanumeric character apart from
+.B !\&
+(see below);
+it performs an
+.I output comparison test.
+.
+Shown first in the table above,
+the
+.I output comparison operator
+interpolates a true value if formatting its comparands
+.I s1
+and
+.I s2
+produces the same output commands.
+.
+Other delimiters can be used in place of the neutral apostrophes.
+.
+.I \%troff
+formats
+.I s1
+and
+.I s2
+in separate environments;
+after the comparison,
+the resulting data are discarded.
+.
+The resulting glyph properties,
+including font family,
+style,
+size,
+and
+slant,
+must match,
+but not necessarily the requests and/or escape sequences used to obtain
+them.
+.
+Motions must match in orientation and magnitude to within the applicable
+horizontal or vertical motion quantum of the device,
+after rounding.
+.
+.\" TODO: Uncomment and add forward reference when we add a "GNU troff
+.\" internals" subsection to this page.
+.\"(All of this is to say that the lists of output nodes created by
+.\"formatting
+.\".I s1
+.\"and
+.\".I s2
+.\"must be identical.)
+.
+.
+.P
+Surround the comparands with
+.B \[rs]?\&
+to avoid formatting them;
+this causes them to be compared character by character,
+as with string comparisons in other programming languages.
+.
+Since comparands protected with
+.B \[rs]?\&
+are read in copy mode,
+they need not even be valid
+.I groff
+syntax.
+.
+The escape character is still lexically recognized,
+however,
+and consumes the next character.
+.
+.
+.P
+The above operators can't be combined with most others,
+but a leading
+.RB \[lq] !\& \[rq],
+not followed immediately by spaces or tabs,
+complements an expression.
+.
+Spaces and tabs are optional immediately after the
+.RB \[lq] c \[rq],
+.RB \[lq] d \[rq],
+.RB \[lq] F \[rq],
+.RB \[lq] m \[rq],
+.RB \[lq] r \[rq],
+and
+.RB \[lq] S \[rq]
+operators,
+but right after
+.RB \[lq] !\& \[rq],
+they end the predicate and the conditional evaluates true.
+.
+(This bizarre behavior maintains compatibility with AT&T
+.IR troff .)
+.\" END Keep (roughly) parallel with groff.texi node "Operators in
+.\" Conditionals".
+.
+.
+.\" ====================================================================
+.SH "Syntax reference conventions"
+.\" ====================================================================
+.
+In the following request and escape sequence specifications,
+most argument names were chosen to be descriptive.
+.
+A few denotations may require introduction.
+.
+.
+.P
+.LS
+.RS
+.
+.TPx
+.I c
+denotes a single input character.
+.
+.TPx
+.I font
+a font either specified as a font name or a numeric mounting position.
+.
+.TPx
+.I anything
+all characters up to the end of the line,
+to the ending delimiter for the escape sequence,
+or within
+.esc {
+and
+.esc } .
+.
+Escape sequences may generally be used freely in
+.IR anything ,
+except when it is read in copy mode.
+.
+.TPx
+.I message
+is a character sequence to be emitted on the standard error stream.
+.
+Special character escape sequences are
+.I not
+interpreted.
+.
+.TPx
+.I n
+is a numeric expression that evaluates to a non-negative integer.
+.
+.TPx
+.I npl
+is a numeric expression constituting a count of subsequent
+.I productive
+input lines;
+that is,
+those that directly produce formatted output.
+.
+Text lines produce output,
+as do control lines containing requests like
+.request .tl
+or escape sequences like
+.esc D .
+.
+Macro calls are not themselves productive,
+but their interpolated contents can be.
+.
+.TPx
+.I \[+-]N
+is a numeric expression with a meaning dependent on its sign.
+.RE
+.LE
+.
+.
+.P
+If a numeric expression presented as
+.I \[+-]N
+starts with a
+.squoted_char +
+sign,
+an increment in the amount of
+.RI of\~ N
+is applied to the value applicable to the request or escape sequence.
+.
+If it starts with a
+.squoted_char \-
+sign,
+a decrement of magnitude
+.I N
+is applied instead.
+.
+Without a sign,
+.I N
+replaces any existing value.
+.
+A leading minus sign
+.RI in\~ N
+is always interpreted as a decrementation operator,
+not an algebraic sign.
+.
+To assign a register a negative value or the negated value of another
+register,
+enclose it with its operand in
+parentheses or subtract it from zero.
+.
+If a prior value does not exist
+(the register was undefined),
+an increment or decrement is applied as if to\~0.
+.
+.
+.\" ====================================================================
+.SH "Request short reference"
+.\" ====================================================================
+.
+Not all details of request behavior are outlined here.
+.
+See the
+.I groff
+Texinfo manual or,
+for features new to GNU
+.IR troff , \" GNU
+.MR groff_diff 7 .
+.
+.
+.P
+.LS
+.
+.TPx
+.REQ .ab
+Abort processing;
+exit with failure status.
+.
+.TPx
+.REQ .ab message
+Abort processing;
+write
+.I message
+to the standard error stream and exit with failure status.
+.
+.
+.TPx
+.REQ .ad
+Enable output line alignment and adjustment using the mode stored in
+.BR \[rs]n[.j] .
+.
+.
+.TPx
+.REQ .ad c
+Enable output line alignment and adjustment in mode
+.I c
+.RI ( c =\c
+.BR b , c , l , n , r ).
+.
+Sets
+.BR \[rs]n[.j] .
+.
+.
+.TPx
+.REQ .af "register c"
+Assign format
+.I c
+to
+.IR register ,
+where
+.I c
+is
+.RB \[lq] i \[rq],
+.RB \[lq] I \[rq],
+.RB \[lq] a \[rq],
+.RB \[lq] A \[rq],
+or a sequence of decimal digits whose quantity denotes the minimum width
+in digits to be used when the register is interpolated.
+.
+.RB \[lq] i \[rq]
+and
+.RB \[lq] a \[rq]
+indicate Roman numerals and basic Latin alphabetics,
+respectively,
+in the lettercase specified.
+.
+The default is
+.BR 0 .
+.
+.TPx
+.REQ .aln "new old"
+Create alias
+(additional name)
+.I new
+for existing register named
+.IR old .
+.
+.TPx
+.REQ .als "new old"
+Create alias
+(additional name)
+.I new
+for existing request,
+string,
+macro,
+or diversion
+.IR old .
+.
+.TPx
+.REQ .am "macro"
+Append to
+.I macro
+until
+.B ..\&
+is encountered.
+.
+.TPx
+.REQ .am "macro end"
+Append to
+.I macro
+until
+.BI . end
+is called.
+.
+.TPx
+.REQ .am1 "macro"
+Same as
+.request .am
+but with compatibility mode switched off during macro expansion.
+.
+.TPx
+.REQ .am1 "macro end"
+Same as
+.request .am
+but with compatibility mode switched off during macro expansion.
+.
+.TPx
+.REQ .ami "macro"
+Append to a macro whose name is contained in the string
+.I macro
+until
+.B ..\&
+is encountered.
+.
+.TPx
+.REQ .ami "macro end"
+Append to a macro indirectly.
+.I macro
+and
+.I end
+are strings whose contents are interpolated for the macro name and the
+end macro,
+respectively.
+.
+.TPx
+.REQ .ami1 "macro"
+Same as
+.request .ami
+but with compatibility mode switched off during macro expansion.
+.
+.TPx
+.REQ .ami1 "macro end"
+Same as
+.request .ami
+but with compatibility mode switched off during macro expansion.
+.
+.TPx
+.REQ .as name
+Create string
+.I name
+with empty contents;
+no operation if
+.I name
+already exists.
+.
+.TPx
+.REQ .as "name contents"
+Append
+.I contents
+to string
+.IR name .
+.
+.TPx
+.REQ .as1 string
+.TQ
+.REQ .as1 "string contents"
+As
+.request .as ,
+but with compatibility mode disabled when
+.I contents
+interpolated.
+.
+.TPx
+.REQ .asciify "diversion"
+Unformat ASCII characters, spaces, and some escape sequences in
+.IR diversion .
+.
+.TPx
+.REQ .backtrace
+Write the state of the input stack to the standard error stream.
+.
+See the
+.B \-b
+option of
+.MR groff 1 .
+.
+.TPx
+.REQ .bd font
+Stop emboldening font
+.I font.
+.
+.TPx
+.REQ .bd "font n"
+Embolden
+.I font
+by overstriking its glyphs offset by
+.IR n \-1
+units.
+.
+See
+.register .b .
+.\" XXX: negative values accepted; check AT&T troff
+.
+.TPx
+.REQ .bd "special-font font"
+Stop emboldening
+.I special-font
+when
+.I font
+is selected.
+.
+.TPx
+.REQ .bd "special-font font n"
+Embolden
+.I special-font,
+overstriking its glyphs offset by
+.IR n \-1
+units when
+.I font
+is selected.
+.
+See
+.register .b .
+.
+.TPx
+.REQ .blm
+Unset blank line macro (trap).
+.
+Restore default handling of blank lines.
+.
+.
+.TPx
+.REQ .blm name
+Set blank line macro (trap) to
+.IR name .
+.
+.
+.TPx
+.REQ .box
+Stop directing output to current diversion;
+any pending output line is discarded.
+.
+.
+.TPx
+.REQ .box name
+Direct output to diversion
+.IR name ,
+omitting a partially collected line.
+.
+.
+.TPx
+.REQ .boxa
+Stop appending output to current diversion;
+any pending output line is discarded.
+.
+.
+.TPx
+.REQ .boxa name
+Append output to diversion
+.IR name ,
+omitting a partially collected line.
+.
+.
+.TPx
+.REQ .bp
+Break page and start a new one.
+.
+.TPx
+.REQ .bp "\[+-]N"
+Break page,
+starting a new one numbered
+.IR \[+-]N .
+.
+.TPx
+.REQ .br
+Break output line.
+.
+.TPx
+.REQ .brp
+Break output line;
+adjust if applicable.
+.
+.TPx
+.REQ .break
+Break out of a while loop.
+.
+.TPx
+.REQ .c2
+Reset no-break control character to
+.dquoted_char \[aq] .
+.
+.TPx
+.REQ .c2 "o"
+Recognize ordinary character
+.I o
+as no-break control character.
+.
+.TPx
+.REQ .cc
+Reset control character to
+.squoted_char . .
+.
+.TPx
+.REQ .cc "o"
+Recognize ordinary character
+.I o
+as the control character.
+.
+.TPx
+.REQ .ce
+Break,
+center the output of the next productive input line without filling,
+and break again.
+.
+.TPx
+.REQ .ce npl
+Break,
+center the output of the next
+.I npl
+productive input lines without filling,
+then break again.
+.
+If
+.I npl
+\[<=] 0,
+stop centering.
+.
+.TPx
+.REQ .cf file
+Copy contents of
+.I file
+without formatting to the (top-level) diversion.
+.
+.TPx
+.REQ .cflags "n c1 c2 \fR\&.\|.\|.\&\fP"
+Assign properties encoded
+.RI by\~ n
+to characters
+.IR c1 ,
+.IR c2 ,
+and so on.
+.
+.
+.TPx
+.REQ .ch name
+Unplant page location trap
+.IR name .
+.
+.
+.TPx
+.REQ .ch "name vpos"
+Change page location trap
+.I name
+planted by
+.request .wh
+by moving its location to
+.I vpos
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+.
+.TPx
+.REQ .char "c contents"
+Define ordinary or special character
+.I c
+as
+.IR contents .
+.
+.TPx
+.REQ .chop object
+Remove the last character from the macro,
+string,
+or diversion
+named
+.IR object .
+.
+.TPx
+.REQ .class "name c1 c2 \fR\&.\|.\|.\&\fP"
+Define a (character) class
+.I name
+comprising the characters or range expressions
+.IR c1 ,
+.IR c2 ,
+and so on.
+.
+.TPx
+.REQ .close "stream"
+Close the
+.IR stream .
+.
+.
+.TPx
+.REQ .color
+Enable output of color-related device-independent output commands.
+.
+.
+.TPx
+.REQ .color n
+If
+.I n
+is zero,
+disable output of color-related device-independent output commands;
+otherwise,
+enable them.
+.\" XXX: Should probably interpret negative values as false.
+.
+.
+.TPx
+.REQ .composite "from to"
+Map glyph name
+.I from
+to glyph name
+.I to
+while constructing a composite glyph name.
+.
+.TPx
+.REQ .continue
+Finish the current iteration of a while loop.
+.
+.TPx
+.REQ .cp
+Enable compatibility mode.
+.
+.TPx
+.REQ .cp n
+If
+.I n
+is zero,
+disable compatibility mode,
+otherwise enable it.
+.
+.TPx
+.REQ .cs "font n m"
+Set constant character width mode for
+.I font
+to
+.IR n /36
+ems with em
+.IR m .
+.\" XXX: m parameter needs more explanation.
+.
+.
+.TPx
+.REQ .cu
+Continuously underline the output of the next productive input line.
+.
+.
+.TPx
+.REQ .cu npl
+Continuously underline the output of the next
+.I npl
+productive input lines.
+.
+If
+.IR npl =0,
+stop continuously underlining.
+.
+.
+.TPx
+.REQ .da
+Stop appending output to current diversion.
+.
+.
+.TPx
+.REQ .da name
+Append output to diversion
+.IR name .
+.
+.
+.TPx
+.REQ .de macro
+Define or redefine
+.I macro
+until
+.RB \[lq] ..\& \[rq]
+occurs at the start of a control line in the current conditional block.
+.
+.
+.TPx
+.REQ .de "macro end"
+Define or redefine
+.I macro
+until
+.I end
+is invoked or called at the start of a control line in the current
+conditional block.
+.
+.
+.TPx
+.REQ .de1 "macro"
+As
+.request .de ,
+but disable compatibility mode during macro expansion.
+.
+.TPx
+.REQ .de1 "macro end"
+As
+.RB \[lq] .de
+.IR "macro end" \[rq],
+but disable compatibility mode during macro expansion.
+.
+.
+.TPx
+.REQ .defcolor "ident scheme color-component \f[R].\|.\|."
+Define a color named
+.I ident.
+.
+.I scheme
+identifies a color space and determines the number of required
+.IR color-component s;
+it must be one of
+.RB \[lq] rgb \[rq]
+(three components),
+.RB \[lq] cmy \[rq]
+(three),
+.RB \[lq] cmyk \[rq]
+(four),
+or
+.RB \[lq] gray \[rq]
+(one).
+.
+.RB \[lq] grey \[rq]
+is accepted as a synonym of
+.RB \[lq] gray \[rq].
+.
+The color components can be encoded as a single hexadecimal value
+starting with
+.B #
+or
+.BR ## .
+.
+The former indicates that each component is in the range 0\[en]255
+(0\[en]FF),
+the latter the range 0\[en]65,535 (0\[en]FFFF).
+.
+Alternatively,
+each color component can be specified as a decimal fraction in the range
+0\[en]1,
+interpreted using a default scaling unit
+.RB of\~\[lq] f \[rq],
+which multiplies its value by 65,536
+(but clamps it at 65,535).
+.
+Each output device has a color named
+.RB \[lq] default \[rq],
+which cannot be redefined.
+.
+A device's default stroke and fill colors are not necessarily the same.
+.
+.
+.TPx
+.REQ .dei "macro"
+Define macro indirectly.
+.
+As
+.request .de ,
+but use interpolation of string
+.I macro
+as the name of the defined macro.
+.
+.
+.TPx
+.REQ .dei "macro end"
+Define macro indirectly.
+.
+As
+.request .de ,
+but use interpolations of strings
+.I macro
+and
+.I end
+as the names of the defined and end macros.
+.
+.
+.TPx
+.REQ .dei1 "macro"
+As
+.request .dei ,
+but disable compatibility mode during macro expansion.
+.
+.
+.TPx
+.REQ .dei1 "macro end"
+As
+.request ".dei\~\f[I]macro\~end\f[]" ,
+but disable compatibility mode during macro expansion.
+.
+.TPx
+.REQ .device "anything"
+Write
+.IR anything ,
+read in copy mode,
+to
+.I \%troff
+output as a device control command.
+.
+An initial neutral double quote is stripped to allow embedding of
+leading spaces.
+.
+.TPx
+.REQ .devicem "name"
+Write contents of macro or string
+.I name
+to
+.I \%troff
+output as a device control command.
+.
+.TPx
+.REQ .di
+Stop directing output to current diversion.
+.
+.
+.TPx
+.REQ .di name
+Direct output to diversion
+.IR name .
+.
+.TPx
+.REQ .do "name \fR\&.\|.\|.\&\fP"
+Interpret the string,
+request,
+diversion,
+or macro
+.I name
+(along with any arguments)
+with compatibility mode disabled.
+.
+Compatibility mode is restored
+(only if it was active)
+when the
+.I expansion
+of
+.I name
+is interpreted.
+.
+.TPx
+.REQ .ds name
+Create empty string
+.IR name .
+.
+.TPx
+.REQ .ds "name contents"
+Create a string
+.I name
+containing
+.IR contents .
+.
+.TPx
+.REQ .ds1 name
+.TQ
+.REQ .ds1 "name contents"
+As
+.request .ds ,
+but with compatibility mode disabled when
+.I contents
+interpolated.
+.
+.TPx
+.REQ .dt
+Clear diversion trap.
+.
+.
+.TPx
+.REQ .dt "vertical-position name"
+Set the diversion trap to macro
+.I name
+at
+.I vertical-position
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+.
+.TPx
+.REQ .ec
+Recognize
+.B \[rs]
+as the escape character.
+.
+.
+.TPx
+.REQ .ec "o"
+Recognize ordinary character
+.I o
+as the escape character.
+.
+.
+.TPx
+.REQ .ecr
+Restore escape character saved with
+.request .ecs .
+.
+.
+.TPx
+.REQ .ecs
+Save the escape character.
+.
+.
+.TPx
+.REQ .el "anything"
+Interpret
+.I anything
+as if it were an input line if the conditional expression of the
+corresponding
+.request .ie
+request was false.
+.
+.
+.TPx
+.REQ .em name
+Call macro
+.I name
+after the end of input.
+.
+.
+.TPx
+.REQ .eo
+Disable the escape mechanism in interpretation mode.
+.
+.
+.TPx
+.REQ .ev
+Pop environment stack,
+returning to previous one.
+.
+.
+.TPx
+.REQ .ev "env"
+Push current environment onto stack and switch to
+.IR env .
+.
+.
+.TPx
+.REQ .evc "env"
+Copy environment
+.I env
+to the current one.
+.
+.
+.TPx
+.REQ .ex
+Exit with successful status.
+.
+.
+.TPx
+.REQ .fam
+Set default font family to previous value.
+.
+.TPx
+.REQ .fam "name"
+Set default font family to
+.IR name .
+.
+.TPx
+.REQ .fc
+Disable field mechanism.
+.
+.TPx
+.REQ .fc "a"
+Set field delimiter to\~\c
+.I a
+and pad glyph to space.
+.
+.TPx
+.REQ .fc "a b"
+Set field delimiter to\~\c
+.I a
+and pad glyph to\~\c
+.IR b .
+.
+.TPx
+.REQ .fchar "c contents"
+Define fallback character (or glyph)
+.I c
+as
+.IR contents .
+.
+.
+.TPx
+.REQ .fcolor
+Restore previous fill color.
+.
+.
+.TPx
+.REQ .fcolor "c"
+Set fill color to
+.IR c .
+.
+.
+.TPx
+.REQ .fi
+Enable filling of output lines;
+a pending output line is broken.
+.
+Sets
+.BR \[rs]n[.u] .
+.
+.
+.TPx
+.REQ .fl
+Flush output buffer.
+.
+.TPx
+.REQ .fp "pos id"
+Mount font with font description file name
+.I id
+at non-negative
+.RI position\~ n .
+.
+.TPx
+.REQ .fp "pos id font-description-file-name"
+Mount font with
+.I font-description-file-name
+as name
+.I id
+at non-negative
+.RI position\~ n .
+.
+.TPx
+.REQ .fschar "f c anything"
+Define fallback character (or glyph)
+.I c
+for font
+.I f
+as string
+.IR anything .
+.
+.TPx
+.REQ .fspecial "font"
+Reset list of special fonts for
+.I font
+to be empty.
+.
+.TPx
+.REQ .fspecial "font s1 s2 \fR\&.\|.\|.\&\fP"
+When the current font is
+.IR font ,
+then the fonts
+.IR s1 ,
+.IR s2 ,
+\&.\|.\|.\&
+are special.
+.
+.TPx
+.REQ .ft
+.TQ
+.REQ ".ft P"
+Select previous font mounting position
+(abstract style or font);
+same as
+.esc f[]
+or
+.esc fP .
+.
+.TPx
+.REQ .ft "font"
+Select typeface
+.I font,
+which can be a
+mounting position,
+abstract style,
+or font name;
+same as
+.esc[] f font
+escape sequence.
+.
+.I font
+cannot be
+.BR P .
+.
+.TPx
+.REQ .ftr "font1 font2"
+Translate
+.I font1
+to
+.IR font2 .
+.
+.TPx
+.REQ .fzoom font
+.TQ
+.REQ .fzoom font\~\f[CB]0\f[]
+Stop magnifying
+.IR font .
+.
+.TPx
+.REQ .fzoom "font z"
+Set zoom factor for
+.I font
+.RI to\~ z
+(in thousandths;
+default:
+1000).
+.
+.TPx
+.REQ .gcolor
+Restore previous stroke color.
+.
+.
+.TPx
+.REQ .gcolor "c"
+Set stroke color to
+.IR c .
+.
+.
+.TPx
+.REQ .hc
+Reset the hyphenation character
+.RB to\~ \[rs]%
+(the default).
+.
+.TPx
+.REQ .hc char
+Change the hyphenation character
+.RI to\~ char .
+.
+.TPx
+.REQ .hcode "c1 code1 \fR[\fPc2 code2\fR] .\|.\|.\fP"
+Set the hyphenation code of character
+.I c1
+to
+.IR code1 ,
+that of
+.I c2
+to
+.IR code2 ,
+and so on.
+.
+.TPx
+.REQ .hla lang
+Set the hyphenation language to
+.IR lang .
+.
+.TPx
+.REQ .hlm n
+Set the maximum quantity of consecutive hyphenated lines to
+.IR n .
+.
+.TPx
+.REQ .hpf pattern-file
+Read hyphenation patterns from
+.IR pattern-file .
+.
+.TPx
+.REQ .hpfa pattern-file
+Append hyphenation patterns from
+.IR pattern-file .
+.
+.TPx
+.REQ .hpfcode "a b \fR[\fPc d\fR] .\|.\|.\fP"
+Define mappings for character codes in hyphenation pattern files read
+with
+.request .hpf
+and
+.request .hpfa .
+.
+.TPx
+.REQ .hw "word \fR.\|.\|.\fP"
+Define hyphenation overrides for each
+.I word;
+a hyphen
+.RB \[lq] \- \[rq]
+indicates a hyphenation point.
+.
+.
+.TPx
+.REQ .hy
+Set automatic hyphenation mode to
+.BR 1 .
+.
+.
+.TPx
+.REQ .hy\~0
+Disable automatic hyphenation;
+same as
+.BR .nh .
+.
+.
+.TPx
+.REQ .hy mode
+Set automatic hyphenation mode to
+.IR mode ;
+see section \[lq]Hyphenation\[rq] below.
+.
+.
+.TPx
+.REQ .hym
+Set the (right) hyphenation margin to
+.B 0
+(the default).
+.
+.TPx
+.REQ .hym length
+Set the (right) hyphenation margin to
+.I length
+(default scaling unit\~\c
+.scaleindicator m ).
+.
+.TPx
+.REQ .hys
+Set the hyphenation space to
+.B 0
+(the default).
+.
+.TPx
+.REQ .hys hyphenation-space
+Suppress automatic hyphenation in adjustment modes
+.RB \[lq] b \[rq]
+or
+.RB \[lq] n \[rq]
+if the line can be justified with the addition of up to
+.I hyphenation-space
+to each inter-word space
+(default scaling unit\~\c
+.scaleindicator m ).
+.
+.
+.TPx
+.REQ .ie "cond-expr anything"
+If
+.I cond-expr
+is true,
+interpret
+.I anything
+as if it were an input line,
+otherwise skip to a corresponding
+.request .el
+request.
+.
+.
+.TPx
+.REQ .if "cond-expr anything"
+If
+.I cond-expr
+is true,
+then interpret
+.I anything
+as if it were an input line.
+.
+.
+.TPx
+.REQ .ig
+Ignore input
+(except for side effects of
+.B \[rs]R
+on auto-incrementing registers)
+until
+.RB \[lq] ..\& \[rq]
+occurs at the start of a control line in the current conditional block.
+.
+.
+.TPx
+.REQ .ig "end"
+Ignore input
+(except for side effects of
+.B \[rs]R
+on auto-incrementing registers)
+until
+.BI . end
+is called at the start of a control line in the current conditional
+block.
+.
+.TPx
+.REQ .in
+Set indentation amount to previous value.
+.
+.TPx
+.REQ .in "\[+-]N"
+Set indentation to
+.I \[+-]N
+(default scaling unit\~\c
+.scaleindicator m ).
+.
+.TPx
+.REQ .it
+Cancel any pending input line trap.
+.
+.TPx
+.REQ .it "npl name"
+Set
+(or replace)
+an input line trap in the environment,
+calling macro
+.IR name ,
+after the next
+.I npl
+productive input lines have been read.
+.
+Lines interrupted with the
+.B \[rs]c
+escape sequence are counted separately.
+.
+.TPx
+.REQ .itc
+Cancel any pending input line trap.
+.
+.TPx
+.REQ .itc "npl name"
+As
+.request .it ,
+except that input lines interrupted with the
+.B \[rs]c
+escape sequence are not counted.
+.
+.TPx
+.REQ .kern
+Enable pairwise kerning.
+.
+.TPx
+.REQ .kern n
+If
+.I n
+is zero,
+disable pairwise kerning,
+otherwise enable it.
+.
+.TPx
+.REQ .lc
+Unset leader repetition character.
+.
+.TPx
+.REQ .lc "c"
+Set leader repetition character
+.RI to\~ c
+(default:
+.RB \[lq] . \[rq]).
+.
+.TPx
+.REQ .length "reg anything"
+Compute the number of characters of
+.I anything
+and store the count
+in the register
+.IR reg .
+.
+.
+.TPx
+.REQ .linetabs
+Enable line-tabs mode
+(calculate tab positions relative to beginning of output line).
+.
+.
+.TPx
+.REQ .linetabs\~0
+Disable line-tabs mode.
+.
+.
+.TPx
+.REQ .lf n
+Set number of next input line to
+.IR n .
+.\" XXX: negative values accepted; check AT&T troff
+.
+.TPx
+.REQ .lf "n file"
+Set number of next input line to
+.I n
+and input file name to
+.IR file .
+.
+.TPx
+.REQ .lg m
+Set ligature mode to
+.I m
+.RB ( 0
+= disable,
+.B 1
+= enable,
+.B 2
+= enable for two-letter ligatures only).
+.\" XXX: negative values accepted (mapped to 1); check AT&T troff
+.
+.TPx
+.REQ .ll
+Set line length to previous value.
+.
+Does not affect a pending output line.
+.
+.TPx
+.REQ .ll "\[+-]N"
+Set line length to
+.I \[+-]N
+(default length
+.scalednumber 6.5 i ,
+default scaling unit\~\c
+.scaleindicator m ).
+.
+Does not affect a pending output line.
+.
+.TPx
+.REQ .lsm
+Unset the leading space macro (trap).
+.
+Restore default handling of lines with leading spaces.
+.
+.TPx
+.REQ .lsm name
+Set the leading space macro (trap) to
+.IR name .
+.
+.TPx
+.REQ .ls
+Change to the previous value of additional intra-line skip.
+.
+.TPx
+.REQ .ls n
+Set additional intra-line skip value to
+.IR n ,
+i.e.,
+.IR n \-1
+blank lines are inserted after each text output line.
+.\" XXX: negative values accepted; check AT&T troff
+.
+.TPx
+.REQ .lt
+Set length of title lines to previous value.
+.
+.TPx
+.REQ .lt "\[+-]N"
+Set length of title lines
+(default length
+.scalednumber 6.5 i ,
+default scaling unit\~\c
+.scaleindicator m ).
+.
+.TPx
+.REQ .mc
+Cease writing margin character.
+.
+.TPx
+.REQ .mc c
+Begin writing margin
+.RI character\~ c
+to the right of each output line.
+.
+.TPx
+.REQ .mc "c d"
+Begin writing margin
+.RI character\~ c
+on each output line at
+.RI distance\~ d
+to the right of the right margin
+(default distance
+.scalednumber 10 p ,
+default scaling unit\~\c
+.scaleindicator m ).
+.
+.TPx
+.REQ .mk
+Mark vertical drawing position in an internal register;
+see
+.BR .rt .
+.
+.TPx
+.REQ .mk register
+Mark vertical drawing position in
+.IR register .
+.
+.TPx
+.REQ .mso "file"
+As
+.request .so ,
+except that
+.I file
+is sought in the
+.I tmac
+directories.
+.
+.
+.TPx
+.REQ .msoquiet "file"
+As
+.request .mso ,
+but no warning is emitted if
+.I file
+does not exist.
+.
+.
+.TPx
+.REQ .na
+Disable output line adjustment.
+.
+.
+.TPx
+.REQ .ne
+Break page if distance to next page location trap is less than one vee.
+.
+.TPx
+.REQ .ne d
+Break page if distance to next page location trap is less than distance
+.I d
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+.
+.TPx
+.REQ .nf
+Disable filling of output lines;
+a pending output line is broken.
+.
+Clears
+.BR \[rs]n[.u] .
+.
+.
+.TPx
+.REQ .nh
+Disable automatic hyphenation;
+same as
+.RB \[lq] ".hy 0" \[rq].
+.
+.TPx
+.REQ .nm
+Deactivate output line numbering.
+.
+.TPx
+.REQ .nm \[+-]N
+.TQ
+.REQ .nm "\[+-]N m"
+.TQ
+.REQ .nm "\[+-]N m s"
+.TQ
+.REQ .nm "\[+-]N m s i"
+Activate output line numbering:
+number the next output line
+.I \[+-]N,
+writing numbers every
+.I m
+lines,
+with
+.I s
+numeral widths
+.RB ( \[rs]0 )
+between the line number and the output
+(default 1),
+and indenting the line number by
+.I i
+numeral widths
+(default 0).
+.
+.TPx
+.REQ .nn
+Suppress numbering of the next output line to be numbered with
+.BR nm .
+.
+.TPx
+.REQ .nn n
+Suppress numbering of the next
+.I n
+output lines to be numbered with
+.BR nm .
+.
+If
+.IR n =0,
+cancel suppression.
+.\" XXX: negative values accepted; check AT&T troff
+.
+.
+.TPx
+.REQ .nop "anything"
+Interpret
+.I anything
+as if it were an input line.
+.
+.TPx
+.REQ .nr "reg \[+-]N"
+Define or update register
+.I reg
+with value
+.IR N .
+.
+.TPx
+.REQ .nr "reg \[+-]N I"
+Define or update register
+.I reg
+with value
+.I N
+and auto-increment
+.IR I .
+.
+.TPx
+.REQ .nroff
+Make the conditional expressions
+.B n
+true and
+.B t
+false.
+.
+.TPx
+.REQ .ns
+Enable
+.IR "no-space mode" ,
+ignoring
+.B .sp
+requests until a glyph or
+.B \[rs]D
+primitive is output.
+.
+See
+.BR .rs .
+.
+.TPx
+.REQ .nx
+Immediately jump to end of current file.
+.
+.TPx
+.REQ .nx file
+Stop formatting current file and begin reading
+.I file.
+.
+.TPx
+.REQ .open "stream file"
+Open
+.I file
+for writing and associate the stream named
+.I stream
+with it.
+.
+Unsafe request;
+disabled by default.
+.
+.TPx
+.REQ .opena "stream file"
+As
+.request .open ,
+but append to
+.I file.
+.
+Unsafe request;
+disabled by default.
+.
+.TPx
+.REQ .os
+Output vertical distance that was saved by the
+.request .sv
+request.
+.
+.TPx
+.REQ .output contents
+Emit
+.I contents
+directly to intermediate output,
+allowing leading whitespace if
+.I string
+starts with
+\&\f[CB]\[dq]\f[]
+(which is stripped off).
+.
+.TPx
+.REQ .pc
+Reset page number character to\~\c
+.squoted_char % .
+.
+.TPx
+.REQ .pc "c"
+Page number character.
+.
+.
+.TPx
+.REQ .pev
+Report the state of the current environment followed by that of all
+other environments to the standard error stream.
+.
+.TPx
+.REQ .pi "program"
+Pipe output to
+.I program
+.RI ( nroff
+only).
+.
+Unsafe request;
+disabled by default.
+.
+.TPx
+.REQ .pl
+Set page length to default
+.scalednumber 11 i .
+The current page length is stored in register
+.BR .p .
+.
+.TPx
+.REQ .pl "\[+-]N"
+Change page length to
+.I \[+-]N
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+.TPx
+.REQ .pm
+Report,
+to the standard error stream,
+the names and sizes in bytes of
+defined
+macros,
+strings,
+and
+diversions.
+.
+.TPx
+.REQ .pn "\[+-]N"
+Next page number
+.IR N .
+.
+.TPx
+.REQ .pnr
+Write the names and contents of all defined registers to the standard
+error stream.
+.
+.TPx
+.REQ .po
+Change to previous page offset.
+.
+The current page offset is available in register
+.BR .o .
+.
+.TPx
+.REQ .po "\[+-]N"
+Page offset
+.IR N .
+.
+.
+.TPx
+.REQ .ps
+Return to previous type size.
+.TPx
+.
+.
+.REQ .ps "\[+-]N"
+Set/increase/decrease the type size to/by
+.I N
+scaled points
+(a non-positive resulting type size is set to 1\~u);
+also see
+.esc[] s \[+-]N .
+.
+.TPx
+.REQ .psbb file
+Retrieve the bounding box of the PostScript image found in
+.I file,
+which must conform to Adobe's Document Structuring Conventions (DSC).
+.
+See registers
+.BR llx ,
+.BR lly ,
+.BR urx ,
+.BR ury .
+.
+.TPx
+.REQ .pso "command-line"
+Execute
+.I command-line
+with
+.MR popen 3
+and interpolate its output.
+.
+Unsafe request;
+disabled by default.
+.
+.TPx
+.REQ .ptr
+Report names and positions of all page location traps to the standard
+error stream.
+.
+.
+.TPx
+.REQ .pvs
+Change to previous post-vertical line spacing.
+.
+.TPx
+.REQ .pvs "\[+-]N"
+Change post-vertical line spacing according to
+.I \[+-]N
+(default scaling unit\~\c
+.scaleindicator p ).
+.
+.TPx
+.REQ .rchar "c1 c2 \fR.\|.\|.\&\fP"
+Remove definition of each ordinary or special character
+.IR c1 ,
+.IR c2 ,
+\&.\|.\|.\& defined by a
+.request .char ,
+.request .fchar ,
+or
+.request .schar
+request.
+.
+.TPx
+.REQ .rd "prompt"
+Read insertion.
+.
+.TPx
+.REQ .return
+Return from a macro.
+.
+.TPx
+.REQ .return "anything"
+Return twice, namely from the macro at the current level and from the
+macro one level higher.
+.
+.TPx
+.REQ .rfschar "f c1 c2 \fR\&.\|.\|.\&\fP"
+Remove the font-specific definitions of glyphs
+.IR c1 ,
+.IR c2 ,
+\&.\|.\|.\& for
+.RI font\~ f .
+.
+.TPx
+.REQ .rj npl
+Break,
+right-align the output of the next productive input line without
+filling,
+then break again.
+.
+.TPx
+.REQ .rj npl
+Break,
+right-align the output of the next
+.I npl
+productive input lines without filling,
+then break again.
+.
+If
+.I npl
+\[<=] 0,
+stop right-aligning.
+.
+.TPx
+.REQ .rm "name"
+Remove request, macro, diversion, or string
+.IR name .
+.
+.TPx
+.REQ .rn "old new"
+Rename request, macro, diversion, or string
+.I old
+to
+.IR new .
+.
+.TPx
+.REQ .rnn "reg1 reg2"
+Rename register
+.I reg1
+to
+.IR reg2 .
+.
+.
+.TPx
+.REQ .rr ident
+Remove register
+.IR ident .
+.
+.
+.TPx
+.REQ .rs
+Restore spacing;
+disable no-space mode.
+.
+See
+.BR .ns .
+.
+.TPx
+.REQ .rt
+Return
+.I (upward only)
+to vertical position marked by
+.B .mk
+on the current page.
+.
+.TPx
+.REQ .rt N
+Return
+.I (upward only)
+to vertical position
+.I N
+(default scaling
+unit\~\c
+.scaleindicator v ).
+.\" XXX: negative values accepted; check AT&T troff
+.
+.TPx
+.REQ .schar "c contents"
+Define global fallback character (or glyph)\~\c
+.I c
+as
+.IR contents .
+.
+.
+.TPx
+.REQ .shc
+Reset the soft hyphen character to
+.esc [hy] .
+.
+.
+.TPx
+.REQ .shc c
+Set the soft hyphen character
+.RI to\~ c .
+.
+.
+.TPx
+.REQ .shift n
+In a macro definition,
+left-shift arguments by
+.IR n \~\c
+positions.
+.
+.TPx
+.REQ .sizes "s1 s2 \f[R].\|.\|.\&\f[] sn \f[R][\f[CB]0\f[]]"
+Set available type sizes similarly to the
+.B sizes
+directive in a
+.I DESC
+file.
+.
+Each
+.IR s i
+is interpreted in units of scaled points (\c
+.scaleindicator z ).
+.
+.
+.TPx
+.REQ .so file
+Replace the request's control line with the contents of
+.IR file ,
+\[lq]sourcing\[rq] it.
+.
+.
+.TPx
+.REQ .soquiet file
+As
+.request .so ,
+but no warning is emitted if
+.I file
+does not exist.
+.
+.
+.TPx
+.REQ .sp
+Break and move the next text baseline down by one vee,
+or until springing a page location trap.
+.
+.
+.TPx
+.REQ .sp dist
+Break and move the next text baseline down by
+.IR dist ,
+or until springing a page location trap
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+A negative
+.I dist
+will not reduce the position of the text baseline below zero.
+.
+Prefixing
+.I dist
+with the
+.B \[or]
+operator moves to a position relative to the page top for positive
+.IR N ,
+and the bottom if
+.I N
+is negative;
+in all cases,
+one line height (vee) is added
+.RI to\~ dist .
+.
+.I dist
+is ignored inside a diversion.
+.
+.
+.TPx
+.REQ .special
+Reset global list of special fonts to be empty.
+.
+.TPx
+.REQ .special "s1 s2 \fR\&.\|.\|.\&\fR"
+Fonts
+.IR s1 ,
+.IR s2 ,
+etc.\& are special and are searched for glyphs not in the
+current font.
+.
+.TPx
+.REQ .spreadwarn
+Toggle the spread warning on and off (the default) without changing its
+value.
+.
+.TPx
+.REQ .spreadwarn N
+Emit a
+.B break
+warning if the additional space inserted for each space between words in
+an adjusted output line is greater than or equal to
+.IR N .
+.
+A negative
+.I N
+is treated as 0.
+.
+The default scaling unit is\~\c
+.scaleindicator m .
+.
+At startup,
+.request .spreadwarn
+is inactive and
+.I N
+is
+.scalednumber "3 m" .
+.\" XXX: negative values accepted; retain for future space-squeezing
+.
+.TPx
+.REQ .ss n
+Set minimal inter-word spacing to
+.IR n \~12ths
+of current font's space width.
+.
+.TPx
+.REQ .ss "n m"
+As
+.RB \[lq] .ss\~\c
+.IR n \[rq],
+and set additional inter-sentence space to
+.IR m \~12ths
+of current font's space width.
+.
+.TPx
+.REQ .stringdown stringvar
+Replace each byte in the string named
+.I stringvar
+with its lowercase version.
+.
+.TPx
+.REQ .stringup stringvar
+Replace each byte in the string named
+.I stringvar
+with its uppercase version.
+.
+.TPx
+.REQ .sty "n style"
+Associate abstract
+.I style
+with font position
+.IR n .
+.
+.TPx
+.REQ .substring "str start \fR[\fPend\fR]\fP"
+Replace the string named
+.I str
+with its substring bounded by the indices
+.I start
+and
+.IR end ,
+inclusive.
+.
+Negative indices count backwards from the end of the string.
+.
+.TPx
+.REQ .sv
+As
+.request .ne ,
+but save
+.scalednumber "1 v"
+for output with
+.request .os
+request.
+.
+.TPx
+.REQ .sv d
+As
+.request .ne ,
+but save distance
+.I d
+for later output with
+.request .os
+request
+(default scaling unit\~\c
+.scaleindicator v ).
+.\" XXX: negative values accepted; check AT&T troff
+.
+.TPx
+.REQ .sy "command-line"
+Execute
+.I command-line
+with
+.MR system 3 .
+.
+Unsafe request;
+disabled by default.
+.
+.TPx
+.REQ .ta "n1 n2 \fR\&.\|.\|.\&\fP n\fRn\fP \f[CB]T\f[] r1 r2 \
+\fR\&.\|.\|.\&\fP r\fRn\fP"
+Set tabs at positions
+.IR n1 ,
+.IR n2 ,
+\&.\|.\|.\&,
+.IR n n,
+then set tabs at
+.IR n n+ m \[tmu] r n+ r1
+through
+.IR n n+ m \[tmu] r n+ r n,
+where
+.I m
+increments from 0,
+1,
+2,
+\&.\|.\|.\& to the output line length.
+.
+Each
+.IR n \~argument
+can be prefixed with
+.RB a\~\[lq] + \[rq]
+to place the tab stop
+.I ni
+at a distance relative to the previous,
+.IR n ( i \-1).
+.
+Each argument
+.IR ni \~or\~ ri
+can be suffixed with a letter to align text within the tab column
+bounded by tab stops
+.IR i \~and\~ i +1;
+.RB \[lq] L \[rq]
+for left-aligned
+(the default),
+.RB \[lq] C \[rq]
+for centered,
+and
+.RB \[lq] R \[rq]
+for right-aligned.
+.
+.br
+.ne 4v \" XXX: should need only 2v
+.TPx
+.REQ .tag
+.TQ
+.REQ .taga
+Reserved for internal use.
+.
+.TPx
+.REQ .tc
+Unset tab repetition character.
+.
+.TPx
+.REQ .tc "c"
+Set tab repetition character
+.RI to\~ c
+(default: none).
+.
+.TPx
+.REQ .ti "\[+-]N"
+Temporarily indent next output line
+(default scaling unit\~\c
+.scaleindicator m ).
+.
+.TPx
+.REQ .tkf "font s1 n1 s2 n2"
+Enable track kerning for
+.IR font .
+.
+.TPx
+.REQ .tl "\f[CB]\[aq]\f[]left\f[CB]\[aq]\f[]center\f[CB]\[aq]\f[]right\
+\f[CB]\[aq]\f[]"
+Format three-part title.
+.
+.TPx
+.REQ .tm message
+Write
+.I message,
+followed by a newline,
+to the standard error stream.
+.
+.TPx
+.REQ .tm1 message
+As
+.request .tm ,
+but an initial neutral double quote in
+.I message
+is removed,
+allowing it to contain leading spaces.
+.
+.TPx
+.REQ .tmc message
+As
+.request .tm1 ,
+without emitting a newline.
+.
+.TPx
+.REQ .tr "abcd\fR\&.\|.\|.\&\fP"
+Translate ordinary or special characters
+.I a
+to
+.IR b ,
+.I c
+to
+.IR d ,
+and so on prior to output.
+.
+.TPx
+.REQ .trf file
+Transparently output the contents of
+.I file.
+.
+Unlike
+.request .cf ,
+invalid input characters in
+.I file
+are rejected.
+.
+.TPx
+.REQ .trin "abcd\fR\&.\|.\|.\&\fP"
+As
+.request .tr ,
+except that
+.request .asciify
+ignores the translation when a diversion is interpolated.
+.
+.TPx
+.REQ .trnt "abcd\fR\&.\|.\|.\&\fP"
+As
+.request .tr ,
+except that translations are suppressed in the argument to
+.esc ! .
+.
+.TPx
+.REQ .troff
+Make the conditional expressions
+.B t
+true and
+.B n
+false.
+.
+.TPx
+.REQ .uf font
+Set underline font used by
+.request .ul
+to
+.I font.
+.
+.
+.TPx
+.REQ .ul
+Underline
+(italicize in
+.I troff
+mode)
+the output of the next productive input line.
+.
+.
+.TPx
+.REQ .ul npl
+Underline
+(italicize in
+.I troff
+mode)
+the output of the next
+.I npl
+productive input line.
+.
+If
+.IR npl =0,
+stop underlining.
+.
+.
+.TPx
+.REQ .unformat "diversion"
+Unformat space characters and tabs in
+.IR diversion ,
+preserving font information.
+.
+.
+.TPx
+.REQ .vpt
+Enable vertical position traps.
+.
+.
+.TPx
+.REQ .vpt\~0
+Disable vertical position traps.
+.
+.
+.TPx
+.REQ .vs
+Change to previous vertical spacing.
+.
+.TPx
+.REQ .vs "\[+-]N"
+Set vertical spacing to
+.I \[+-]N
+(default scaling unit\~\c
+.scaleindicator p ).
+.
+.
+.TPx
+.REQ .warn
+Enable all warning categories.
+.
+.
+.TPx
+.REQ .warn\~0
+Disable all warning categories.
+.
+.
+.TPx
+.REQ .warn n
+Enable warnings in categories whose codes sum
+.RI to\~ n ;
+.\" TODO: Move that table here, perhaps.
+see
+.MR \%troff 1 .
+.
+.
+.TPx
+.REQ .warnscale "su"
+Set scaling unit used in certain warnings \" `output_warning()`
+to
+.I su
+(one of
+.BR u ,
+.BR i ,
+.BR c ,
+.BR p ,
+or
+.BR P ;
+default:
+.BR i ).
+.
+.
+.TPx
+.REQ .wh vpos
+Remove visible page location trap at
+.I vpos
+(default scaling unit\~\c
+.scaleindicator v ).
+.
+.
+.TPx
+.REQ .wh "vpos name"
+Plant macro
+.I name
+as page location trap at
+.I vpos
+(default scaling unit\~\c
+.scaleindicator v ),
+removing any visible trap already there.
+.
+.
+.TPx
+.REQ .while "cond-expr anything"
+Repeatedly execute
+.I anything
+unless and until
+.I cond-expr
+evaluates false.
+.
+.
+.TPx
+.REQ .write "stream anything"
+Write
+.I anything
+to the stream named
+.IR stream .
+.
+.TPx
+.REQ .writec "stream anything"
+Similar to
+.request .write
+without emitting a final newline.
+.
+.TPx
+.REQ .writem "stream xx"
+Write contents of macro or string
+.I xx
+to the stream named
+.IR stream .
+.
+.LE
+.
+.
+.\" ====================================================================
+.SH "Escape sequence short reference"
+.\" ====================================================================
+.
+The escape sequences
+.esc \[dq] ,
+.esc # ,
+.esc $ ,
+.esc * ,
+.esc ? ,
+.esc a ,
+.esc e ,
+.esc n ,
+.esc t ,
+.esc g ,
+.esc V ,
+and
+.escarg \& newline
+are interpreted even in copy mode.
+.
+.
+.P
+.LS
+.
+.\" ========= comments =========
+.
+.TP
+.ESC \[dq]
+Comment.
+.
+Everything up to the end of the line is ignored.
+.
+.
+.TP
+.ESC #
+Comment.
+.
+Everything up to and including the next newline is ignored.
+.
+.
+.\" ========= strings =========
+.
+.TP
+.ESC * s
+Interpolate string with one-character
+.RI name\~ s .
+.
+.
+.TP
+.ESC *( st
+Interpolate string with two-character
+.RI name\~ st .
+.
+.
+.TP
+.ESC[] * string
+Interpolate string with name
+.I string
+(of arbitrary length).
+.
+.
+.TP
+.ESC[] * "string arg \fR\&.\|.\|.\fP"
+Interpolate string with name
+.I string
+(of arbitrary length),
+taking
+.I arg
+\&.\|.\|.\&
+as arguments.
+.
+.
+.\" ========= macro arguments =========
+.
+.TP
+.ESC $0
+Interpolate name by which currently executing macro was invoked.
+.
+.
+.TP
+.ESC $ n
+Interpolate macro or string parameter
+.RI numbered\~ n
+.RI (1\|\[<=]\| n \|\[<=]\|9).
+.
+.
+.TP
+.ESC $( nn
+Interpolate macro or string parameter
+.RI numbered\~ nn
+.RI (01\|\[<=]\| nn \|\[<=]\|99).
+.
+.TP
+.ESC[] $ nnn
+Interpolate macro or string parameter
+.RI numbered\~ nnn
+.RI ( nnn \|\[>=]\|1).
+.
+.
+.TP
+.ESC $*
+Interpolate concatenation of all macro or string parameters,
+separated by spaces.
+.
+.
+.TP
+.ESC $@
+Interpolate concatenation of all macro or string parameters,
+with each surrounded by double quotes and separated by spaces.
+.
+.
+.TP
+.ESC $\[ha]
+Interpolate concatenation of all macro or string parameters
+as if they were arguments to the
+.request .ds
+request.
+.
+.
+.\" ========= escaped characters =========
+.
+.
+.TP
+.ESC \[aq]
+is a synonym for
+.esc [aa] ,
+the acute accent special character.
+.
+.
+.TP
+.ESC \[ga]
+is a synonym for
+.esc [ga] ,
+the grave accent special character.
+.
+.
+.TP
+.ESC \-
+is a synonym for
+.esc [\-] ,
+the minus sign special character.
+.
+.
+.TP
+.ESC _
+is a synonym for
+.esc [ul] ,
+the underrule special character.
+.
+.
+.TP
+.ESC %
+Control hyphenation.
+.
+.
+.TP
+.ESC !
+Transparent line.
+.
+The remainder of the input line is interpreted
+(1) when the current diversion is read;
+or
+(2) if in the top-level diversion,
+by the postprocessor
+(if any).
+.
+.
+.TP
+.ESC? anything
+Transparently embed
+.IR anything ,
+read in copy mode,
+in a diversion,
+or unformatted as an output comparand in a conditional expression.
+.
+.
+.\" ========= spaces and fixed-width horizontal motions =========
+.
+.TP
+.ESC \f[I]space
+Move right one word space.
+.
+.
+.TP
+.ESC \[ti]
+Insert an unbreakable,
+adjustable space.
+.
+.
+.TP
+.ESC 0
+Move right by the width of a numeral in the current font.
+.
+.
+.TP
+.ESC |
+Move one-sixth em to the right on typesetters.
+.
+.
+.TP
+.ESC \[ha]
+Move one-twelfth em to the right on typesetters.
+.
+.
+.TP
+.ESC &
+Interpolate a dummy character.
+.
+.
+.TP
+.ESC )
+Interpolate a dummy character that is transparent to end-of-sentence
+recognition.
+.
+.
+.TP
+.ESC /
+Apply italic correction.
+.
+Use between an immediately adjacent oblique glyph on the left and an
+upright glyph on the right.
+.
+.
+.TP
+.ESC ,
+Apply left italic correction.
+.
+Use between an immediately adjacent upright glyph on the left and an
+oblique glyph on the right.
+.
+.
+.TP
+.ESC :
+Non-printing break point
+(similar to
+.esc % ,
+but never produces a hyphen glyph).
+.
+.
+.TP
+.ESC "" newline
+Continue current input line on the next.
+.
+.
+.\" ========= structuring =========
+.
+.TP
+.ESC {
+Begin conditional input.
+.
+.TP
+.ESC }
+End conditional input.
+.
+.\" ========= longer escape names =========
+.
+.TP
+.ESC ( gl
+Interpolate glyph with two-character name
+.IR gl .
+.
+.
+.TP
+.ESC[] "" glyph
+Interpolate glyph with name
+.I glyph
+(of arbitrary length).
+.
+.
+.TP
+.ESC[] "" "base-char comp \fR\&.\|.\|."
+Interpolate composite glyph constructed from
+.I base-char
+and each component
+.IR comp .
+.
+.
+.TP
+.ESC[] "" "\f[CB]char\f[]nnn"
+Interpolate glyph of eight-bit encoded character
+.IR nnn ,
+where
+.RI 0\|\[<=]\| nnn \|\[<=]\|255.
+.
+.
+.TP
+.ESC[] "" "\f[CB]u\f[]nnnn\f[R][\f[]n\f[R][\f[]n\f[R]]]"
+Interpolate glyph of Unicode character with code point
+.IR nnnn [ n [ n ]]
+in uppercase hexadecimal.
+.
+.
+.TP
+.ESC[] "" "\f[CB]u\f[]base-char\f[R][\f[]\f[CB]_\f[]\
+combining-component\f[R]].\|.\|."
+Interpolate composite glyph from Unicode character
+.I base-char
+and
+.IR combining-components .
+.
+.
+.\" ========= alphabetical escape sequences =========
+.
+.TP
+.ESC a
+Interpolate a leader in copy mode.
+.
+.TP
+.ESCq A anything
+Interpolate 1 if
+.I anything
+is a valid identifier,
+and\~0 otherwise.
+.
+.TP
+.ESCq b string
+Build bracket:
+pile a sequence of glyphs corresponding to each character in
+.I string
+vertically,
+and center it vertically on the output line.
+.
+.TP
+.ESCq B anything
+Interpolate 1 if
+.I anything
+is a valid numeric expression,
+and\~0 otherwise.
+.
+.
+.TP
+.ESC c
+Continue output line at next input line.
+.
+.
+.TP
+.ESCq C glyph
+As
+.esc[] "" glyph ,
+but compatible with other
+.I troff \" generic
+implementations.
+.
+.
+.TP
+.ESC d
+Move downward \[12]\~em on typesetters.
+.\" XXX: No current groff nroff-mode output driver supports half-line
+.\" motions.
+.\" (\[12]\~line in
+.\" .I nroff
+.\" contingent on device support).
+.
+.
+.TP
+.ESCq D drawing-command
+See subsection \[lq]Drawing commands\[rq] below.
+.
+.
+.TP
+.ESC e
+Interpolate the escape character.
+.
+.
+.TP
+.ESC E
+As
+.esc e ,
+but not interpreted in copy mode.
+.
+.TP
+.ESC fP
+Select previous font mounting position
+(abstract style or font);
+same as
+.RB \[lq] .ft \[rq]
+or
+.RB \[lq] .ft\~P \[rq].
+.
+.TP
+.ESC f F
+Select font mounting position,
+abstract style,
+or font with one-character name or one-digit
+.RI position\~ F .
+.
+.IR F \~cannot
+be
+.BR P .
+.
+.TP
+.ESC f( ft
+Select font mounting position,
+abstract style,
+or font with two-character name or two-digit
+.RI position\~ ft .
+.
+.TP
+.ESC[] f font
+Select font mounting position,
+abstract style,
+or font with arbitrarily long name or position
+.IR font .
+.
+.I font
+cannot be
+.BR P .
+.
+.TP
+.ESC[] f ""
+Select previous font mounting position
+(abstract style or font).
+.
+.TP
+.ESC F f
+Set default font family to that with one-character
+.RI name\~ f .
+.
+.TP
+.ESC F( fm
+Set default font family to that with two-character
+.RI name\~ fm .
+.
+.TP
+.ESC[] F fam
+Set default font family to that with arbitrarily long name
+.IR fam .
+.
+.TP
+.ESC[] F ""
+Set default font family to previous value.
+.
+.TP
+.ESC g r
+Interpolate format of register with one-character
+.RI name\~ r .
+.
+.
+.TP
+.ESC g( rg
+Interpolate format of register with two-character
+.RI name\~ rg .
+.
+.
+.TP
+.ESC[] g reg
+Interpolate format of register with arbitrarily long name
+.IR reg .
+.
+.
+.TP
+.ESCq h N
+Horizontally move the drawing position by
+.IR N \~ems
+(or specified units);
+.B \[or]
+may be used.
+.
+Positive motion is rightward.
+.
+.
+.TP
+.ESCq H N
+Set height of current font to
+.IR N \~scaled
+points
+(or specified units).
+.
+.
+.TP
+.ESC k r
+Mark horizontal position in one-character register
+.RI name\~ r .
+.
+.TP
+.ESC k( rg
+Mark horizontal position in two-character register
+.RI name\~ rg .
+.
+.
+.TP
+.ESC[] k reg
+Mark horizontal position in register with arbitrarily long
+.RI name\~ reg .
+.
+.
+.TP
+.ESCq l N\/\f[R][\f[]c\f[R]]
+Draw horizontal line of length
+.I N
+with character
+.B c
+(default:
+.BR \[rs][ru] ;
+default scaling unit\~\c
+.scaleindicator m ).
+.
+.
+.
+.TP
+.ESCq L N\/\f[R][\f[]c\f[R]]
+Draw vertical line of length
+.I N
+with character
+.B c
+(default:
+.BR \[rs][br] ;
+default scaling unit\~\c
+.scaleindicator v ).
+.
+.
+.TP
+.ESC m c
+Set stroke color to that with one-character
+.RI name\~ c .
+.
+.
+.TP
+.ESC m( cl
+Set stroke color to that with two-character
+.RI name\~ cl .
+.
+.
+.TP
+.ESC[] m color
+Set stroke color to that with arbitrarily long
+.RI name\~ color .
+.
+.
+.TP
+.ESC[] m ""
+Restore previous stroke color.
+.
+.
+.TP
+.ESC M c
+Set fill color to that with one-character
+.RI name\~ c .
+.
+.
+.TP
+.ESC M( cl
+Set fill color to that with two-character
+.RI name\~ cl .
+.
+.
+.TP
+.ESC[] M color
+Set fill color to that with arbitrarily long
+.RI name\~ color .
+.
+.
+.TP
+.ESC[] M ""
+Restore previous fill color.
+.
+.
+.br
+.ne 4v \" XXX: why not 3v?
+.TP
+.ESC n r
+Interpolate contents of register with one-character
+.RI name\~ r .
+.
+.
+.TP
+.ESC n( rg
+Interpolate contents of register with two-character
+.RI name\~ rg .
+.
+.
+.TP
+.ESC[] n reg
+Interpolate contents of register with arbitrarily long
+.RI name\~ reg .
+.
+.
+.TP
+.ESCq N n
+Interpolate glyph with
+.RI index\~ n
+in the current font.
+.
+.TP
+.ESCq o abc\f[R].\|.\|.\f[]
+Overstrike centered glyphs of characters
+.IR a ,
+.IR b ,
+.IR c ,
+and so on.
+.
+.TP
+.ESC O0
+At the outermost suppression level,
+disable emission of glyphs and geometric objects to the output
+driver.
+.
+.
+.TP
+.ESC O1
+At the outermost suppression level,
+enable emission of glyphs and geometric objects to the output driver.
+.
+.
+.TP
+.ESC O2
+At the outermost suppression level,
+enable glyph and geometric primitive emission to the output driver and
+write to the standard error stream the page number,
+four bounding box registers enclosing glyphs written since the previous
+.B \[rs]O
+escape sequence,
+the page offset,
+line length,
+image file name
+(if any),
+horizontal and vertical device motion quanta,
+and input file name.
+.
+.
+.TP
+.ESC O3
+Begin a nested suppression level.
+.
+.
+.TP
+.ESC O4
+End a nested suppression level.
+.
+.
+.TP
+.ESC[] O "\f[CB]5\f[]Pfile"
+At the outermost suppression level,
+write the name
+.I file
+to the standard error stream at
+.RI position\~ P ,
+which must be one of
+.BR l ,
+.BR r ,
+.BR c ,
+or
+.BR i .
+.
+.
+.TP
+.ESC p
+Break output line at next word boundary;
+adjust if applicable.
+.
+.
+.TP
+.ESC r
+Move \[lq]in reverse\[rq] (upward) 1\~em.
+.
+.
+.TP
+.ESCq R "name\~\[+-]N"
+Set,
+increment,
+or decrement register
+.I name
+.RI by\~ N .
+.
+.
+.TP
+.ESC s \[+-]N
+Set/increase/decrease the type size to/by
+.I N
+scaled points.
+.
+.I N
+must be a single digit;
+0 restores the previous type size.
+.
+(In compatibility mode only,
+a non-zero
+.I N
+must be in the range 4\[en]39.)
+.
+Otherwise,
+as
+.request .ps
+request.
+.
+.
+.TP
+.ESC s( \[+-]N
+.TQ
+.fam C
+.BI \es \[+-] ( N
+.fam
+Set/increase/decrease the type size to/by
+.I N
+scaled points;
+.I N
+is a two-digit number \[>=]1.
+.
+As
+.request .ps
+request.
+.
+.
+.TP
+.ESC[] s \[+-]N
+.TQ
+.fam C
+.BI \es \[+-] [ N ]
+.fam
+.TQ
+.ESCq s \[+-]N
+.TQ
+.fam C
+.BI \es \[+-] \[aq] N \[aq]
+.fam
+Set/increase/decrease the type size to/by
+.I N
+scaled points.
+.
+As
+.request .ps
+request.
+.
+.
+.TP
+.ESCq S N
+Slant output glyphs by
+.I N
+degrees;
+the direction of text flow is positive.
+.
+.
+.TP
+.ESC t
+Interpolate a tab in copy mode.
+.
+.
+.TP
+.ESC u
+Move upward \[12]\~em on typesetters.
+.\" XXX: No current groff nroff-mode output driver supports half-line
+.\" motions.
+.\" (\[12]\~line in
+.\" .I nroff
+.\" contingent on device support).
+.
+.
+.TP
+.ESCq v N
+Vertically move the drawing position by
+.IR N \~vees
+(or specified units);
+.B \[or]
+may be used.
+.
+Positive motion is downward.
+.
+.
+.TP
+.ESC V e
+Interpolate contents of environment variable with one-character
+.RI name\~ e .
+.
+.
+.TP
+.ESC V( ev
+Interpolate contents of environment variable with two-character
+.RI name\~ ev .
+.
+.
+.TP
+.ESC[] V env
+Interpolate contents of environment variable with arbitrarily long
+.RI name\~ env .
+.
+.
+.TP
+.ESCq w anything
+Interpolate width of
+.IR anything ,
+formatted in a dummy environment.
+.
+.
+.TP
+.ESCq x N
+Increase vertical spacing of pending output line by
+.IR N \~vees
+(or specified units;
+negative before,
+positive after).
+.
+.TP
+.ESCq X anything
+Write
+.I anything
+to
+.I \%troff
+output as a device control command.
+.
+Within
+.IR anything ,
+the escape sequences
+.BR \[rs]& ,
+.BR \[rs]) ,
+.BR \[rs]% ,
+and
+.B \[rs]:
+are ignored;
+.BI \[rs] space
+and
+.B \[rs]\[ti]
+are converted to single space characters;
+and
+.B \[rs]\[rs]
+has its escape character stripped.
+.
+So that the basic Latin subset of the Unicode character
+set can be reliably encoded in
+.I anything,
+the special character escape sequences
+.BR \[rs]\- ,
+.BR \[rs][aq] ,
+.BR \[rs][dq] ,
+.BR \[rs][ga] ,
+.BR \[rs][ha] ,
+.BR \[rs][rs] ,
+and
+.B \[rs][ti]
+are mapped to basic Latin characters;
+see
+.MR groff_char 7 .
+.
+For this transformation,
+character translations and special character definitions are ignored.
+.
+.TP
+.ESC Y n
+Write contents of macro or string
+.I n
+to
+.I \%troff
+output as a device control command.
+.
+.TP
+.ESC Y( nm
+Write contents of macro or string
+.I nm
+to
+.I \%troff
+output as a device control command.
+.
+.TP
+.ESC[] Y name
+Write contents of macro or string
+.I name
+to
+.I \%troff
+output as a device control command.
+.
+.TP
+.ESC z c
+Format character
+.I c
+with zero width\[em]without advancing the drawing position.
+.
+.TP
+.ESCq Z anything
+Save the drawing position,
+format
+.IR anything ,
+then restore it.
+.LE
+.
+.
+.\" ====================================================================
+.SS "Drawing commands"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Drawing
+.\" commands".
+Drawing commands direct the output device to render geometrical objects
+rather than glyphs.
+.
+Specific devices may support only a subset,
+or may feature additional ones;
+consult the man page for the output driver in use.
+.
+Terminal devices in particular implement almost none.
+.
+.
+.P
+Rendering starts at the drawing position;
+when finished,
+the drawing position is left at the rightmost point of the object,
+even for closed figures,
+except where noted.
+.
+GNU
+.I troff \" GNU
+draws stroked (outlined) objects with the stroke color,
+and shades filled ones with the fill color.
+.
+See section \[lq]Colors\[rq] above.
+.
+Coordinates
+.I h
+and
+.I v
+are horizontal and vertical motions relative to the drawing position
+or previous point in the command.
+.
+The default scaling unit for horizontal measurements
+(and diameters of circles)
+.RB is\~ m ;
+for vertical ones,
+.BR v .
+.
+.
+.P
+Circles,
+ellipses,
+and polygons can be drawn stroked or filled.
+.
+These are independent properties;
+if you want a filled,
+stroked figure,
+you must draw the same figure twice using each drawing command.
+.
+A filled figure is always smaller than an outlined one because the
+former is drawn only within its defined area,
+whereas strokes have a line thickness
+(set with
+.BR \[rs]D\[aq]t\[aq] ).
+.
+.
+.P
+.LS
+.TP
+.BI \[rs]D\[aq]\[ti]\~ "h1 v1"\~\c
+.RI .\|.\|.\~ "hn vn"\c
+.B \[aq]
+Draw B-spline to each point in sequence,
+leaving drawing position at
+.RI ( hn ,\~ vn ).
+.
+.\" XXX: This is one case where a valid coordinate pair could be off the
+.\" page (even negative) and we need to discuss this frankly.
+.TP
+.BI \[rs]D\[aq]a\~ "hc vc h v" \[aq]
+Draw circular arc centered at
+.RI ( hc ,\~ vc )
+counterclockwise from the drawing position to a point
+.RI ( h ,\~ v )
+relative to the center.
+.
+.RI ( hc ,\~ vc )
+is adjusted to the point nearest the perpendicular bisector of the arc's
+chord.
+.
+.TP
+.BI \[rs]D\[aq]c\~ "d" \[aq]
+Draw circle of diameter
+.I d
+with its leftmost point at the drawing position.
+.
+.TP
+.BI \[rs]D\[aq]C\~ "d" \[aq]
+As
+.BR \[rs]D\[aq]C\[aq] ,
+but the circle is filled.
+.
+.TP
+.BI \[rs]D\[aq]e\~ "h v" \[aq]
+Draw ellipse of width
+.I h
+and height
+.I v
+with its leftmost point at the drawing position.
+.
+.\" How do we draw an ellipse with rotated axes?
+.TP
+.BI \[rs]D\[aq]E\~ "h v" \[aq]
+As
+.BR \[rs]D\[aq]e\[aq] ,
+but the ellipse is filled.
+.
+.\" XXX: Df and dF are taken care of by \M and .defcolor.
+.TP
+.BI \[rs]D\[aq]l\~ "h v" \[aq]
+Draw line from the drawing position to
+.RI ( h ,\~ v ).
+.
+.TP
+.BI \[rs]D\[aq]p\~ "h1 v1"\~\c
+.RI .\|.\|.\~ "hn vn"\c
+.B \[aq]
+Draw polygon with vertices at drawing position and each point
+in sequence.
+.
+GNU
+.I troff \" GNU
+closes the polygon by drawing a line from
+.RI ( hn ,\~ vn )
+back to the initial drawing position.
+.
+.\" XXX: This would be the "STUPID_DRAWING_POSITIONING" complained of in
+.\" src/libs/libdriver/input.cpp.  It is neither the rightmost point
+.\" of the figure nor the initial drawing position that GNU troff
+.\" automatically returned to to close the figure.
+Afterward,
+the drawing position is left at
+.RI ( hn ,\~ vn ).
+.
+.TP
+.BI \[rs]D\[aq]P\~ "h1 v1"\~\c
+.RI .\|.\|.\~ "hn vn"\c
+.B \[aq]
+As
+.BR \[rs]D\[aq]p\[aq] ,
+but the polygon is filled.
+.
+.TP
+.BI \[rs]D\[aq]t\~ "n" \[aq]
+Set stroke thickness of geometric objects to
+.RI to\~ n
+basic units.
+.
+A zero
+.I n
+selects the minimal supported thickness.
+.
+A negative
+.I n
+selects a thickness proportional to the type size;
+this is the default.
+.LE
+.\" END Keep (roughly) parallel with groff.texi node "Drawing
+.\" commands".
+.
+.
+.\" ====================================================================
+.SS "Device control commands"
+.\" ====================================================================
+.
+The
+.B .device
+and
+.B .devicem
+requests,
+and
+.B \[rs]X
+and
+.B \[rs]Y
+escape sequences,
+enable documents to pass information directly to a postprocessor.
+.
+These are useful for
+exercising device-specific capabilities that the
+.I groff
+language does not abstract or generalize;
+such functions include the embedding of hyperlinks and image files.
+.
+Device-specific functions are documented in
+each output driver's man page.
+.
+.
+.\" ====================================================================
+.SH Strings
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Strings".
+.I groff
+supports strings primarily for user convenience.
+.
+Conventionally,
+if one would define a macro only to interpolate a small amount of text,
+without invoking requests or calling any other macros,
+one defines a string instead.
+.
+Only one string is predefined by the language.
+.
+.
+.TPx
+.STRING .T
+Contains the name of the output device
+(for example,
+.RB \[lq] utf8 \[rq]
+or
+.RB \[lq] pdf \[rq] ).
+.
+.
+.P
+The
+.request .ds
+request creates a string with a specified name and contents.
+.
+If the identifier named by
+.request .ds
+already exists as an alias,
+the target of the alias is redefined.
+.
+If
+.request .ds
+is called with only one argument,
+the named string becomes empty.
+.
+Otherwise,
+.I \%troff
+stores the remainder of the control line in copy mode;
+see subsection \[lq]Copy mode\[rq] below.
+.
+.
+.P
+The
+.esc *
+escape sequence dereferences a string's name,
+interpolating its contents.
+.
+If the name does not exist,
+it is defined as empty,
+nothing is interpolated,
+and a warning in category
+.RB \%\[lq] mac \[rq]
+is emitted.
+.
+See section \[lq]Warnings\[rq] in
+.MR \%troff 1 .
+.
+The bracketed interpolation form accepts arguments that are handled as
+macro arguments are;
+see section \[lq]Calling macros\[rq] above.
+.
+In contrast to macro calls,
+however,
+if a closing bracket
+.B ]
+occurs in a string argument,
+that argument must be enclosed in double quotes.
+.
+.B \[rs]*
+is interpreted even in copy mode.
+.
+When defining strings,
+argument interpolations must be escaped if they are to reference
+parameters from the calling context;
+see section \[lq]Parameters\[rq] below.
+.
+.
+.P
+An initial neutral double quote
+.B \[dq]
+in the string contents is stripped to allow embedding of leading spaces.
+.
+Any other
+.B \[dq]
+is interpreted literally,
+but it is wise to use the special character escape sequence
+.B \[rs][dq]
+instead if the string might be interpolated as part of a macro argument;
+see section \[lq]Calling macros\[rq] above.
+.
+Strings are not limited to a single input line of text.
+.BI \[rs] newline
+works just as it does elsewhere.
+.
+The resulting string is stored
+.I without
+the newlines.
+.
+Care is therefore required when interpolating strings while filling is
+disabled.
+.
+It is not possible to embed a newline in a string that will be
+interpreted as such when the string is interpolated.
+.
+To achieve that effect,
+use
+.B \[rs]*
+to interpolate a macro instead.\" see @ref{Punning Names}.
+.
+.
+.P
+The
+.request .as
+request is similar to
+.request .ds
+but appends to a string instead of redefining it.
+.
+If
+.request .as
+is called with only one argument,
+no operation is performed
+(beyond dereferencing the string).
+.
+.
+.P
+Because strings are similar to macros,
+they too can be defined to suppress AT&T
+.I troff \" AT&T
+compatibility mode enablement when interpolated;
+see section \[lq]Compatibility mode\[rq] below.
+.
+The
+.request .ds1
+request defines a string that suspends compatibility mode when the
+string is later interpolated.
+.
+.request .as1
+is likewise similar to
+.BR .as ,
+with compatibility mode suspended when the appended portion of the
+string is later interpolated.
+.
+.
+.P
+.B Caution:
+Unlike other requests,
+the second argument to these requests consumes the remainder of the
+input line,
+including trailing spaces.
+.
+Ending string definitions
+(and appendments)
+with a comment,
+even an empty one,
+prevents unwanted space from creeping into them during source document
+maintenance.
+.
+.
+.br
+.ne 3v
+.P
+Several requests exist to perform rudimentary string operations.
+.
+Strings can be queried
+(\c
+.request .length )
+and modified
+(\c
+.request .chop ,
+.request .substring ,
+.request .stringup ,
+.request .stringdown ),
+and their names can be manipulated through renaming,
+removal,
+and aliasing
+(\c
+.request .rn ,
+.request .rm ,
+.request .als).
+.
+.
+.P
+When a request,
+macro,
+string,
+or diversion is aliased,
+redefinitions and appendments \[lq]write through\[rq] alias names.
+.
+To replace an alias with a separately defined object,
+you must use the
+.B rm
+request on its name first.
+.\" END Keep (roughly) parallel with groff.texi node "Strings".
+.
+.
+.\" ====================================================================
+.SH Registers
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Registers".
+In the
+.I roff
+language,
+numbers can be stored in
+.I registers.
+.
+Many built-in registers exist,
+supplying anything from the date to details of formatting parameters.
+.
+You can also define your own.
+.
+See section \[lq]Identifiers\[rq] above for information on constructing
+a valid name for a register.
+.
+.
+.P
+Define registers and update their values with the
+.B nr
+request or the
+.B \[rs]R
+escape sequence.
+.
+.
+.P
+Registers can also be incremented or decremented by a configured amount
+at the time they are interpolated.
+.
+The value of the increment is specified with a third argument to the
+.request .nr
+request,
+and a special interpolation syntax,
+.BI \[rs]n \[+-]
+is used to alter and then retrieve
+the register's value.
+.
+Together,
+these features are called
+.IR auto-increment .
+.
+(A negative auto-increment can be
+considered an \[lq]auto-decrement\[rq].)
+.
+.
+.P
+Many predefined registers are available.
+.
+In the following presentation,
+the register interpolation syntax
+.BI \[rs]n[ name ]
+is used to refer to a register
+.I name
+to clearly distinguish it from a string or request
+.IR name .
+.
+The register name space is separate from that used for requests,
+macros,
+strings,
+and diversions.
+.
+Bear in mind that the symbols
+.B \[rs]n[]
+are
+.I not
+part of the register name.
+.\" END Keep (roughly) parallel with groff.texi node "Registers".
+.
+.
+.\" ====================================================================
+.SS "Read-only registers"
+.\" ====================================================================
+.
+Predefined registers whose identifiers start with a dot are read-only.
+.
+Many are Boolean-valued.
+.
+Some are string-valued,
+meaning that they interpolate text.
+.
+A register name
+(without the dot)
+is often associated with a request of the same name;
+exceptions are noted.
+.
+.
+.P
+.LS
+.
+.TP 15n
+.REG .$
+Count of arguments passed to currently interpolated macro or string.
+.
+.TP
+.REG .a
+Amount of extra post-vertical line space;
+see
+.esc x .
+.
+.TP
+.REG .A
+Approximate output is being formatted (Boolean-valued);
+see
+.I \%troff
+.B \-a
+option.
+.
+.TP
+.REG .b
+Font emboldening offset;
+see
+.request .bd .
+.
+.TP
+.REG .br
+The normal control character was used to call the currently interpolated
+macro (Boolean-valued).
+.
+.TP
+.REG .c
+Input line number;
+see
+.request .lf
+and
+.register \f[R]\[lq]\f[]c.\f[R]\[rq]\f[] .
+.
+.TP
+.REG .C
+Compatibility mode is enabled (Boolean-valued);
+see
+.request .cp .
+.
+Always false when processing
+.request .do ;
+see
+.register .cp .
+.
+.TP
+.REG .cdp
+Depth of last glyph formatted in the environment;
+.\" TODO: Give page a discussion of glyph properties and move this.
+positive if glyph extends below the baseline.
+.
+.TP
+.REG .ce
+Count of output lines remaining to be centered.
+.
+.TP
+.REG .cht
+Height of last glyph formatted in the environment;
+.\" TODO: Give page a discussion of glyph properties and move this.
+positive if glyph extends above the baseline.
+.
+.TP
+.REG .color
+Color output is enabled (Boolean-valued).
+.
+.TP
+.REG .cp
+Within
+.request .do ,
+the saved value of compatibility mode;
+see
+.register .C .
+.
+.TP
+.REG .csk
+Skew of the last glyph formatted in the environment;
+.\" TODO: Give page a discussion of glyph properties and move this.
+skew is how far to the right of the center of a glyph the center of an
+accent over that glyph should be placed.
+.
+.TP
+.REG .d
+Vertical drawing position in diversion.
+.
+.TP
+.REG .ev
+Name of environment (string-valued).
+.
+.TP
+.REG .f
+Mounting position of selected font;
+see
+.request .ft
+and
+.esc f .
+.
+.TP
+.REG .F
+Name of input file (string-valued);
+see
+.request .lf .
+.
+.TP
+.REG .fam
+Name of default font family (string-valued).
+.
+.TP
+.REG .fn
+Resolved name of selected font (string-valued);
+see
+.request .ft
+and
+.esc f .
+.
+.TP
+.REG .fp
+Next non-zero free font mounting position index.
+.
+.TP
+.REG .g
+Always true in GNU
+.I troff \" GNU
+(Boolean-valued).
+.
+.TP
+.REG .h
+Text baseline high-water mark on page or in diversion.
+.
+.TP
+.REG .H
+Horizontal motion quantum of output device in basic units.
+.
+.TP
+.REG .height
+Font height;
+see
+.esc H .
+.
+.TP
+.REG .hla
+Hyphenation language in environment (string-valued).
+.
+.TP
+.REG .hlc
+Count of immediately preceding consecutive hyphenated lines in
+environment.
+.
+.TP
+.REG .hlm
+Maximum quantity of consecutive hyphenated lines allowed in environment.
+.
+.TP
+.REG .hy
+Automatic hyphenation mode in environment.
+.
+.TP
+.REG .hym
+Hyphenation margin in environment.
+.
+.TP
+.REG .hys
+Hyphenation space adjustment threshold in environment.
+.
+.TP
+.REG .i
+Indentation amount;
+see
+.request .in .
+.
+.TP
+.REG .in
+Indentation amount applicable to the pending output line;
+see
+.request .ti .
+.
+.TP
+.REG .int
+Previous output line was \[lq]interrupted\[rq] or continued with
+.esc c
+(Boolean-valued).
+.
+.TP
+.REG .j
+Adjustment mode encoded as an integer;
+see
+.request .ad
+and
+.request .na .
+.
+Do not interpret or perform arithmetic on its value.
+.
+.TP
+.REG .k
+Horizontal drawing position relative to indentation.
+.
+.TP
+.REG .kern
+Pairwise kerning is enabled (Boolean-valued).
+.
+.TP
+.REG .l
+Line length;
+see
+.request .ll .
+.
+.TP
+.REG .L
+Line spacing;
+see
+.request .ls .
+.
+.TP
+.REG .lg
+Ligature mode.
+.
+.TP
+.REG .linetabs
+Line-tabs mode is enabled (Boolean-valued).
+.
+.TP
+.REG .ll
+Line length applicable to the pending output line.
+.
+.TP
+.REG .lt
+Title length.
+.
+.TP
+.REG .m
+Stroke color (string-valued);
+see
+.request .gcolor
+and
+.esc m .
+.
+Empty if the stroke color is the default.
+.
+.TP
+.REG .M
+Fill color (string-valued);
+see
+.request .fcolor
+and
+.esc M .
+.
+Empty if the fill color is the default.
+.
+.TP
+.REG .n
+Length of formatted output on previous output line.
+.
+.TP
+.REG .ne
+Amount of vertical space required by last
+.request .ne
+that caused a trap to be sprung;
+also see
+.register .trunc .
+.
+.TP
+.REG .nm
+Output line numbering is enabled (Boolean-valued).
+.
+.TP
+.REG .nn
+Count of output lines remaining to have numbering suppressed.
+.
+.TP
+.REG .ns
+No-space mode is enabled (Boolean-valued).
+.
+.TP
+.REG .o
+Page offset;
+see
+.request .po .
+.
+.TP
+.REG .O
+Output suppression nesting level;
+see
+.esc O .
+.
+.TP
+.REG .p
+Page length;
+see
+.request .pl .
+.
+.TP
+.REG .P
+The page is selected for output (Boolean-valued);
+see
+.I \%troff
+.B \-o
+option.
+.
+.TP
+.REG .pe
+Page ejection is in progress (Boolean-valued).
+.
+.TP
+.REG .pn
+Number of the next page.
+.
+.TP
+.REG .ps
+Type size in scaled points.
+.
+.TP
+.REG .psr
+Most recently requested type size in scaled points;
+see
+.request .ps
+and
+.esc s .
+.
+.TP
+.REG .pvs
+Post-vertical line spacing.
+.
+.TP
+.REG .R
+Count of available unused registers;
+always 10,000 in GNU
+.IR troff . \" GNU
+.
+.TP
+.REG .rj
+Count of lines remaining to be right-aligned.
+.
+.TP
+.REG .s
+Type size in points as a decimal fraction (string-valued);
+see
+.request .ps
+and
+.esc s .
+.
+.TP
+.REG .slant
+Slant of font in degrees;
+see
+.esc S .
+.
+.TP
+.REG .sr
+Most recently requested type size in points as a decimal fraction
+(string-valued);
+see
+.request .ps
+and
+.esc s .
+.
+.TP
+.REG .ss
+Size of minimal inter-word space in twelfths of the space width of the
+selected font.
+.
+.TP
+.REG .sss
+Size of additional inter-sentence space in twelfths of the space width
+of the selected font.
+.
+.TP
+.REG .sty
+Selected abstract style (string-valued);
+see
+.request .ft
+and
+.esc f .
+.
+.TP
+.REG .t
+Distance to next vertical position trap;
+see
+.request .wh
+and
+.request .ch .
+.
+.TP
+.REG .T
+An output device was explicitly selected (Boolean-valued);
+see
+.I \%troff
+.B \-T
+option.
+.
+.TP
+.REG .tabs
+Representation of tab settings suitable for use as argument to
+.request .ta
+(string-valued).
+.
+.TP
+.REG .trunc
+Amount of vertical space truncated by the most recently sprung
+vertical position trap,
+or,
+if the trap was sprung by an
+.request .ne ,
+minus the amount of vertical motion produced by
+.request .ne ;
+also see
+.register .ne .
+.
+.TP
+.REG .u
+Filling is enabled (Boolean-valued);
+see
+.request .fi
+and
+.request .nf .
+.
+.TP
+.REG .U
+Unsafe mode is enabled (Boolean-valued);
+see
+.I \%troff
+.B \-U
+option.
+.
+.TP
+.REG .v
+Vertical line spacing;
+see
+.request .vs .
+.
+.TP
+.REG .V
+Vertical motion quantum of the output device in basic units.
+.
+.TP
+.REG .vpt
+Vertical position traps are enabled (Boolean-valued).
+.
+.TP
+.REG .w
+Width of previous glyph formatted in the environment.
+.
+.TP
+.REG .warn
+Sum of the numeric codes of enabled warning categories.
+.
+.TP
+.REG .x
+Major version number of the running
+.I \%troff
+formatter.
+.
+.TP
+.REG .y
+Minor version number of the running
+.I \%troff
+formatter.
+.
+.TP
+.REG .Y
+Revision number of the running
+.I \%troff
+formatter.
+.
+.TP
+.REG .z
+Name of diversion (string-valued).
+.
+Empty if output is directed to the top-level diversion.
+.
+.TP
+.REG .zoom
+Zoom multiplier of current font
+(in thousandths;
+zero if no magnification);
+see
+.request .fzoom .
+.LE
+.
+.
+.\" ====================================================================
+.SS "Writable predefined registers"
+.\" ====================================================================
+.
+Several registers are predefined but also modifiable;
+some are updated upon interpretation of certain requests or escape
+sequences.
+.
+Date- and time-related registers are set to the local time as determined
+by
+.MR localtime 3
+when the formatter launches.
+.
+This initialization can be overridden by
+.I \%SOURCE_DATE_EPOCH
+and
+.IR TZ ;
+see section \[lq]Environment\[rq] of
+.MR groff 1 .
+.
+.
+.P
+.LS
+.
+.TP 15n
+.REG $$
+Process ID of
+.IR \%troff .
+.
+.TP
+.REG %
+Page number.
+.
+.TP
+.REG c.
+Input line number.
+.
+.TP
+.REG ct
+Union of character types of each glyph rendered into dummy environment
+by
+.esc w .
+.
+.TP
+.REG dl
+Width of last closed diversion.
+.
+.TP
+.REG dn
+Height of last closed diversion.
+.
+.TP
+.REG dw
+Day of the week (1\[en]7;
+1 is Sunday).
+.
+.TP
+.REG dy
+Day of the month (1\[en]31).
+.
+.TP
+.REG hours
+Count of hours elapsed since midnight (0\[en]23).
+.
+.TP
+.REG hp
+Horizontal drawing position relative to start of input line.
+.
+.TP
+.REG llx
+Lower-left
+.I x
+coordinate
+(in PostScript units)
+of PostScript image;
+see
+.request .psbb .
+.
+.TP
+.REG lly
+Lower-left
+.I y
+coordinate
+(in PostScript units)
+of PostScript image;
+see
+.request .psbb .
+.
+.TP
+.REG ln
+Output line number;
+see
+.request .nm .
+.
+.TP
+.REG lsn
+Count of leading spaces on input line.
+.
+.TP
+.REG lss
+Amount of horizontal space corresponding to leading spaces on input
+line.
+.
+.TP
+.REG minutes
+Count of minutes elapsed in the hour (0\[en]59).
+.
+.TP
+.REG mo
+Month of the year (1\[en]12).
+.
+.TP
+.REG nl
+Vertical drawing position.
+.
+.TP
+.REG opmaxx
+.TP
+.REG opmaxy
+.TP
+.REG opminx
+.TP
+.REG opminy
+These four registers mark the top left- and bottom right-hand corners of
+a rectangle encompassing all formatted output on the page.
+.
+They are reset to \-1 by
+.B \[rs]O0
+or
+.BR \[rs]O1 .
+.
+.TP
+.REG rsb
+As
+.register sb ,
+adding maximum glyph height to measurement.
+.
+.TP
+.REG rst
+As
+.register st ,
+adding maximum glyph depth to measurement.
+.
+.TP
+.REG sb
+Maximum displacement of text baseline below its original position
+after rendering into dummy environment by
+.esc w .
+.
+.TP
+.REG seconds
+Count of seconds elapsed in the minute (0\[en]60). \" not 59; see POSIX
+.
+.TP
+.REG skw
+Skew of last glyph rendered into dummy environment by
+.esc w .
+.
+.TP
+.REG slimit
+The maximum depth of
+.IR \%troff 's
+internal input stack.
+.
+If \[<=]0,
+there is no limit:
+recursion can continue until available memory is exhausted.
+.
+The default is 1,000.
+.
+.TP
+.REG ssc
+Subscript correction of last glyph rendered into dummy environment by
+.esc w .
+.
+.TP
+.REG st
+Maximum displacement of text baseline above its original position
+after rendering into dummy environment by
+.esc w .
+.
+.TP
+.REG systat
+Return value of
+.I system()
+function; see
+.request .sy .
+.
+.TP
+.REG urx
+Upper-right
+.I x
+coordinate
+(in PostScript units)
+of PostScript image;
+see
+.request .psbb .
+.
+.TP
+.REG ury
+Upper-right
+.I y
+coordinate
+(in PostScript units)
+of PostScript image;
+see
+.request .psbb .
+.
+.TP
+.REG year
+Gregorian year.
+.
+.TP
+.REG yr
+Gregorian year minus 1900.
+.LE
+.
+.
+.\" ====================================================================
+.SH "Using fonts"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Using Fonts".
+In digital typography,
+a
+.I font
+is a collection of characters in a specific typeface that a device can
+render as glyphs at a desired size.
+.
+(Terminals and some output devices have fonts that render at only one or
+two sizes.
+.
+As examples of the latter,
+take the
+.I groff
+.B lj4
+device's
+Lineprinter,
+and
+.BR lbp 's
+Courier and Elite faces.)
+.
+.
+A
+.I roff
+formatter can change typefaces at any point in the text.
+.
+The basic faces are a set of
+.I styles
+combining upright and slanted shapes with normal and heavy stroke
+weights:
+.RB \[lq] R \[rq],
+.RB \[lq] I \[rq],
+.RB \[lq] B \[rq],
+and
+.RB \[lq] BI \[rq]\[em]\c
+these stand for
+.I roman,
+.I bold,
+.I italic,
+and
+.I bold-italic.
+.
+For linguistic text,
+GNU
+.I troff \" GNU
+groups typefaces into
+.I families
+containing each of these styles.
+.
+(Font designers prepare families such that the styles share esthetic
+properties.)
+.
+A
+.I "text font"
+is thus often a family combined with a style,
+but it need not be:
+consider the
+.B ps
+and
+.B pdf
+devices'
+.B ZCMI
+(Zapf Chancery Medium italic)\[em]\c
+often,
+no other style of Zapf Chancery Medium is provided.
+.
+On typesetting devices,
+at least one
+.I "special font"
+is available,
+comprising
+.I unstyled
+glyphs for mathematical operators and other purposes.
+.
+.
+.P
+Like AT&T
+.I troff, \" AT&T
+GNU
+.I troff \" GNU
+does not itself load or manipulate a digital font file;
+.\" @footnote{Historically, the fonts @code{troff}s dealt with were not
+.\" Free Software or, as with the Graphic Systems C/A/T, did not even
+.\" exist in the digital domain.}
+instead it
+works with a
+.I font description file
+that characterizes it,
+including its glyph repertoire and the
+.I metrics
+(dimensions) of each glyph.
+.
+This information permits the formatter to accurately place glyphs with
+respect to each other.
+.
+Before using a font description,
+the formatter associates it with a
+.I "mounting position,"
+a place in an ordered list of available typefaces.
+.
+So that a document need not be strongly coupled to a specific font
+family,
+in GNU
+.I troff \" GNU
+an output device can associate a style in the abstract sense with a
+mounting position.
+.
+Thus the default family can be combined with a style dynamically,
+producing a
+.I "resolved font name."
+.
+.
+.P
+Fonts often have trademarked names,
+and even Free Software fonts can require renaming upon modification.
+.
+.I groff
+maintains a convention that a device's serif font family is given the
+name
+.B T
+(\[lq]Times\[rq]),
+its sans-serif family
+.B H
+(\[lq]Helvetica\[rq]),
+and its
+monospaced family
+.B C
+(\[lq]Courier\[rq]).
+.
+Historical inertia has driven
+.IR groff 's
+font identifiers to short uppercase abbreviations of font names,
+as with
+.BR TR ,
+.BR TB ,
+.BR TI ,
+.BR TBI ,
+and a special font
+.BR S .
+.
+.
+.P
+The default family used with abstract styles can be changed at any time;
+initially,
+it
+.RB is\~ T .
+.
+Typically,
+abstract styles are arranged in the first four mounting positions in the
+order shown above.
+.
+The default mounting position,
+and therefore style,
+is always
+.B 1
+.RB ( R ).
+.
+By issuing appropriate formatter instructions,
+you can override these defaults before your document writes its first
+glyph.
+.
+.
+.P
+Terminal output devices cannot change font families and lack special
+fonts.
+.
+They support style changes by overstriking,
+or by altering ISO\~6429/\:ECMA-48
+.I "graphic renditions"
+(character cell attributes).
+.\" END Keep (roughly) parallel with groff.texi node "Using Fonts".
+.
+.
+.\" ====================================================================
+.SH Hyphenation
+.\" ====================================================================
+.
+When filling,
+.I groff
+hyphenates words as needed at user-specified and automatically
+determined hyphenation points.
+.
+Explicitly hyphenated words such as \[lq]mother-in-law\[rq] are always
+eligible for breaking after each of their hyphens.
+.
+The hyphenation
+.RB character\~ \[rs]%
+and non-printing break
+.RB point\~ \[rs]:
+escape sequences may be used to control the hyphenation and breaking of
+individual words.
+.
+The
+.B .hw
+request sets user-defined hyphenation points for specified words at any
+subsequent occurrence.
+.
+Otherwise,
+.I groff
+determines hyphenation points automatically by default.
+.
+.
+.P
+Several requests influence automatic hyphenation.
+.
+Because conventions vary,
+a variety of hyphenation modes is available to the
+.B .hy
+request;
+these determine whether hyphenation will apply to a word prior to
+breaking a line at the end of a page
+(more or less;
+see below for details),
+and at which positions within that word automatically determined
+hyphenation points are permissible.
+.
+The default is
+.RB \[lq] 1 \[rq]
+for historical reasons,
+but this is not an appropriate value for the English hyphenation
+patterns used by
+.IR groff ;
+localization macro files loaded by
+.I troffrc
+and macro packages often override it.
+.
+.
+.TP
+.B 0
+disables hyphenation.
+.
+.
+.TP
+.B 1
+enables hyphenation except after the first and before the last character
+of a word.
+.
+.
+.P
+The remaining values \[lq]imply\[rq]
+.BR 1 ;
+that is,
+they enable hyphenation under the same conditions as
+.RB \[lq] ".hy 1" \[rq],
+and then apply or lift restrictions relative to that basis.
+.
+.
+.TP
+.B 2
+disables hyphenation of the last word on a page.
+.
+(Hyphenation is prevented if the next page location trap is closer to
+the vertical drawing position than the next text baseline would be.
+.
+See section \[lq]Traps\[rq] below.)
+.
+.
+.TP
+.B 4
+disables hyphenation before the last two characters of a word.
+.
+.
+.TP
+.B 8
+disables hyphenation after the first two characters of a word.
+.
+.
+.TP
+.B 16
+enables hyphenation before the last character of a word.
+.
+.
+.TP
+.B 32
+enables hyphenation after the first character of a word.
+.
+.
+.P
+Apart from value\~2,
+restrictions imposed by the hyphenation mode are
+.I not
+respected for words whose hyphenations have been specified with the
+hyphenation character
+.RB (\[lq] \|\[rs]% \[rq]
+by default)
+or the
+.B .hw
+request.
+.
+.
+.P
+Nonzero values are additive.
+.
+For example,
+mode\~12 causes
+.I groff
+to hyphenate neither the last two nor the first two characters of a
+word.
+.
+Some values cannot be used together because they contradict;
+for instance,
+values 4 and\~16,
+and values 8 and\~32.
+.
+As noted,
+it is superfluous to add\~1 to any non-zero even mode.
+.
+.
+.br
+.ne 2v
+.P
+The places within a word that are eligible for hyphenation are
+determined by language-specific data
+.RB ( .hla ,
+.BR .hpf ,
+and
+.BR .hpfa )
+and lettercase relationships
+.RB ( .hcode
+and
+.BR .hpfcode ).
+.
+Furthermore,
+hyphenation of a word might be suppressed due to a limit on
+consecutive hyphenated lines
+.RB ( .hlm ),
+a minimum line length threshold
+.RB ( .hym ),
+or because the line can instead be adjusted with additional inter-word
+space
+.RB ( .hys ).
+.
+.
+.\" ====================================================================
+.SH Localization
+.\" ====================================================================
+.
+The set of hyphenation patterns is associated with the hyphenation
+language set by the
+.B .hla
+request.
+.
+The
+.B .hpf
+request is usually invoked by a localization file loaded by the
+.I troffrc
+file.
+.
+.I groff
+provides localization files for several languages;
+see
+.MR groff_tmac 5 .
+.
+.
+.\" ====================================================================
+.SH "Writing macros"
+.\" ====================================================================
+.
+The
+.B .de
+request defines a macro named for its argument.
+.
+If that name already exists as an alias,
+the target of the alias is redefined;
+see section \[lq]Strings\[rq] above.
+.
+.I \%troff
+enters \[lq]copy mode\[rq]
+(see below),
+storing subsequent input lines as the definition.
+.
+If the optional second argument is not specified,
+the definition ends with the control line
+.RB \[lq] .. \[rq]\&
+(two dots).
+.
+Alternatively,
+a second argument names a macro whose call syntax ends the definition;
+this \[lq]end macro\[rq] is then called normally.
+.
+Spaces or tabs are permitted after the first control character in the
+line containing this ending token,
+but a tab immediately after the token prevents its recognition as the
+end of a macro definition.
+.
+Macro definitions can be nested if they use distinct end macros or if
+their ending tokens are sufficiently escaped.
+.
+An end macro need not be defined until it is called.
+.
+This fact enables a nested macro definition to begin inside one macro
+and end inside another.
+.
+.
+.P
+Variants of
+.B .de
+disable compatibility mode and/or indirect the names of the macros
+specified for definition or termination:
+these are
+.BR .de1 ,
+.BR .dei ,
+and
+.BR .dei1 .
+.
+Append to macro definitions with
+.BR .am ,
+.BR .am1 ,
+.BR .ami ,
+and
+.BR .ami1 .
+.
+The
+.BR .als ,
+.BR .rm ,
+and
+.B .rn
+requests create an alias of,
+remove,
+and rename a macro,
+respectively.
+.
+.B .return
+stops the execution of a macro immediately,
+returning to the enclosing context.
+.
+.
+.\" ====================================================================
+.SS Parameters
+.\" ====================================================================
+.
+Macro call and string interpolation parameters can be accessed using
+escape sequences starting with
+.RB \[lq] \|\[rs]$ \[rq].
+.
+The
+.B \[rs]n[.$]
+read-only register stores the count of parameters available to a macro
+or string;
+its value can be changed by the
+.B .shift
+request,
+which dequeues parameters from the current list.
+.
+The
+.B \[rs]$0
+escape sequence interpolates the name by which a macro was called.
+.
+Applying string interpolation to a macro does not change this name.
+.
+.
+.\" ====================================================================
+.SS "Copy mode"
+.\" ====================================================================
+.
+When
+.I \%troff
+processes certain requests,
+most importantly those which define or append to a macro or string,
+it does so in
+.IR "copy mode" :
+it copies the characters of the definition into a dedicated storage
+region,
+interpolating the escape sequences
+.BR \[rs]n ,
+.BR \[rs]g ,
+.BR \[rs]$ ,
+.BR \[rs]* ,
+.BR \[rs]V ,
+and
+.B \[rs]?\&
+normally;
+interpreting
+.BI \[rs] newline
+immediately;
+discarding comments
+.B \[rs]"
+and
+.BR \[rs]# ;
+interpolating the current leader,
+escape,
+or tab character with
+.BR \[rs]a ,
+.BR \[rs]e ,
+and
+.BR \[rs]t ,
+respectively;
+and storing all other escape sequences in an encoded form.
+.
+The complement of copy mode\[em]a
+.I roff
+formatter's behavior when not defining or appending to a macro,
+string,
+or diversion\[em]where all macros are interpolated,
+requests invoked,
+and valid escape sequences processed immediately upon recognition,
+can be termed
+.IR "interpretation mode" .
+.
+.
+.P
+The escape character,
+.B \[rs]
+by default,
+can escape itself.
+.
+This enables you to control whether a given
+.BR \[rs]n ,
+.BR \[rs]g ,
+.BR \[rs]$ ,
+.BR \[rs]* ,
+.BR \[rs]V ,
+or
+.B \[rs]?\&
+escape sequence is interpreted at the time the macro containing it is
+defined,
+or later when the macro is called.
+.
+.
+.P
+You can think of
+.B \[rs]\[rs]
+as a \[lq]delayed\[rq] backslash;
+it is the escape character followed by a backslash from which the escape
+character has removed its special meaning.
+.
+Consequently,
+.B \[rs]\[rs]
+is not an escape sequence in the usual sense.
+.
+In any escape sequence
+.BI \[rs] X
+that
+.I \%troff
+does not recognize,
+the escape character is ignored and
+.IR X \~is
+output.
+.
+An unrecognized escape sequence causes a warning in category
+.RB \%\[lq] escape \[rq],
+with two exceptions,
+.B \[rs]\[rs]
+being one.
+.
+The other is
+.BR \[rs]. ,
+which escapes the control character.
+.
+It is used to permit nested macro definitions to end without a named
+macro call to conclude them.
+.
+Without a syntax for escaping the control character,
+this would not be possible.
+.
+.I roff
+documents should not use the
+.B \[rs]\[rs]
+or
+.B \[rs].\&
+character sequences outside of copy mode;
+they serve only to obfuscate the input.
+.
+Use
+.B \[rs]e
+to represent the escape character,
+.B \[rs][rs]
+to obtain a backslash glyph,
+and
+.B \[rs]&
+before
+.B .\&
+and
+.B \[aq]
+where
+.I \%troff
+expects them as control characters if you mean to use them literally.
+.
+.
+.br
+.ne 2v
+.P
+Macro definitions can be nested to arbitrary depth.
+.
+In
+.RB \[lq] \|\[rs]\[rs] \[rq],
+each escape character is interpreted twice\[em]once in copy mode,
+when the macro is defined,
+and once in interpretation mode,
+when the macro is called.
+.
+This fact leads to exponential growth in the quantity of escape
+characters required to delay interpolation of
+.BR \[rs]n ,
+.BR \[rs]g ,
+.BR \[rs]$ ,
+.BR \[rs]* ,
+.BR \[rs]V ,
+and
+.B \[rs]?\&
+at each nesting level.
+.
+An alternative is to use
+.BR \[rs]E ,
+which represents an escape character that is not interpreted in copy
+mode.
+.
+Because
+.B \[rs].\&
+is not a true escape sequence,
+we can't use
+.B \[rs]E
+to keep
+.RB \[lq] ..\& \[rq]
+from ending a macro definition prematurely.
+.
+If the multiplicity of backslashes complicates maintenance,
+use end macros.
+.
+.
+.\" ====================================================================
+.SH Traps
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Traps".
+.I Traps
+are locations in the output,
+or conditions on the input that,
+when reached or fulfilled,
+call a specified macro.
+.
+A
+.I "vertical position trap"
+calls a macro when the formatter's vertical drawing position reaches or
+passes,
+in the downward direction,
+a certain location on the output page or in a diversion.
+.
+Its applications include setting page headers and footers,
+body text in multiple columns,
+and footnotes.
+.
+These traps can occur at a given location on the page
+.RB ( .wh ,\~ .ch );
+at a given location in the current diversion
+.RB ( .dt )\[em]together,
+these are known as
+vertical position traps,
+which can be disabled and re-enabled
+.RB ( .vpt ).
+.
+.
+.P
+A diversion is not formatted in the context of a page,
+so it lacks page location traps;
+instead it can have a
+.I "diversion trap."
+.
+There can exist at most one such vertical position trap per diversion.
+.
+.
+.P
+Other kinds of trap can be planted
+at a blank line
+.RB ( .blm );
+at a line with leading space characters
+.RB ( .lsm );
+after a certain number of productive input lines
+.RB ( .it ,\~ .itc );
+or at the end of input
+.RB ( .em ).
+.
+Macros called by traps are passed no arguments.
+.
+Setting a trap is also called
+.I planting
+one.
+.
+It is said that a trap is
+.I sprung
+if its condition is fulfilled.
+.\" END Keep (roughly) parallel with groff.texi node "Traps".
+.
+.
+.br
+.ne 5v
+.P
+Registers associated with trap management include
+vertical position trap enablement status
+.RB ( \[rs]n[.vpt] ),
+distance to the next trap
+.RB ( \[rs]n[.t] ),
+amount of needed
+.RB ( .ne -requested)
+space that caused the most recent vertical position trap to be sprung
+.RB ( \[rs]n[.ne] ),
+amount of needed space truncated from the amount requested
+.RB ( \[rs]n[.trunc] ),
+page ejection status
+.RB ( \[rs]n[.pe] ),
+and
+leading space count
+.RB ( \[rs]n[.lsn] )
+with its corresponding amount of motion
+.RB ( \[rs]n[.lss] ).
+.
+.
+.\" ====================================================================
+.SS "Page location traps"
+.\" ====================================================================
+.
+A
+.I "page location trap"
+is a vertical position trap that applies to
+the page;
+that is,
+to undiverted output.
+.
+Many can be present;
+manage them with
+the
+.B wh
+and
+.B ch
+requests.
+.
+Non-negative page locations given to these requests set the trap
+relative to the top of the page;
+negative values set the trap relative to the bottom of the page.
+.
+It is not possible to plant a trap less than one basic unit from the
+page bottom:
+a location of \[lq]\-0\[rq] is interpreted as \[lq]0\[rq],
+the top of the page.
+.
+An existing
+.I visible
+trap
+(see below)
+at the same location is removed;
+this is
+.BR .wh 's
+sole function if its second argument is missing.
+.
+.
+.P
+A trap is sprung only if it is
+.I visible,
+meaning that its location is reachable on the page and it is not hidden
+by another trap at the same location already planted there.
+.
+(A trap planted at \[lq]20i\[rq] or \[lq]\-30i\[rq] will not be sprung
+on a page of length \[lq]11i\[rq].)
+.
+.
+.P
+A trap above the top or at or below the bottom of the page can be made
+visible by either moving it into the page area or increasing the page
+length so that the trap is on the page.
+.
+Negative trap values always use the
+.I current
+page length;
+they are not converted to an absolute vertical position.
+.
+Use
+.B .ptr
+to dump page location traps to the standard error stream;
+their positions are reported in basic units.
+.
+.
+.br
+.ne 6v
+.\" ====================================================================
+.SS "The implicit page trap"
+.\" ====================================================================
+.
+An
+.I implicit page trap
+always exists in the top-level diversion;
+it works like a trap in some ways but not others.
+.
+Its purpose is to eject the current page and start the next one.
+.
+It has no name,
+so it cannot be moved or deleted with
+.B wh
+or
+.B ch
+requests.
+.
+You cannot hide it by placing another trap at its location,
+and can move it only by redefining the page length with
+.BR .pl .
+.
+Its operation is suppressed when vertical page traps are disabled with
+the
+.B vpt
+request.
+.
+.
+.\" ====================================================================
+.SH Diversions
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Diversions".
+In
+.I roff
+systems it is possible to format text as if for output,
+but instead of writing it immediately,
+one can
+.I divert
+the formatted text into a named storage area.
+.
+It is retrieved later by specifying its name after a control character.
+.
+The same name space is used for such
+.I diversions
+as for strings and macros;
+see section \[lq]Identifiers\[rq] above.
+.
+Such text is sometimes said to be \[lq]stored in a macro\[rq],
+but this coinage obscures the important distinction between macros and
+strings on one hand and diversions on the other;
+the former store
+.I unformatted
+input text,
+and the latter capture
+.I formatted
+output.
+.
+Diversions also do not interpret arguments.
+.
+Applications of diversions include \[lq]keeps\[rq]
+(preventing a page break from occurring at an inconvenient place by
+forcing a set of output lines to be set as a group),
+footnotes,
+tables of contents,
+and indices.
+.
+For orthogonality it is said that GNU
+.I troff \" GNU
+is in the
+.I top-level diversion
+if no diversion is active
+(that is,
+formatted output is being \[lq]diverted\[rq] immediately to the output
+device.
+.
+.
+.P
+Dereferencing an undefined diversion will create an empty one of that
+name and cause a warning in category
+.B mac
+to be emitted.
+(see section \[lq]Warnings\[rq] in
+.MR \%troff 1 ).
+.
+A diversion does not exist for the purpose of testing with the
+.B d
+conditional operator until its initial definition ends
+(see subsection \[lq]Conditional expressions\[rq] above).
+.\" The following requests are used to create and alter diversions.
+.\" END Keep (roughly) parallel with groff.texi node "Diversions".
+.
+.
+.P
+The
+.B di
+request creates a diversion,
+including any partially collected line.
+.
+.B da
+appends to a diversion,
+creating one if it does not already exist.
+.
+If the diversion's name already exists as an alias,
+the target of the alias is replaced or appended to;
+see section \[lq]Strings\[rq] above.
+.
+.B box
+and
+.B boxa
+works similarly,
+but ignore partially collected lines.
+.
+Call any of these macros again without an argument to end the diversion.
+.
+.
+.br
+.ne 2v
+.P
+Diversions can be nested.
+.
+The registers
+.BR .d ,
+.BR .z ,
+.BR dn ,
+and
+.B dl
+report information about the current
+(or last closed)
+diversion.
+.
+.B .h
+is meaningful in diversions,
+including the top level.
+.
+.
+.P
+The
+.B \[rs]!\%
+and
+.B \[rs]?\%
+escape sequences and
+.B output
+request escape from a diversion,
+the first two to the enclosing level and the last to the top level.
+.
+This facility is termed
+.IR "transparent embedding" .
+.
+.
+.P
+The
+.B asciify
+and
+.B unformat
+requests reprocess diversions.
+.\" XXX: That's a weak statement.  What we need is a `for` request and
+.\" a new conditional operator that tests whether an item in a node list
+.\" is an (otherwise unrepresentable) node.  See Savannah #62264.
+.
+.
+.\" ====================================================================
+.SH "Punning names"
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Punning names".
+Macros,
+strings,
+and diversions share a name space;
+see section \[lq]Identifiers\[rq] above.
+.
+Internally,
+the same mechanism is used to store them.
+.
+You can thus call a macro with string interpolation syntax and vice
+versa.
+.
+Interpolating a string does not hide existing macro arguments.
+.
+The sequence
+.B \[rs]\[rs]
+can be placed at the end of a line in a macro definition or,
+within a macro definition,
+immediately after the interpolation of a macro as a string to suppress
+the effect of a newline.
+.\" END Keep (roughly) parallel with groff.texi node "Punning names".
+.
+.
+.\" ====================================================================
+.SH Environments
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Environments".
+Environments store most of the parameters that control text processing.
+.
+A default environment named
+.RB \[lq] 0 \[rq]
+exists when
+.I \%troff
+starts up;
+it is modified by formatting-related requests and escape sequences.
+.
+.
+.P
+You can create new environments and switch among them.
+.
+Only one is current at any given time.
+.
+Active environments are managed using a
+.I stack,
+a data structure supporting \[lq]push\[rq] and \[lq]pop\[rq] operations.
+.
+The current environment is at the top of the stack.
+.
+The same environment name can be pushed onto the stack multiple times,
+possibly interleaved with others.
+.
+Popping the environment stack does not destroy the current environment;
+it remains accessible by name and can be made current again by pushing
+it at any time.
+.
+Environments cannot be renamed or deleted,
+and can only be modified when current.
+.
+To inspect the environment stack,
+use the
+.B pev
+request;
+see section \[lq]Debugging\[rq] below.
+.
+.
+.P
+Environments store the following information.
+.
+.
+.IP \[bu] 2n
+a partially collected line, if any
+.
+.
+.IP \[bu]
+data about the most recently output glyph and line
+(registers
+.BR .cdp ,
+.BR .cht ,
+.BR .csk ,
+.BR .n ,
+.BR .w )
+.
+.
+.IP \[bu]
+typeface parameters
+(size,
+family,
+style,
+height and slant,
+inter-word and inter-sentence space sizes)
+.
+.
+.IP \[bu]
+page parameters
+(line length,
+title length,
+vertical spacing,
+line spacing,
+indentation,
+line numbering,
+centering,
+right-alignment,
+underlining,
+hyphenation parameters)
+.
+.
+.IP \[bu]
+filling enablement;
+adjustment enablement and mode
+.
+.
+.IP \[bu]
+tab stops;
+tab,
+leader,
+escape,
+control,
+no-break control,
+hyphenation,
+and
+margin characters
+.
+.
+.IP \[bu]
+input line traps
+.
+.
+.IP \[bu]
+stroke and fill colors
+.
+.
+.P
+The
+.B ev
+request pushes to and pops from the environment stack,
+while
+.B evc
+copies a named environment's contents to the current one.
+.\" END Keep (roughly) parallel with groff.texi node "Environments".
+.
+.
+.\" ====================================================================
+.SH Underlining
+.\" ====================================================================
+.
+In
+.I RUNOFF
+(see
+.MR roff 7 ),
+underlining,
+even of lengthy passages,
+was straightforward because only fixed-pitch printing devices were
+targeted.
+.
+Typesetter output posed a greater challenge.
+.
+There exists a
+.I groff
+request
+.B .ul
+(see above)
+that underlines subsequent source lines on terminal devices,
+but on typesetters,
+it selects an italic font style instead.
+.
+.
+The
+.I ms
+macro package
+(see
+.MR groff_ms 7 )
+offers a macro
+.BR .UL ,
+but it too produces the desired effect only on typesetters,
+and has other limitations.
+.
+.
+.P
+One could adapt
+.IR ms 's
+approach to the construction of a macro as follows.
+.
+.RS
+.EX
+\&.de UNDERLINE
+\&. ie n \[rs]\[rs]$1\[rs]f[I]\[rs]\[rs]$2\[rs]f[P]\[rs]\[rs]$3
+\&. el \[rs]\[rs]$1\[rs]Z\[aq]\[rs]\[rs]$2\[aq]\[rs]v\[aq].25m\[aq]\
+\[rs]D\[aq]l \[rs]w\[aq]\[rs]\[rs]$2\[aq]u 0\[aq]\[rs]v\[aq]\-.25m\
+\[aq]\[rs]\[rs]$3
+\&..
+.EE
+.RE
+.
+If
+.MR doclifter 1
+makes trouble, change the macro name
+.B UNDERLINE
+into some 2-letter word, like
+.BR Ul .
+.
+Moreover,
+change the form of the font selection escape sequence from
+.B \[rs]f[P]
+to
+.BR \[rs]fP .
+.
+.
+.\" ====================================================================
+.SS "Underlining without macro definitions"
+.\" ====================================================================
+.
+If one does not want to use macro definitions,
+e.g.,
+when
+.I doclifter
+gets lost,
+use the following.
+.
+.RS
+.EX
+\&.ds u1 before
+\&.ds u2 in
+\&.ds u3 after
+\&.ie n \[rs]*[u1]\[rs]f[I]\[rs]*[u2]\[rs]f[P]\[rs]*[u3]
+\&.el \[rs]*[u1]\[rs]Z\[aq]\[rs]*[u2]\[aq]\[rs]v\[aq].25m\[aq]\[rs]D\
+\[aq]l \[rs]w\[aq]\[rs]*[u2]\[aq]u 0\[aq]\[rs]v\[aq]\-.25m\[aq]\[rs]*\
+[u3]
+.EE
+.RE
+.
+.ne 2v
+When using
+.IR doclifter ,
+it might be necessary to change syntax forms such as
+.B \e[xy]
+and
+.B \e*[xy]
+to those supported by AT&T
+.IR troff :
+.B \e*(xy
+and
+.BR \e(xy ,
+and so on.
+.
+.
+.P
+Then these lines could look like
+.RS
+.EX
+\&.ds u1 before
+\&.ds u2 in
+\&.ds u3 after
+\&.ie n \[rs]*[u1]\[rs]fI\[rs]*(u2\[rs]fP\[rs]*(u3
+\&.el \[rs]*(u1\[rs]Z\[aq]\[rs]*(u2\[aq]\[rs]v\[aq].25m\[aq]\[rs]D\
+\[aq]l \[rs]w\[aq]\[rs]*(u2\[aq]u 0\[aq]\[rs]v\[aq]\-.25m\[aq]\[rs]*(u3
+.EE
+.RE
+.
+.
+.P
+The result looks like
+.RS
+.ft CR
+before
+\z\[ul]i\
+\z\[ul]n
+after
+.ft R
+.RE
+.
+.
+.\" ====================================================================
+.SS "Underlining by overstriking with \e(ul"
+.\" ====================================================================
+.
+The
+.B \[rs]z
+escape sequence writes a glyph without advancing the
+drawing position,
+enabling overstriking.
+.
+Thus,
+.BI \[rs]z c \[rs](ul
+formats
+.I c
+with an underrule glyph on top of it.
+.
+Video terminals implement the underrule by setting a character cell's
+underline attribute,
+so this technique works in both
+.I nroff \" mode
+and
+.I troff \" mode
+modes.
+.
+.
+.P
+Long words may then look intimidating in the input;
+a clarifying approach might be to use the input line continuation escape
+sequence
+.BI \[rs] newline
+to place each underlined character on its own input line.
+.
+Thus,
+.
+.RS
+.EX
+\&.nf
+\[rs]&\[rs]fB: ${\[rs]fIvar\[rs]fR\[rs]c
+\[rs]zo\[rs](ul\[rs]
+\[rs]zp\[rs](ul\[rs]c
+\[rs]&\[rs]fIvalue\[rs]fB}
+\&.fi
+.EE
+.RE
+.
+produces
+.
+.RS
+.EX
+.BI ": ${" var \c
+\zo\(ul\
+\zp\(ul\c
+.IB value }
+.EE
+.RE
+.
+as output.
+.
+.
+.\" ====================================================================
+.SH "Compatibility mode"
+.\" ====================================================================
+.
+The differences between the
+.I roff
+language recognized by GNU
+.I troff \" GNU
+and that of AT&T
+.IR troff , \" AT&T
+as well as the device,
+font,
+and device-independent intermediate output formats described by
+CSTR\~#54 are documented in
+.MR groff_diff 7 .
+.
+.I groff
+provides an AT&T compatibility mode.
+.
+The
+.request .cp
+request and registers
+.B .C
+and
+.B .cp
+set and test the enablement of this mode.
+.
+.
+.\" ====================================================================
+.SH Debugging
+.\" ====================================================================
+.
+.\" BEGIN Keep (roughly) parallel with groff.texi node "Debugging".
+Preprocessors use the
+.B .lf
+request to preserve the identities of line numbers and names of input
+files.
+.
+.I groff
+emits a variety of error diagnostics and supports several categories of
+warning;
+the output of these can be selectively suppressed with
+.B .warn
+(and see the
+.BR \-E ,
+.BR \-w ,
+and
+.B \-W
+options of
+.MR \%troff 1 ).
+.
+A trace of the formatter's input processing stack can be emitted when
+errors or warnings occur by means of
+.MR \%troff 1 's
+.B \-b
+option,
+or produced on demand with the
+.request .backtrace
+request.
+.
+.BR .tm ,
+.BR .tmc ,
+and
+.B .tm1
+can be used to emit customized diagnostic messages or for
+instrumentation while troubleshooting.
+.
+.B .ex
+and
+.B .ab
+cause early termination with successful and error exit codes
+respectively,
+to halt further processing when continuing would be fruitless.
+.
+Examine the state of the formatter with requests that write lists of
+defined names\[em]macros,
+strings,
+and
+.RB diversions\[em]( .pm );
+environments
+.RB ( .pev ),
+registers
+.RB ( .pnr ),
+and page location traps
+.RB ( .ptr )
+to the standard error stream.
+.\" END Keep (roughly) parallel with groff.texi node "Debugging".
+.
+.
+.\" ====================================================================
+.SH Authors
+.\" ====================================================================
+.
+This document was written by
+by Trent A.\& Fisher,
+Werner Lemberg,
+and
+.MT g.branden\:.robinson@\:gmail\:.com
+G.\& Branden Robinson
+.ME .
+.
+Section \[lq]Underlining\[rq] was primarily written by
+.MT groff\-bernd\:.warken\-72@\:web\:.de
+Bernd Warken
+.ME .
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.ne 2v
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is the primary
+.I groff
+manual.
+.
+You can browse it interactively with \[lq]info groff\[rq].
+.
+.
+.br
+.ne 4v
+.P
+\[lq]Troff User's Manual\[rq]
+by Joseph F.\& Ossanna,
+1976
+(revised by Brian W.\& Kernighan,
+1992),
+AT&T Bell Laboratories Computing Science Technical Report No.\& 54,
+widely called simply \[lq]CSTR\~#54\[rq],
+documents the language,
+device and font description file formats,
+and device-independent output format
+referred to collectively in
+.I groff
+documentation as
+.RI \[lq]AT&T\~ troff \[rq].
+.
+.
+.br
+.ne 3v
+.P
+\[lq]A Typesetter-independent TROFF\[rq]
+by Brian W.\& Kernighan,
+1982,
+AT&T Bell Laboratories Computing Science Technical Report No.\& 97
+(CSTR\~#97),
+provides additional insights into the
+device and font description file formats
+and device-independent output format.
+.
+.
+.TP
+.MR groff 1
+is the preferred interface to the
+.I groff
+system;
+it manages the pipeline that carries a source document through
+preprocessors,
+the
+.I \%troff
+formatter,
+and an output driver to viewable or printable form.
+.
+It also exhaustively lists the man pages provided with the GNU
+.I roff
+system.
+.
+.
+.TP
+.MR groff_char 7
+discusses character encoding issues,
+escape sequences that produce glyphs,
+and enumerates
+.IR groff 's
+predefined special character escape sequences.
+.
+.
+.TP
+.MR groff_diff 7
+covers differences between the
+GNU
+.I troff \" GNU
+formatter,
+its device and font description file formats,
+its device-independent output format,
+and those of AT&T
+.IR troff ,\" AT&T
+whose design it reimplements.
+.
+.
+.TP
+.MR groff_font 5
+describes the formats of the files that describe devices
+.RI ( DESC )
+and fonts.
+.
+.
+.TP
+.MR groff_tmac 5
+surveys macro packages provided with
+.IR groff ,
+describes how documents can take advantage of them,
+offers guidance on writing macro packages and using diversions,
+and includes historical information on macro package naming conventions.
+.
+.
+.TP
+.MR roff 7
+presents a detailed history of
+.I roff
+systems and summarizes concepts common to them.
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_groff_7_man_C]
+.do rr *groff_groff_7_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

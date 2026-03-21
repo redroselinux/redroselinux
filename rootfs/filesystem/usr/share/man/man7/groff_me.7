@@ -1,0 +1,601 @@
+'\" t
+.TH groff_me 7 "2 July 2023" "groff 1.23.0"
+.SH Name
+groff_me \- \(lqme\(rq macro package for formatting
+.I roff
+documents
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1980, 1993
+.\"   The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. [Deleted.  See
+.\"     ftp://ftp.cs.berkeley.edu/pub/4bsd/README.Impt.License.Change]
+.\" 4. Neither the name of the University nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS "AS IS"
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+.\" PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)me.7	8.1 (Berkeley) 06/05/93
+.\"
+.\" Modified for groff by jjc@jclark.com
+.\" Changed to use TBL and eliminate low-level troff hackery by ESR
+.\" (this enables it to be lifted to structural markup).
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_groff_me_7_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY "groff \-me"
+.RI [ option\~ .\|.\|.\&]
+.RI [ file\~ .\|.\|.]
+.
+.SY "groff \-m me"
+.RI [ option\~ .\|.\|.\&]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+The GNU implementation of the
+.I me
+macro package is part of the
+.I groff
+document formatting system.
+.
+The
+.I me
+package of macro definitions for the
+.I roff
+language provides a convenient facility for preparing technical papers
+in various formats.
+.
+This version is based on the
+.I me
+distributed with 4.4BSD and can be used with the GNU
+.I troff
+formatter as well as those descended from AT&T
+.IR troff .
+.
+.
+.P
+Some formatter requests affect page layout unpredictably when used in
+conjunction with this package;
+however,
+the following may be used with impunity after the first call to a
+paragraphing macro like
+.B lp
+or
+.BR pp .
+.
+Some arguments are optional;
+see
+.MR groff 7
+for details,
+particularly of requests whose argument list is designated with an
+ellipsis.
+.
+An asterisk
+.B *
+marks
+.I groff
+extensions.
+.
+.
+.P
+.TS
+Lb1 Li L.
+ad	c	set text adjustment mode to \fIc
+af	r f	assign format \fIf\fP to register \fIr
+am	m e	append to macro \fIm\fP until \fIe\fP called
+as	s t	append rest of line \fIt\fP to string \fIs
+bp	n	begin new page numbered \fIn
+br	\&	break output line
+ce	n	center next \fIn\fP output lines
+cp	n	en-/disable AT&T \fItroff\fP compatibility mode\fB*
+de	m e	define macro \fIm\fP until \fIe\fP called
+do	t	interpret input \fIt\fP with compatibility mode off\fB*
+ds	s t	define rest of line \fIt\fP as string \fIs
+el	t	interpret \fIt\fP if corresponding \fBie\fP false
+fc	c d	set field delimiter \fIc\fP and padding glyph \fId
+fi	\&	enable filling
+hc	c	set hyphenation character to \fIc
+hy	m	set automatic hyphenation mode to \fIm
+ie	p t	as \fBif\fP, but enable interpretation of later \fBel
+if	p t	if condition \fIp\/\fP, interpret rest of line \fIt
+in	h	set indentation to distance \fIh\fP
+lc	c	set leader repetition glyph to \fIc
+ls	n	set line spacing to \fIn
+mc	c h	set (right) margin glyph to \fIc\fP at distance \fIh
+mk	r	mark vertical position in register \fIr\fP
+na	\&	disable adjustment of text
+ne	v	need vertical space of distance \fIv
+nf	\&	disable filling
+nh	\&	disable automatic hyphenation
+nr	r n i	assign register \fIr\fP value \fIn\fP with \
+auto-increment \fIi
+ns	\&	begin no-space mode
+pl	v	set page length to \fIv
+pn	n	set next page number to \fIn
+po	h	set page offset to \fIh
+rj	n	right-align next \fIn\fP output lines\fB*
+rm	m	remove macro, string, or request \fIm
+rn	m n	rename macro, string, or request \fIm\fP to \fIn
+rr	r	remove register \fIr
+rs	\&	resume spacing (end no-space mode)
+rt	v	return to vertical position set by \fBmk\fP, or \fIv
+so	f	source (interpolate) input file \fIf
+sp	n	insert \fIn\fP lines of vertical space
+ta	\fR.\|.\|.	set tab stops
+tc	c	set tab repetition glyph to \fIc
+ti	h	set temporary indentation (next line only) to \fIh
+tl	\fR.\|.\|.	output three-part title
+tr	\fR.\|.\|.	translate characters
+ul	n	underline next \fIn\fP output lines
+.TE
+.
+.
+.P
+Except on title pages
+(produced by calling
+.BR tp ),
+.I me
+suppresses the output of vertical space at the tops of pages
+(after the output of any page header);
+the
+.B sp
+request will thus not work there.
+.
+You can instead call
+.B bl
+or enclose the desired spacing request in a diversion,
+for instance by calling
+.B (b
+and
+.BR )b .
+.
+.I me
+also intercepts the
+.B ll
+request;
+see the
+.RI \[lq] me
+Reference Manual\[rq]
+for details.
+.
+.
+.\" ====================================================================
+.SS "Name space"
+.\" ====================================================================
+.
+Objects in
+.I me
+follow a rigid naming convention.
+.
+To avoid conflict,
+any user-defined register,
+string,
+or macro
+names should be single numerals or uppercase letters,
+or any longer sequence of letters and numerals
+with at least one uppercase letter.
+.
+(For portability between BSD and
+.I groff
+.IR me ,
+limit names to
+two characters,
+and avoid the name
+.B [
+(left square bracket).)
+.
+The names employed
+by any preprocessors in use
+should also not be repurposed.
+.
+.
+.\" ====================================================================
+.SS Macros
+.\" ====================================================================
+.
+.ne 2v \" Keep at least the first entry together with the heading.
+.TS
+Lb L.
+$0	post-section heading hook
+$1	pre-section depth 1 hook
+$2	pre-section depth 2 hook
+$3	pre-section depth 3 hook
+$4	pre-section depth 4 hook
+$5	pre-section depth 5 hook
+$6	pre-section depth 6 hook
+$C	post-chapter title hook
+$H	page/column heading hook
+$c	output chapter number and title
+$f	output footer
+$h	output header
+$p	output section heading
+$s	output footnote area separator
+(b	begin block
+(c	begin centered block
+(d	begin delayed text
+(f	begin footnote
+(l	begin list
+(q	begin long quotation
+(x	begin index entry
+(z	begin floating keep
+)b	end block
+)c	end centered block
+)d	end delayed text
+)f	end footnote
+)l	end list
+)q	end long quotation
+)x	end index entry
+)z	end floating keep
+++	set document segment type
++c	begin chapter
+1c	end multi-column layout
+2c	begin multi-column layout
+EN	end \fI\%eqn\fP equation
+EQ	begin \fI\%eqn\fP equation
+GE	end \fI\%grn\fP picture with drawing position at bottom
+GF	end \fI\%grn\fP picture with drawing position at top
+GS	start \fI\%grn\fP picture
+IE	end \fIideal\fP picture with drawing position at bottom
+IF	end \fIideal\fP picture with drawing position at top
+IS	start \fIideal\fP picture
+PE	end \fI\%pic\fP picture with drawing position at bottom
+PF	end \fI\%pic\fP picture with drawing position at top
+PS	start \fI\%pic\fP picture
+TE	end \fI\%tbl\fP table
+TH	end heading for multi-page \fI\%tbl\fP table
+TS	start \fI\%tbl\fP table
+b	embolden argument
+ba	set base indentation
+bc	begin new column
+bi	embolden and italicize argument
+bx	box argument
+ef	set even-numbered page footer
+eh	set even-numbered page header
+ep	end page
+fo	set footer
+he	set header
+hl	draw horizontal line
+hx	suppress next page's headers/footers
+i	italicize argument
+ip	begin indented paragraph
+ld	reset localization and date registers and strings\fB*
+ll	set line length
+lp	begin fully left-aligned paragraph
+np	begin numbered paragraph
+of	set odd-numbered page footer
+oh	set odd-numbered page header
+pd	output delayed text
+pp	begin first-line indented paragraph
+q	quote argument
+r	set argument in roman
+re	reset tab stops
+sh	begin numbered section
+sm	set argument at smaller type size
+sx	change section depth
+sz	set type size and vertical spacing
+tp	begin title page
+u	underline argument
+uh	begin unnumbered section
+xl	set line length (local)
+xp	output index
+.TE
+.
+.
+.P
+Some macros are provided for \(lqold\(rq
+.MR roff 1
+compatibility.
+.
+The
+.RI \(lq me
+Reference Manual\(rq
+describes alternatives for modern documents.
+.
+.
+.P
+.ne 2v \" Keep at least the first entry together with the heading.
+.TS
+Lb L.
+ar	use Arabic numerals for page numbers
+bl	insert space (even at page top; cf.\& \fBsp\fP)
+ix	set indentation without break
+m1	set page top to header distance
+m2	set header to text distance
+m3	set text to footer distance
+m4	set footer to page bottom distance
+n1	begin output line numbering
+n2	end or alter output line numbering
+pa	begin page
+ro	use Roman numerals for page numbers
+sk	skip next page
+.TE
+.
+.
+.\" ====================================================================
+.SS Registers
+.\" ====================================================================
+.
+.ne 2v \" Keep at least the first entry together with the heading.
+.TS
+Lb L.
+$0	section depth
+$1	first section number component
+$2	second section number component
+$3	third section number component
+$4	fourth section number component
+$5	fifth section number component
+$6	sixth section number component
+$c	current column number
+$d	delayed text number
+$f	footnote number
+$i	paragraph base indentation
+$l	column width
+$m	number of available columns
+$p	numbered paragraph number
+$s	column spacing (indentation)
+bi	display (block) indentation
+bm	distance from text area to page bottom
+bs	display (block) pre/post space
+bt	block threshold for keeps
+ch	current chapter number
+df	display font
+dv	vertical spacing of displayed text (as percentage)\fB*
+es	equation pre/post space
+ff	footnote font
+fi	footnote indentation (first line only)
+fm	footer margin
+fp	footnote type size in points
+fs	footnote prespace
+fu	footnote undent (right indentation)
+hm	header margin
+ii	indented paragraph indentation
+no	line numbering offset\fB*
+pf	paragraph font
+pi	paragraph indentation
+po	page offset
+pp	paragraph type size in points
+ps	paragraph prespace
+qi	long quotation left/right indentation
+qp	long quotation type size in points
+qs	long quotation pre/post space
+sf	section title font
+si	section indentation per level of depth
+so	additional section title offset
+sp	section title type size in points
+ss	section prespace
+sx	super/subscript line height increase\fB*
+tf	title font
+tm	distance from page top to text area
+tp	title type size in points
+tv	vertical spacing of text (as percentage)\fB*
+xs	index entry prespace
+xu	index undent (right indentation)
+y2	year of the century\fB*
+y4	year\fB*
+yr	year minus 1900
+zs	floating keep pre/post space
+.TE
+.
+.
+.\" ====================================================================
+.SS Strings
+.\" ====================================================================
+.
+.ne 2v \" Keep at least the first entry together with the heading.
+.TS
+Lb L.
+#	delayed text marker
+$n	concatenated section number
+*	footnote marker
+\-	em dash
+<	begin subscripting
+>	end subscripting
+dw	weekday name
+lq	left double quotation mark
+mo	month name
+rq	right double quotation mark
+td	date
+wa	term for \(lqappendix\(rq used by \fB.$c*
+wc	term for \(lqchapter\(rq used by \fB.$c*
+{	begin superscripting
+}	end superscripting
+.TE
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/e.tmac
+implements the package.
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/refer\-me.tmac
+implements
+.MR \%refer 1
+support for
+.IR me .
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/me.tmac
+is a wrapper enabling the package to be loaded with
+.RB \[lq] "groff \-m me" \[rq].
+.
+.
+.\" ====================================================================
+.SH Notes
+.\" ====================================================================
+.
+Early
+.I roff
+macro packages often limited their names to a single letter,
+which followed the formatter's
+.B m
+flag letter,
+resulting in
+.IR mm ,
+.IR ms ,
+.IR mv ,
+.IR mn ,
+and so on.
+.
+.\" 'When I started writing the -me macros it began as something in my
+.\" private tree (I don't remember what I called it).  Then some other
+.\" folks on the INGRES project wanted to use it, but our system admin
+.\" at the time didn't want to dicker with the system namespace at the
+.\" behest of a mere undergraduate, so he didn't like anything that was
+.\" actually descriptive lest people think it was "official".  He
+.\" finally consented to "-meric" (which I always hated), since it was
+.\" obviously non-official.  By the time my macros became popular around
+.\" Berkeley it got shortened to "-me", much to my relief.
+.\"
+.\" Of course, if AT&T had been willing to let Berkeley have -ms then
+.\" most likely -me would never have happened at all.  Without a macro
+.\" package, nroff/troff is basically unusable; -me stepped into the
+.\" vacuum.' -- Eric Allman
+.\"
+.\" https://minnie.tuhs.org/pipermail/tuhs/2018-November/017033.html
+.
+The \(lqe\(rq in \(lqme\(rq stands for \(lqEric P.\& Allman\(rq,
+who wrote the macro package and the original technical papers
+documenting it while an undergraduate at the University of California.
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.
+Two manuals are available in source and rendered form.
+.
+On your system,
+they may be compressed and/or available in additional formats.
+.
+.
+.br
+.ne 3v
+.TP
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meintro.me
+.TQ
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meintro.ps
+is
+\[lq]Writing Papers with
+.I Groff
+Using
+.RI \- me \[rq],
+by Eric P.\& Allman,
+adapted for
+.I groff
+by James Clark.
+.
+.
+.br
+.ne 4v
+.TP
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meref.me
+.TQ
+.I /usr/\:\%share/\:\%doc/\:\%groff\-1.23.0/meref.ps
+is the
+.RI \[lq] me
+Reference Manual\[rq],
+by Eric P.\& Allman,
+adapted for
+.I groff
+by James Clark and G.\& Branden Robinson.
+.
+.
+.P
+.IR "Groff: The GNU Implementation of troff" ,
+by Trent A.\& Fisher and Werner Lemberg,
+is the primary
+.I groff
+manual.
+.
+You can browse it interactively with \[lq]info groff\[rq].
+.
+.
+.P
+For preprocessors supported by
+.IR me ,
+see
+.MR \%eqn 1 ,
+.MR \%grn 1 ,
+.MR \%pic 1 ,
+.MR \%refer 1 ,
+and
+.MR \%tbl 1 .
+.
+.
+.P
+.MR groff 1 ,
+.MR \%troff 1 ,
+.MR groff 7
+.
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_groff_me_7_man_C]
+.do rr *groff_groff_me_7_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:

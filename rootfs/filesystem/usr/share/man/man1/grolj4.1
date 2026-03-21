@@ -1,0 +1,896 @@
+.TH grolj4 1 "2 July 2023" "groff 1.23.0"
+.SH Name
+grolj4 \-
+.I groff
+output driver for HP LaserJet 4 and compatible printers
+.
+.
+.\" ====================================================================
+.\" Legal Terms
+.\" ====================================================================
+.\"
+.\" Copyright (C) 1994-2020, 2022 Free Software Foundation, Inc.
+.\"
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of
+.\" this manual under the conditions for verbatim copying, provided that
+.\" the entire resulting derived work is distributed under the terms of
+.\" a permission notice identical to this one.
+.\"
+.\" Permission is granted to copy and distribute translations of this
+.\" manual into another language, under the above conditions for
+.\" modified versions, except that this permission notice may be
+.\" included in translations approved by the Free Software Foundation
+.\" instead of in the original English.
+.
+.
+.\" Save and disable compatibility mode (for, e.g., Solaris 10/11).
+.do nr *groff_grolj4_1_man_C \n[.cp]
+.cp 0
+.
+.\" Define fallback for groff 1.23's MR macro if the system lacks it.
+.nr do-fallback 0
+.if !\n(.f           .nr do-fallback 1 \" mandoc
+.if  \n(.g .if !d MR .nr do-fallback 1 \" older groff
+.if !\n(.g           .nr do-fallback 1 \" non-groff *roff
+.if \n[do-fallback]  \{\
+.  de MR
+.    ie \\n(.$=1 \
+.      I \%\\$1
+.    el \
+.      IR \%\\$1 (\\$2)\\$3
+.  .
+.\}
+.rr do-fallback
+.
+.\" This macro definition is poor style from a portability standpoint,
+.\" but it's a good test and demonstration of the standard font
+.\" repertoire for the devices where it has any effect at all, and so
+.\" should be retained.
+.de FT
+.  if '\\*(.T'lj4' .ft \\$1
+..
+.
+.
+.\" ====================================================================
+.SH Synopsis
+.\" ====================================================================
+.
+.SY grolj4
+.RB [ \-l ]
+.RB [ \-c\~\c
+.IR num-copies ]
+.RB [ \-d
+.RI [ n ]]
+.RB [ \-F\~\c
+.IR font-directory ]
+.RB [ \-p\~\c
+.IR paper-format ]
+.RB [ \-w\~\c
+.IR line-width ]
+.RI [ file\~ .\|.\|.]
+.YS
+.
+.
+.SY grolj4
+.B \-\-help
+.YS
+.
+.
+.SY grolj4
+.B \-v
+.
+.SY grolj4
+.B \-\-version
+.YS
+.
+.
+.\" ====================================================================
+.SH Description
+.\" ====================================================================
+.
+This GNU
+.I roff
+output driver translates the output of
+.MR \%troff 1
+into a PCL5 format suitable for an HP LaserJet 4 printer.
+.
+Normally,
+.I grolj4
+is invoked by
+.MR groff 1
+when the latter is given the
+.RB \[lq] \-T\~lj4 \[rq]
+option.
+.
+(In this installation,
+.B \%ps
+is the default output device.)
+.
+Use
+.IR groff 's
+.B \-P
+option to pass any options shown above to
+.IR grolj4 .
+.
+If no
+.I file
+arguments are given,
+or if
+.I file
+is \[lq]\-\[rq],
+.I grolj4
+reads the standard input stream.
+.
+Output is written to the standard output stream.
+.
+.
+.\" ====================================================================
+.SS Typefaces
+.\" ====================================================================
+.
+.I grolj4
+supports the standard four styles:
+.B R
+(roman),
+.B I
+.RI ( italic ),
+.B B
+.RB ( bold ),
+and
+.B BI
+(\f[BI]bold-italic\f[]).
+.
+Fonts are grouped into families
+.BR A ,
+.BR C ,
+.BR G ,
+.BR O ,
+.BR T ,
+.BR TN ,
+.BR U ,
+and
+.B UC
+having members in each style.
+.
+.
+.RS
+.TP 14n
+.B AB
+.FT AB
+Arial Bold
+.FT
+.
+.TQ
+.B ABI
+.FT ABI
+Arial Bold Italic
+.FT
+.
+.TQ
+.B AI
+.FT AI
+Arial Italic
+.FT
+.
+.TQ
+.B AR
+.FT AR
+Arial Roman
+.FT
+.
+.TQ
+.B CB
+.FT CB
+Courier Bold
+.FT
+.
+.TQ
+.B CBI
+.FT CBI
+Courier Bold Italic
+.FT
+.
+.TQ
+.B CI
+.FT CI
+Courier Italic
+.FT
+.
+.TQ
+.B CR
+.FT CR
+Courier Roman
+.FT
+.
+.TQ
+.B GB
+.FT GB
+Garamond Halbfett
+.FT
+.
+.TQ
+.B GBI
+.FT GBI
+Garamond Kursiv Halbfett
+.FT
+.
+.TQ
+.B GI
+.FT GI
+Garamond Kursiv
+.FT
+.
+.TQ
+.B GR
+.FT GR
+Garamond Antiqua
+.FT
+.
+.TQ
+.B OB
+.FT OB
+CG Omega Bold
+.FT
+.
+.TQ
+.B OBI
+.FT OBI
+CG Omega Bold Italic
+.FT
+.
+.TQ
+.B OI
+.FT OI
+CG Omega Italic
+.FT
+.
+.TQ
+.B OR
+.FT OR
+CG Omega Roman
+.
+.TQ
+.B OB
+.FT OB
+CG Omega Bold
+.FT
+.
+.TQ
+.B OBI
+.FT OBI
+CG Omega Bold Italic
+.FT
+.
+.TQ
+.B OI
+.FT OI
+CG Omega Italic
+.FT
+.
+.TQ
+.B OR
+.FT OR
+CG Omega Roman
+.FT
+.
+.TQ
+.B TB
+.FT TB
+CG Times Bold
+.FT
+.
+.TQ
+.B TBI
+.FT TBI
+CG Times Bold Italic
+.FT
+.
+.TQ
+.B TI
+.FT TI
+CG Times Italic
+.FT
+.
+.TQ
+.B TR
+.FT TR
+CG Times Roman
+.FT
+.
+.TQ
+.B TNRB
+.FT TNRB
+M Times Bold
+.FT
+.
+.TQ
+.B TNRBI
+.FT TNRBI
+M Times Bold Italic
+.FT
+.
+.TQ
+.B TNRI
+.FT TNRI
+M Times Italic
+.FT
+.
+.TQ
+.B TNRR
+.FT TNRR
+M Times Roman
+.FT
+.
+.TQ
+.B UB
+.FT UB
+Univers Bold
+.FT
+.
+.TQ
+.B UBI
+.FT UBI
+Univers Bold Italic
+.FT
+.
+.TQ
+.B UI
+.FT UI
+Univers Medium Italic
+.FT
+.
+.TQ
+.B UR
+.FT UR
+Univers Medium
+.FT
+.
+.TQ
+.B UCB
+.FT UCB
+Univers Condensed Bold
+.FT
+.
+.TQ
+.B UCBI
+.FT UCBI
+Univers Condensed Bold Italic
+.FT
+.
+.TQ
+.B UCI
+.FT UCI
+Univers Condensed Medium Italic
+.FT
+.
+.TQ
+.B UCR
+.FT UCR
+Univers Condensed Medium
+.FT
+.RE
+.
+.
+.P
+The following fonts are not members of a family.
+.
+.
+.RS
+.TP 14n
+.B ALBB
+.FT ALBB
+Albertus Extra Bold
+.FT
+.
+.TQ
+.B ALBR
+.FT ALBR
+Albertus Medium
+.FT
+.
+.TQ
+.B AOB
+.FT AOB
+Antique Olive Bold
+.
+.TQ
+.B AOI
+.FT AOI
+Antique Olive Italic
+.
+.TQ
+.B AOR
+.FT AOR
+Antique Olive Roman
+.
+.TQ
+.B CLARENDON
+.FT CLARENDON
+Clarendon
+.
+.TQ
+.B CORONET
+.FT CORONET
+Coronet
+.
+.TQ
+.B LGB
+.FT LGB
+Letter Gothic Bold
+.
+.TQ
+.B LGI
+.FT LGI
+Letter Gothic Italic
+.
+.TQ
+.B LGR
+.FT LGR
+Letter Gothic Roman
+.
+.TQ
+.B MARIGOLD
+.FT MARIGOLD
+Marigold
+.RE
+.
+.
+.P
+The special font is
+.B S
+(PostScript Symbol);
+.B SYMBOL
+(M Symbol),
+and
+.B WINGDINGS
+(Wingdings)
+are also available but not mounted by default.
+.
+.
+.\" ====================================================================
+.SS "Paper format and device description file"
+.\" ====================================================================
+.
+.I grolj4
+supports paper formats
+.RB \[lq] A4 \[rq],
+.RB \[lq] B5 \[rq],
+.RB \[lq] C5 \[rq],
+.RB \[lq] com10 \[rq],
+.RB \[lq] DL \[rq],
+.RB \%\[lq] executive \[rq],
+.RB \%\[lq] legal \[rq],
+.RB \%\[lq] letter \[rq],
+and
+.RB \[lq] monarch \[rq].
+.
+These are matched case-insensitively.
+.
+The
+.B \-p
+option overrides any setting in the device description file
+.IR DESC .
+.
+If neither specifies a paper format,
+\[lq]letter\[rq] is assumed.
+.
+.
+.\" ====================================================================
+.SS "Font description files"
+.\" ====================================================================
+.
+.I grolj4
+recognizes four font description file directives in addition to those
+documented in
+.MR groff_font 5 .
+.
+.
+.TP
+.BI pclweight\~ n
+Set the stroke weight to
+.IR n ,
+an integer in the range \-7 to +7;
+the default is\~0.
+.
+.
+.TP
+.BI pclstyle\~ n
+Set the style to
+.IR n ,
+an integer in the range 0 to 32767;
+the default is\~0.
+.
+.
+.TP
+.BI pclproportional\~ n
+Set the proportional spacing Boolean flag to
+.IR n ,
+which can be either 0 or\~1;
+the default is\~0.
+.
+.
+.TP
+.BI pcltypeface\~ n
+Set the typeface family to
+.IR n ,
+an integer in the range 0 to 65535;
+the default is\~0.
+.
+.
+.\" ====================================================================
+.SS "Drawing commands"
+.\" ====================================================================
+.
+An additional drawing command is recognized as an extension to those
+documented in
+.MR groff 7 .
+.
+.
+.TP
+.BI \[rs]D\[aq]R\~ "dh dv" \[aq]
+Draw a rule
+(solid black rectangle)
+with one corner at the drawing position,
+and the diagonally opposite corner at the drawing position
+.RI +( dh , dv ),
+at which the drawing position will be afterward.
+.
+This generates a PCL fill rectangle command,
+and so will work on printers that do not support HP-GL/2,
+unlike the other
+.B \[rs]D
+commands.
+.
+.
+.\" ====================================================================
+.SS Fonts
+.\" ====================================================================
+.
+Nominally,
+all Hewlett-Packard LaserJet\~\%4-series and newer printers have the
+same internal fonts:
+45 scalable fonts and one bitmapped Lineprinter font.
+.
+The scalable fonts are available in sizes between 0.25 points and 999.75
+points,
+in 0.25-point increments;
+the Lineprinter font is available only in 8.5-point size.
+.
+.
+.P
+The LaserJet font files included with
+.I groff
+assume that all printers since the LaserJet\~4 are identical.
+.
+There are some differences between fonts in the earlier and more recent
+printers,
+however.
+.
+The LaserJet\~4 printer used Agfa Intellifont technology for 35 of the
+internal scalable fonts;
+the remaining 10 scalable fonts were TrueType.
+.
+Beginning with the LaserJet\~\%4000-series printers introduced in 1997,
+all scalable internal fonts have been TrueType.
+.
+The number of printable glyphs differs slightly between Intellifont and
+TrueType fonts
+(generally,
+the TrueType fonts include more glyphs),
+and
+there are some minor differences in glyph metrics.
+.
+Differences among printer models are described in the
+.I "PCL\~5 Comparison Guide"
+and the
+.I "PCL\~5 Comparison Guide Addendum"
+(for printers introduced since approximately 2001).
+.
+.
+.P
+LaserJet printers reference a glyph by a combination of a 256-glyph
+symbol set and an index within that symbol set.
+.
+Many glyphs appear in more than one symbol set;
+all combinations of symbol set and index that reference the same glyph
+are equivalent.
+.
+For each glyph,
+.MR hpftodit 1
+searches a list of symbol sets,
+and selects the first set that contains the glyph.
+.
+The printing code generated by
+.I hpftodit
+is an integer that encodes a numerical value for the symbol set in the
+high byte(s),
+and the index in the low byte.
+.
+See
+.MR groff_font 5
+for a complete description of the font file format;
+symbol sets are described in greater detail in the
+.IR "PCL\~5 Printer Language Technical Reference Manual" .
+.
+.
+.P
+Two of the scalable fonts,
+Symbol and Wingdings,
+are bound to 256-glyph symbol sets;
+the remaining scalable fonts,
+as well as the Lineprinter font,
+support numerous symbol sets,
+sufficient to enable printing of more than 600 glyphs.
+.
+.
+.P
+The metrics generated by
+.I hpftodit
+assume that the
+.I DESC
+file contains values of 1200 for
+.I res
+and 6350 for
+.IR unitwidth ,
+or any combination
+(e.g.,
+2400 and 3175)
+for which
+.IR res \~\[tmu]\~ unitwidth \~=\~7\|620\|000.
+.
+Although HP PCL\~5 LaserJet printers support an internal resolution of
+7200 units per inch,
+they use a 16-bit signed integer for positioning;
+if
+.B devlj4
+is to support U.S.\& ledger paper (11\~in\~\[mu]\~17\~in;
+in = inch),
+the maximum usable resolution is 32\|767\~\[di]\~17,
+or 1927 units per inch,
+which rounds down to 1200 units per inch.
+.
+If the largest required paper dimension is less
+(e.g.,
+8.5\~in\~\[mu]\~11\~in,
+or A5),
+a greater
+.I res
+(and lesser
+.IR unitwidth )
+can be specified.
+.
+.
+.P
+Font metrics for Intellifont fonts were provided by Tagged Font Metric
+(TFM) files originally developed by Agfa/Compugraphic.
+.
+The TFM files provided for these fonts supported 600+ glyphs and
+contained extensive lists of kerning pairs.
+.
+.
+.P
+To accommodate developers who had become accustomed to TFM files,
+HP also provided TFM files for the 10 TrueType fonts included in the
+LaserJet\~4.
+.
+The TFM files for TrueType fonts generally included less information
+than the Intellifont TFMs,
+supporting fewer glyphs,
+and in most cases,
+providing no kerning information.
+.
+By the time the LaserJet\~4000 printer was introduced,
+most developers had migrated to other means of obtaining font metrics,
+and support for new TFM files was very limited.
+.
+The TFM files provided for the TrueType fonts in the LaserJet\~4000
+support only the Latin 2 (ISO 8859-2) symbol set,
+and include no kerning information;
+consequently,
+they are of little value for any but the most rudimentary documents.
+.
+.
+.P
+Because the Intellifont TFM files contain considerably more information,
+they generally are preferable to the TrueType TFM files even for use
+with the TrueType fonts in the newer printers.
+.
+The metrics for the TrueType fonts are very close,
+though not identical,
+to those for the earlier Intellifont fonts of the same names.
+.
+Although most output using the Intellifont metrics with the newer
+printers is quite acceptable,
+a few glyphs may fail to print as expected.
+.
+The differences in glyph metrics may be particularly noticeable with
+composite parentheses,
+brackets,
+and braces used by
+.MR eqn 1 .
+.
+A script,
+located in
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devlj4/\:generate ,
+can be used to adjust the metrics for these glyphs in the special font
+\[lq]S\[rq] for use with printers that have all TrueType fonts.
+.
+.
+.P
+At the time HP last supported TFM files,
+only version 1.0 of the Unicode standard was available.
+.
+Consequently,
+many glyphs lacking assigned code points were assigned by HP to the
+Private Use Area (PUA).
+.
+Later versions of the Unicode standard included code points outside the
+PUA for many of these glyphs.
+.
+The HP-supplied TrueType TFM files use the PUA assignments;
+TFM files generated from more recent TrueType font files require the
+later Unicode values to access the same glyphs.
+.
+Consequently,
+two different mapping files may be required:
+one for the HP-supplied TFM files,
+and one for more recent TFM files.
+.
+.
+.\" ====================================================================
+.SH Options
+.\" ====================================================================
+.
+.B \-\-help
+displays a usage message,
+while
+.B \-v
+and
+.B \-\-version
+show version information;
+all exit afterward.
+.
+.
+.TP
+.BI \-c\~ num-copies
+Format
+.I num-copies
+copies of each page.
+.
+.
+.TP
+.BR \-d \~[\c
+.IR n ]
+Use duplex mode
+.IR n :
+1\~is long-side binding (default),
+and 2\~is short-side binding.
+.
+.
+.TP
+.BI \-F " font-directory"
+Prepend directory
+.IR font-directory /dev name
+to the search path for font and device description files;
+.I name
+is the name of the device,
+usually
+.BR lj4 .
+.
+.
+.TP
+.B \-l
+Format the document in landscape orientation.
+.
+.
+.TP
+.BI \-p " paper-format"
+Set the paper format to
+.IR paper-format ,
+which must be a valid paper format as described above.
+.
+.
+.TP
+.BI \-w " line-width"
+Set the default line thickness to
+.I line-width
+thousandths of an em;
+the default is
+.B 40
+(0.04\~em).
+.
+.
+.br
+.ne 4v \" Keep section heading and paragraph together.
+.\" ====================================================================
+.SH Environment
+.\" ====================================================================
+.
+.TP
+.I GROFF_FONT_PATH
+lists directories in which to seek the selected output device's
+directory of device and font description files.
+.
+See
+.MR \%troff 1
+and
+.MR groff_font 5 .
+.
+.
+.\" ====================================================================
+.SH Files
+.\" ====================================================================
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devlj4/\:DESC
+describes the
+.B lj4
+output device.
+.
+.
+.TP
+.IR /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%font/\:\%devlj4/ F
+describes the font known
+.RI as\~ F
+on device
+.BR lj4 .
+.
+.
+.TP
+.I /usr/\:\%share/\:\%groff/\:\%1.23.0/\:\%tmac/\:lj4\:.tmac
+defines macros for use with the
+.B lj4
+output device.
+.
+It is automatically loaded by
+.I troffrc
+when the
+.B lj4
+output device is selected.
+.
+.
+.\" ====================================================================
+.SH Bugs
+.\" ====================================================================
+.
+.\" XXX: What does this mean?  The period/full stop glyph?  Flyspecks?
+Small dots.
+.
+.
+.\" ====================================================================
+.SH "See also"
+.\" ====================================================================
+.
+.UR http://\:www\:.hp\:.com/\:ctg/\:Manual/\:bpl13210\:.pdf
+.I HP PCL/PJL Reference:
+.I PCL\~5 Printer Language Technical Reference Manual,
+.I Part I
+.UE
+.
+.
+.P
+.MR hpftodit 1 ,
+.MR groff 1 ,
+.MR \%troff 1 ,
+.MR groff_out 5 ,
+.MR groff_font 5 ,
+.MR groff_char 7
+.
+.
+.\" Clean up.
+.rm FT
+.
+.\" Restore compatibility mode (for, e.g., Solaris 10/11).
+.cp \n[*groff_grolj4_1_man_C]
+.do rr *groff_grolj4_1_man_C
+.
+.
+.\" Local Variables:
+.\" fill-column: 72
+.\" mode: nroff
+.\" End:
+.\" vim: set filetype=groff textwidth=72:
