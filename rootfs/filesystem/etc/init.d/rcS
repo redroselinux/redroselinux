@@ -4,7 +4,7 @@ printf "\033[91m*\033[0m \033[97mWelcome to \033[91mRedrose Linux\033[0m\033[97m
 
 printf "\033[96m*\033[0m \033[97mMounting essential filesystems\n"
 
-busybox mkdir -p /proc /sys /dev
+busybox mkdir -p /proc /sys /dev /tmp /run
 
 busybox mount | busybox grep -q 'on /proc ' || mount -t proc proc /proc \
     && printf "  /proc mounted successfully\n" \
@@ -17,6 +17,14 @@ busybox mount | busybox grep -q 'on /sys ' || mount -t sysfs sys /sys \
 busybox mount | busybox grep -q 'on /dev ' || mount -t devtmpfs devtmpfs /dev \
     && printf "  /dev mounted successfully\n" \
     || printf "\033[91m*\033[0m \033[97mFailed to mount /dev\n"
+
+busybox mount | busybox grep -q 'on /tmp ' || mount -t tmpfs tmpfs /tmp \
+    && printf "  /tmp mounted successfully\n" \
+    || printf "\033[91m*\033[0m \033[97mFailed to mount /tmp\n"
+    
+busybox mount | busybox grep -q 'on /run ' || mount -t tmpfs tmpfs /run \
+    && printf "  /run mounted successfully\n" \
+    || printf "\033[91m*\033[0m \033[97mFailed to mount /run\n"
 
 export PATH=/bin
 printf "\033[92m*\033[0m \033[97mPATH set\n"
