@@ -1,9 +1,10 @@
+binutils
+fastfetch
+glib
+nano
+ncurses
+newt
+nm
 sed
 tar
 zstd
-nm
-binutils
-ncurses
-nano
-glib
-newt
