@@ -17,7 +17,7 @@ A GNU/Linux distribution for people who know Linux, but still want a simple syst
 - **Dev branch**: https://github.com/mostypc123/redroselinux
 
 <div align="center">
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/ddcd994a-e02b-48fc-9541-54c9065cd6df" />
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/6cb85ab3-102f-48c1-a394-1d1006459e78" />
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/f9183b28-adef-425a-a9ae-16133395aa4c" />
   <img width="725" alt="image" src="https://github.com/user-attachments/assets/8ca1a5a6-c942-4a5e-9bd8-84d27718cc3e" />
 </div>
