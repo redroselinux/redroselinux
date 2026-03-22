@@ -1,0 +1,7 @@
+#!/bin/sh
+
+while [ true ]; do
+    cat /etc/hostname > /proc/sys/kernel/hostname ||
+        echo "Failed to update hostname!"
+    sleep 60
+done
