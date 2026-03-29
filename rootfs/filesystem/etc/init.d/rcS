@@ -4,7 +4,7 @@ some_failed=0
 
 printf "\033[91m*\033[0m \033[97mWelcome to \033[91mRedrose Linux\033[0m\033[97m!\033[0m\n" || some_failed=1
 
-printf "\033[96m*\033[0m \033[97mMounting essential filesystems\n" || some_failed=1
+printf "\033[96m*\033[0m \033[97mMounting essential filesystems\033[0m\n" || some_failed=1
 
 busybox mkdir -p /proc /sys /dev /tmp /run /dev/pts || some_failed=1
 
@@ -33,14 +33,19 @@ busybox mount | busybox grep -q 'on /dev/pts ' || { mount -t devpts devpts /dev/
     || { printf "\033[91m*\033[0m \033[97mFailed to mount /dev/pts\n"; some_failed=1; }
 }
 
-nohup /sbin/reload-hostname-daemon >/dev/null 2>&1 &
-
-if [ $? -ne 0 ]; then
-    printf "\033[91m*\033[0m \033[97mStarting hostname-reload-daemon failed.\033[0m\n"
-    some_failed=1
-else
-    printf "\033[92m*\033[0m Started \033[97mhostname-reload-daemon\n"
-fi
+printf "\033[96m*\033[0m Making sure services are executable\n" || some_failed=1
+busybox chmod +x /etc/service/*/* || some_failed=1
+printf "\033[96m*\033[0m Starting services\n" || some_failed=1
+nohup busybox runsvdir -P /etc/service >/dev/null 2>&1 &
+sleep 0.1
+pids=""
+for svc in /etc/service/*; do
+    sv -w 1 up "$svc" &
+    pids="$pids $!"
+done
+for pid in $pids; do
+    wait "$pid" || some_failed=1
+done
 
 if [ "$some_failed" -ne 0 ]; then
     printf "\033[91m*\033[0m \033[97mSome parts of the boot process have failed before reaching the /boot/target script.\033[0m\n"

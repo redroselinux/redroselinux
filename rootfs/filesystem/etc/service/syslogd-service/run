@@ -1,0 +1,7 @@
+#!/bin/sh
+
+printf "\033[96m*\033[0m Starting \033[97msyslogd-service\033[0m\n"
+
+mkdir -p /var/log
+
+exec busybox syslogd -n -O /var/log/messages
