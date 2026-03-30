@@ -13,6 +13,7 @@ This is an independent distro from Europe (slovakia). This distro is kind of opi
 >[!CAUTION]
 > Redrose Linux is under active development and is **not ready for daily use**.
 
+- **Docs**: https://redroselinux.miraheze.org
 - **Website**: https://redroselinux.is-a.software
 - **Dev branch**: https://github.com/mostypc123/redroselinux
 
@@ -24,6 +25,8 @@ This is an independent distro from Europe (slovakia). This distro is kind of opi
 
 ## Download
 
+> https://redroselinux.miraheze.org/wiki/Installation#Obtaining_a_disk_image
+
 We made a launcher to launch Redrose in QEMU. To run it, paste this into your terminal:
 ```bash
 curl -sSSL https://raw.githubusercontent.com/redroselinux/redroselinux/refs/heads/main/src/redrose-launcher/main.py | python3
@@ -34,13 +37,17 @@ This uses the latest **release**.
 
 Otherwise, download from the Releases tab.
 
+> https://redroselinux.miraheze.org/wiki/Installation
+
 ## Hardware Requirements
+
+**This was tested on alpha 0.2** 
 
 The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did not do any tests for CPU.
 
 ## Development
 
-When compiling, the Makefile copies your system libraries. You need to build them yourself if you do not want the system ones.
+When compiling, the Makefile copies your system libraries. Note that not all of them are copied, since _most_ of the packages are bootstrapped using our package manager - car. You need to build them yourself if you do not want the system ones.
 If you wish to edit the installer code, run from source tree:
 
 ```bash
@@ -48,6 +55,9 @@ python3 enable_debug.py
 ```
 
 ### nightly
+
+> https://redroselinux.miraheze.org/wiki/Installation_(nightly)
+
 To compile the nightly version, clone `mostypc123/redroselinux` and compile:
 
 ```
@@ -55,7 +65,6 @@ make
 ```
 
 ### stable
-*this repo uses busybox. **the linuxImage file is here solely for the CI***. This will be moved to the `car-coreutils-repo` and downloaded in the `Makefile`.
 
 To build Redrose Linux, first build a Linux kernel.
 - clone the source
@@ -95,6 +104,5 @@ Wilted rose:<br>
 - **Email**: mostypc7@gmail.com
 
 ## Random stats no one reads
-## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=redroselinux/redroselinux&type=date&legend=top-left)](https://www.star-history.com/#redroselinux/redroselinux&type=date&legend=top-left)
