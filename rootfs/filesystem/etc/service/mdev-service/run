@@ -1,17 +1,9 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m \033[97mSeeding kernel randomness\n"
+printf "\033[96m*\033[0m Starting \033[97mmdev-service\033[0m\n"
 
-if [ -f /var/lib/random-seed ]; then
-    cat /var/lib/random-seed > /dev/urandom \
-        && printf "  Previous seed loaded\n" \
-        || printf "\033[91m*\033[0m \033[97mFailed to load previous seed\n"
-else
-    printf "  No previous seed found\n"
-fi
-
-dd if=/dev/urandom of=/var/lib/random-seed bs=512 count=1 2>/dev/null \
-    && printf "  New seed saved\n" \
-    || printf "\033[91m*\033[0m \033[97mFailed to save new seed\n"
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+busybox mdev -s
+touch /etc/service/mdev-service/.lock
 
 exec sleep infinity

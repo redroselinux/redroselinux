@@ -1,4 +1,5 @@
 #!/bin/sh
 
 printf "\033[96m*\033[0m Starting \033[97mhostname-reload-daemon\033[0m\n"
+touch /etc/service/hostname-reload-daemon/.lock
 exec /sbin/reload-hostname-daemon >/dev/null 2>&1

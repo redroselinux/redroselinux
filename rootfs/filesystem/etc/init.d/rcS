@@ -36,15 +36,21 @@ busybox mount | busybox grep -q 'on /dev/pts ' || { mount -t devpts devpts /dev/
 printf "\033[96m*\033[0m Making sure services are executable\n" || some_failed=1
 busybox chmod +x /etc/service/*/* || some_failed=1
 printf "\033[96m*\033[0m Starting services\n" || some_failed=1
-nohup busybox runsvdir -P /etc/service >/dev/null 2>&1 &
-sleep 0.1
-pids=""
-for svc in /etc/service/*; do
-    sv -w 1 up "$svc" &
-    pids="$pids $!"
-done
-for pid in $pids; do
-    wait "$pid" || some_failed=1
+
+for dir in /etc/service/*; do
+    [ -d "$dir" ] || continue
+
+    name="$(basename "$dir")"
+
+    printf "\033[96m*\033[0m Starting \033[97m%s\033[0m\n" "$name"
+
+    nohup "$dir/run" >/dev/null 2>&1 &
+
+    while [ ! -f "$dir/.lock" ]; do
+        sleep 0.1
+    done
+
+    rm -f "$dir/.lock"
 done
 
 if [ "$some_failed" -ne 0 ]; then

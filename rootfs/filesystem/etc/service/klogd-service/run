@@ -1,2 +1,3 @@
 #!/bin/sh
+touch /etc/service/klogd-service/.lock
 exec busybox klogd -n
