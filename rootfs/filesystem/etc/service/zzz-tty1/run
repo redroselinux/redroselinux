@@ -1,0 +1,6 @@
+#!/bin/sh
+
+printf "\033[96m*\033[0m Starting \033[97mgetty\033[0m\n"
+printf "\nWelcome!\n"
+
+exec busybox getty -L tty1 115200 vt100 -l /bin/login

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec busybox getty -L tty7 115200 vt100 -l /bin/login
