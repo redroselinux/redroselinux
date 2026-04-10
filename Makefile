@@ -74,7 +74,7 @@ squash-root:
 iso:
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
-	grub-mkrescue -o $(ISO) $(FS_DIR)
+	grub-mkrescue -o $(ISO) $(FS_DIR) --xorriso /usr/bin/xorriso
 
 installer:
 	$(CC) src/installer/main.c -o initramfs/bin/install -static 2>&1
