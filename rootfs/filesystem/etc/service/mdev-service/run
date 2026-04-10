@@ -1,9 +1,7 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mmdev-service\033[0m\n"
+printf "\033[96m*\033[0m Starting \033[97mmdev\033[0m\n"
 
-echo /sbin/mdev > /proc/sys/kernel/hotplug
-busybox mdev -s
-touch /etc/service/mdev-service/.lock
+busybox mdev -s -S
 
 exec sleep infinity

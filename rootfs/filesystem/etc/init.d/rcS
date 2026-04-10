@@ -34,40 +34,7 @@ busybox mount | busybox grep -q 'on /dev/pts ' || { mount -t devpts devpts /dev/
 }
 
 printf "\033[96m*\033[0m Making sure services are executable\n" || some_failed=1
-busybox chmod +x /etc/service/*/* || some_failed=1
+busybox chmod 755 /etc/service/*/* || some_failed=1
 printf "\033[96m*\033[0m Starting services\n" || some_failed=1
 
-for dir in /etc/service/*; do
-    [ -d "$dir" ] || continue
-
-    name="$(basename "$dir")"
-
-    printf "\033[96m*\033[0m Starting \033[97m%s\033[0m\n" "$name"
-
-    nohup "$dir/run" >/dev/null 2>&1 &
-
-    while [ ! -f "$dir/.lock" ]; do
-        sleep 0.1
-    done
-
-    rm -f "$dir/.lock"
-done
-
-if [ "$some_failed" -ne 0 ]; then
-    printf "\033[91m*\033[0m \033[97mSome parts of the boot process have failed before reaching the /boot/target script.\033[0m\n"
-    sleep 2
-fi
-
-printf "\033[95m*\033[0m \033[97mFinished all. Running getty.\n\033[0m" || some_failed=1
-busybox clear || some_failed=1
-
-sh /boot/target || some_failed=1
-
-if [ "$some_failed" -ne 0 ]; then
-    printf "\033[91m*\033[0m \033[97mSome parts of the boot process have failed after reaching the /boot/target script. Starting a shell.\033[0m\n"
-    sh
-fi
-
-printf "\033[91m*\033[0m \033[97mPowering off in 1 second\n"
-busybox sleep 1
-busybox poweroff -f
+exec runsvdir -P /etc/service

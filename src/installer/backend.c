@@ -241,7 +241,6 @@ int copy_root(char* drive) {
 int install_grub(char* drive) {
     char command[1024];
     char grub_install[] = "busybox chroot /mnt /bin/sh -c '"
-        "LD_LIBRARY_PATH=/lib:/usr/lib:/lib64:/usr/lib64" // dont ask sometimes it doesnt work
         "busybox mkdir -p /proc &&mount -t proc proc /proc && "
         "busybox mkdir -p /sys &&mount -t sysfs sys /sys && "
         "busybox mkdir -p /dev &&mount -t devtmpfs dev /dev && "
