@@ -2,8 +2,6 @@
 
 some_failed=0
 
-printf "\033[91m*\033[0m \033[97mWelcome to \033[91mRedrose Linux\033[0m\033[97m!\033[0m\n" || some_failed=1
-
 printf "\033[96m*\033[0m \033[97mMounting essential filesystems\033[0m\n" || some_failed=1
 
 busybox mkdir -p /proc /sys /dev /tmp /run /dev/pts || some_failed=1
