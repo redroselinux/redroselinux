@@ -20,7 +20,7 @@ dep:
 	mkdir -p rootfs/filesystem/usr/
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
-	sudo cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
+	 cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
 	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			echo -n "✓ $$cmd  "; \
@@ -29,7 +29,7 @@ dep:
 			exit 1; \
 		fi; \
 	done;
-	python3 copy_syslibs.py
+	 python3 copy_syslibs.py
 
 initramfs:
 	bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
@@ -67,9 +67,9 @@ squash-root:
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
 	cp linuxImage rootfs/filesystem/boot/linuxImage
-	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
-	sudo gzip -f initramfs/rootfs.tar -5
-	sudo rm -f initramfs/rootfs.tar
+	 tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	 gzip -f initramfs/rootfs.tar -5
+	 rm -f initramfs/rootfs.tar
 
 iso:
 	cp linuxImage $(FS_DIR)/boot/

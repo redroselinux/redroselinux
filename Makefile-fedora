@@ -21,16 +21,16 @@ dep:
 	mkdir -p rootfs/filesystem/usr/
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
-	sudo cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
+	 cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
 	@for cmd in grub2-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
 		if ! command -v $$cmd >/dev/null 2>&1; then \
 			echo "$$cmd missing, installing..."; \
-			sudo dnf install -y $$cmd; \
+			 dnf install -y $$cmd; \
 		else \
 			echo "$$cmd [ok]"; \
 		fi; \
 	done
-	sudo ln -s /usr/sbin/grub2-install /usr/sbin/grub-install || true
+	 ln -s /usr/sbin/grub2-install /usr/sbin/grub-install || true
 	@python3 copy_syslibs.py
 
 initramfs:
@@ -66,9 +66,9 @@ squash-root:
 	chmod +x rootfs/filesystem/sbin/reload-hostname-daemon
 	cp rootfs/filesystem/boot/grub rootfs/filesystem/boot/grub2 -r
 	cp linuxImage rootfs/filesystem/boot/linuxImage
-	sudo tar -cpf initramfs/rootfs.tar -C rootfs filesystem
-	sudo gzip -f initramfs/rootfs.tar -5
-	sudo rm -f initramfs/rootfs.tar
+	 tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	 gzip -f initramfs/rootfs.tar -5
+	 rm -f initramfs/rootfs.tar
 
 iso:
 	cp linuxImage $(FS_DIR)/boot/
