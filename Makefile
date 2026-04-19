@@ -44,7 +44,7 @@ initramfs:
 	chmod +x $(INITRAMFS_DIR)/bin/init
 	ln -sf bin/init $(INITRAMFS_DIR)/init
 	chmod +x $(INITRAMFS_DIR)/bin/*
-	chmod +x rootfs/filesystem/bin/*
+	sudo chmod +x rootfs/filesystem/bin/*
 	@echo "this is making sure :)"
 	chmod +x rootfs/filesystem/bin/sh
 	chmod +x rootfs/filesystem/bin/adduser
