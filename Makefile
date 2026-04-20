@@ -11,7 +11,7 @@ no-vm: dep clean installer squash-root initramfs iso
 
 help:
 	@echo "run 'make' to compile"
-	@echo "does not support -j$(nproc)"
+	@echo "does not support -j$$(nproc)"
 	@echo "on fedora, run 'make -f Makefile-fedora'"
 
 dep:
@@ -21,7 +21,7 @@ dep:
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
 	 cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
-	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
+	for cmd in grub-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3 cpio fakeroot xorriso; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			echo -n "✓ $$cmd  "; \
 		else \
@@ -44,7 +44,7 @@ initramfs:
 	chmod +x $(INITRAMFS_DIR)/bin/init
 	ln -sf bin/init $(INITRAMFS_DIR)/init
 	chmod +x $(INITRAMFS_DIR)/bin/*
-	sudo chmod +x rootfs/filesystem/bin/*
+	chmod +x rootfs/filesystem/bin/*
 	@echo "this is making sure :)"
 	chmod +x rootfs/filesystem/bin/sh
 	chmod +x rootfs/filesystem/bin/adduser
@@ -67,7 +67,7 @@ squash-root:
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
 	cp linuxImage rootfs/filesystem/boot/linuxImage
-	 tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	fakeroot tar -cpf initramfs/rootfs.tar -C rootfs filesystem
 	 gzip -f initramfs/rootfs.tar -5
 	 rm -f initramfs/rootfs.tar
 
@@ -96,10 +96,10 @@ bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
 installed-vm:
-	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc)
+	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
 vm:
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G
-	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc)
+	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 
 .PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep
