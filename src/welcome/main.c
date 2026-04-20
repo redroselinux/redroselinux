@@ -1,10 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    // delete the service dir
-    remove("/etc/service/welcome/run");
-    remove("/etc/service/welcome");
-
     fputs(
         "\033[2J\033[H ____          _                      _     _                  \n"
         "|  _ \\ ___  __| |_ __ ___  ___  ___  | |   (_)_ __  _   ___  __\n"
