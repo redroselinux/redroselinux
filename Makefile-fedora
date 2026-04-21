@@ -1,5 +1,3 @@
-# was ai used in this file? yes (ansi output, minor assistance)
-
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs
 OUTPUT_DIR = .
@@ -13,80 +11,93 @@ no-vm: dep clean installer squash-root initramfs iso
 
 help:
 	@echo "run 'make -f Makefile-fedora' to compile"
-	@echo "does not support -j$(nproc)"
 
 dep:
-	mkdir -p rootfs/filesystem/lib64
-	mkdir -p rootfs/filesystem/lib
-	mkdir -p rootfs/filesystem/usr/
-	mkdir -p rootfs/filesystem/usr/lib
-	mkdir -p rootfs/filesystem/usr/lib/grub
-	 cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/
-	@for cmd in grub2-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3; do \
-		if ! command -v $$cmd >/dev/null 2>&1; then \
-			echo "$$cmd missing, installing..."; \
-			 dnf install -y $$cmd; \
+	mkdir -p rootfs/filesystem/{lib64,lib,usr,usr/lib,usr/lib/grub}
+	cp -p /lib64/ld-linux-x86-64.so.2 rootfs/filesystem/lib64/ || true
+
+	@for cmd in grub2-mkrescue curl bash gzip gcc qemu-img qemu-system-x86_64 python3 cpio fakeroot xorriso strip file; do \
+		if command -v $$cmd >/dev/null 2>&1; then \
+			echo "✓ $$cmd"; \
 		else \
-			echo "$$cmd [ok]"; \
+			echo "✗ $$cmd missing, installing..."; \
+			sudo dnf install -y $$cmd || exit 1; \
 		fi; \
 	done
-	 ln -s /usr/sbin/grub2-install /usr/sbin/grub-install || true
+
 	@python3 copy_syslibs.py
 
-initramfs:
-	bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
+strip-bins:
+	find rootfs/filesystem/bin rootfs/filesystem/*/bin rootfs/filesystem/*/lib* -type f -exec file {} \; | \
+	grep -E 'ELF .* (executable|shared object)' | \
+	cut -d: -f1 | \
+	while read -r f; do \
+		echo "stripping $$f"; \
+		strip --strip-unneeded "$$f" || true; \
+	done
+
+initramfs: dep squash-root
+	mkdir -p $(INITRAMFS_DIR)/{proc,sys,mnt}
+
 	test -f $(INITRAMFS_DIR)/bin/sgdisk || ( \
 		curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin && \
 		chmod +x $(INITRAMFS_DIR)/bin/sgdisk \
 	)
-	test -f initramfs/bin/mkfs.vfat || ( \
-		curl -s -L -o initramfs/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat && \
-		chmod +x initramfs/bin/mkfs.vfat \
+
+	test -f $(INITRAMFS_DIR)/bin/mkfs.vfat || ( \
+		curl -s -L -o $(INITRAMFS_DIR)/bin/mkfs.vfat https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/mkfs.fat && \
+		chmod +x $(INITRAMFS_DIR)/bin/mkfs.vfat \
 	)
+
 	chmod +x $(INITRAMFS_DIR)/bin/init
 	ln -sf bin/init $(INITRAMFS_DIR)/init
+
 	chmod +x $(INITRAMFS_DIR)/bin/*
 	chmod +x rootfs/filesystem/bin/*
-	@echo "this is making sure :)"
-	chmod +x rootfs/filesystem/bin/sh
-	chmod +x rootfs/filesystem/bin/adduser
-	chmod +x rootfs/filesystem/bin/grub-install
-	chmod +x $(INITRAMFS_DIR)/init
+	chmod +x rootfs/filesystem/bin/sh rootfs/filesystem/bin/adduser
+
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)
 
-squash-root:
+squash-root: strip-bins
 	while IFS= read -r line; do \
-	    echo "$$line" | python3 strap.py; \
+		echo "$$line" | python3 strap.py; \
 	done < rootfs/rootfs_strap_packages
+
 	test -f rootfs/filesystem/bin/car || ( \
 		curl -s -L -o rootfs/filesystem/bin/car https://github.com/redroselinux/car/releases/latest/download/car && \
 		chmod +x rootfs/filesystem/bin/car \
 	)
-	chmod +x rootfs/filesystem/sbin/reload-hostname-daemon
-	cp rootfs/filesystem/boot/grub rootfs/filesystem/boot/grub2 -r
-	cp linuxImage rootfs/filesystem/boot/linuxImage
-	 tar -cpf initramfs/rootfs.tar -C rootfs filesystem
-	 gzip -f initramfs/rootfs.tar -5
-	 rm -f initramfs/rootfs.tar
 
-iso:
+	chmod +x rootfs/filesystem/sbin/reload-hostname-daemon
+
+	mkdir -p rootfs/filesystem/{lib64,lib,usr,usr/lib,usr/lib/grub}
+
+	cp linuxImage rootfs/filesystem/boot/linuxImage
+
+	fakeroot tar -cpf initramfs/rootfs.tar -C rootfs filesystem
+	gzip -f initramfs/rootfs.tar
+	rm -f initramfs/rootfs.tar
+
+iso: squash-root initramfs
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
-	grub2-mkrescue -o $(ISO) $(FS_DIR)
+	grub2-mkrescue -o $(ISO) $(FS_DIR) --xorriso /usr/bin/xorriso
 
-installer:
+installer: dep
 	$(CC) src/installer/main.c -o initramfs/bin/install -static 2>&1
+	$(CC) src/welcome/main.c -o rootfs/filesystem/bin/welcome
 
 run-installer:
 	initramfs/bin/install
 
 clean:
-    rm -f rootfs/filesystem/etc/repro.car
+	rm -f rootfs/filesystem/etc/repro.car
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
 	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage redrose_linux.qcow2
 	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
 	rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh.
+
 clean-downloads:
 	rm -f $(INITRAMFS_DIR)/bin/sgdisk
 
@@ -94,11 +105,11 @@ clean-all: clean clean-downloads
 bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
-installed-vm:
-	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm 2>/dev/null -display gtk -smp $$(nproc) || echo "install the qemu-ui-gtk package if you havent yet"
+installed-vm: redrose_linux.iso
+	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
-vm:
+vm: redrose_linux.iso
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G
-	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -display gtk -smp $$(nproc) || echo "install the qemu-ui-gtk package if you havent yet"
+	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 
 .PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep

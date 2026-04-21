@@ -11,7 +11,6 @@ no-vm: dep clean installer squash-root initramfs iso
 
 help:
 	@echo "run 'make' to compile"
-	@echo "does not support -j$$(nproc)"
 	@echo "on fedora, run 'make -f Makefile-fedora'"
 
 dep:
@@ -31,7 +30,7 @@ dep:
 	done;
 	 python3 copy_syslibs.py
 
-initramfs:
+initramfs: dep squash-root
 	bash -c 'mkdir -p initramfs/{proc,sys,mnt}'
 	test -f $(INITRAMFS_DIR)/bin/sgdisk || ( \
 		curl -s -L -o $(INITRAMFS_DIR)/bin/sgdisk https://github.com/redroselinux/car-coreutils-repo/raw/refs/heads/main/sgdisk-static-bin && \
@@ -52,7 +51,16 @@ initramfs:
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)
 
-squash-root:
+strip-bins: dep
+	find rootfs/filesystem/bin rootfs/filesystem/*/bin rootfs/filesystem/*/lib* -type f -exec file {} \; | \
+	grep -E 'ELF .* (executable|shared object)' | \
+	cut -d: -f1 | \
+	while read -r f; do \
+		echo "stripping $$f"; \
+		strip --strip-unneeded "$$f" || true; \
+	done
+
+squash-root: strip-bins dep
 	while IFS= read -r line; do \
 	    echo "$$line" | python3 strap.py; \
 	done < rootfs/rootfs_strap_packages
@@ -68,15 +76,15 @@ squash-root:
 	mkdir -p rootfs/filesystem/usr/lib/grub
 	cp linuxImage rootfs/filesystem/boot/linuxImage
 	fakeroot tar -cpf initramfs/rootfs.tar -C rootfs filesystem
-	 gzip -f initramfs/rootfs.tar -5
+	 gzip -f initramfs/rootfs.tar
 	 rm -f initramfs/rootfs.tar
 
-iso:
+iso: squash-root initramfs
 	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR) --xorriso /usr/bin/xorriso
 
-installer:
+installer: dep
 	$(CC) src/installer/main.c -o initramfs/bin/install -static 2>&1
 	$(CC) src/welcome/main.c -o rootfs/filesystem/bin/welcome
 
@@ -99,7 +107,7 @@ no-clean: installer squash-root initramfs iso vm
 installed-vm:
 	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
-vm:
+vm: redrose_linux.iso
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 

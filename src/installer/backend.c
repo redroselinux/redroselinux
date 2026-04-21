@@ -234,7 +234,7 @@ int makefs(char* drive) {
 int copy_root(char* drive) {
     printf("mounting root\n");
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
-    printf("> gzip -5 -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
+    printf("> gzip -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
     return system("busybox gzip -dc rootfs.tar.gz | busybox tar -xf - -C /mnt --strip-components=1");
 }
 
