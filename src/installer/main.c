@@ -28,14 +28,6 @@ void error() {
     shutdown_computer();
 }
 
-void print_step_header() {
-    clear();
-    installing_header();
-    printf("\n");
-    separator();
-    printf("\n");
-}
-
 int run_installation_step(int (*operation)(char*),
     char* arg,
     const char* step_name,
@@ -43,7 +35,7 @@ int run_installation_step(int (*operation)(char*),
         set_text_color(is_destructive ? RED : GREEN);
         printf("* ");
         set_text_color(RESET);
-        printf("%s\n", step_name);
+        printf("\e[1m%s\e[0m\n", step_name);
         fflush(stdout);
 
         if (operation(arg) != 0) {
@@ -52,7 +44,7 @@ int run_installation_step(int (*operation)(char*),
             return -1;
         }
 
-        print_step_header();
+        fputs("\n", stdout);
         return 0;
 }
 
@@ -115,7 +107,7 @@ int main() {
     fgets(confirm, sizeof(confirm), stdin);
 
     if (confirm[0] == 'y' || confirm[0] == '\n') {
-        clear(); installing_header(); printf("\n"); separator(); printf("\n");
+        clear();
         int success = 1;
         disable_echo();
         if (run_installation_step(wipe_drive, drive, "Erasing the drive!", 1) < 0) { success = 0; goto cleanup; }
@@ -124,14 +116,14 @@ int main() {
         set_text_color(GREEN);
         printf("* ");
         set_text_color(RESET);
-        printf("Setting up user accounts!\n");
+        printf("\e[1mSetting up user accounts!\e[0m\n");
         fflush(stdout);
         if (create_users(username, userpassword, rootpassword) != 0) {
             install_failed();
             error();
             return -1;
         }
-        print_step_header();
+        fputs("\n", stdout);
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
         if (propriertary == 0)

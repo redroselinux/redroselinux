@@ -199,12 +199,6 @@ int makefs(char* drive) {
     if (system(command) != 0)
         return 1;
 
-    clear();
-    installing_header();
-    printf("\n");
-    separator();
-    printf("\n");
-
     snprintf(command, sizeof(command), "busybox partprobe %s", drive);
     printf("> %s\n", command);
     fflush(stdout);
@@ -220,11 +214,6 @@ int makefs(char* drive) {
     if (system(command) != 0)
         return 1;
 
-    clear();
-    installing_header();
-    printf("\n");
-    separator();
-    printf("\n");
     snprintf(command, sizeof(command), "busybox mke2fs -F %s", root_part);
     printf("> %s\n", command);
     fflush(stdout);
@@ -232,7 +221,7 @@ int makefs(char* drive) {
 }
 
 int copy_root(char* drive) {
-    printf("mounting root\n");
+    printf("  Mounting %s\n", get_partition(drive, 3));
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
     printf("> gzip -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
     return system("busybox gzip -dc rootfs.tar.gz | busybox tar -xf - -C /mnt --strip-components=1");
