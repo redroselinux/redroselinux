@@ -231,6 +231,7 @@ int install_grub(char* drive) {
     char command[1024];
     char grub_install[] = "busybox chroot /mnt /bin/sh -c '"
         "export LD_LIBRARY_PATH=/usr/lib:/lib:/usr/lib64:/lib64 &&"
+        //"export LD_PRELOAD=/usr/lib/libdevmapper.so.1.02 &&"
         "busybox mkdir -p /proc &&mount -t proc proc /proc && "
         "busybox mkdir -p /sys &&mount -t sysfs sys /sys && "
         "busybox mkdir -p /dev &&mount -t devtmpfs dev /dev && "
@@ -358,6 +359,8 @@ int create_users(char *username, char *password, char *root_password) {
     if (system(useradd_cmd) != 0) {
         return 1;
     }
+
+    printf("adduser: created user '%s'\n", username);
 
     // set user password
     char sanitized[128];

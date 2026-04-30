@@ -74,13 +74,13 @@ squash-root: strip-bins dep
 	mkdir -p rootfs/filesystem/usr/
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
-	cp linuxImage rootfs/filesystem/boot/linuxImage
+	cp linux-6.19.2 rootfs/filesystem/boot/vmlinuz-6.19.2
+	cp linux-6.19.2 filesystem/boot/vmlinuz-6.19.2
 	fakeroot tar -cpf initramfs/rootfs.tar -C rootfs filesystem
 	 gzip -f initramfs/rootfs.tar
 	 rm -f initramfs/rootfs.tar
 
 iso: squash-root initramfs
-	cp linuxImage $(FS_DIR)/boot/
 	cp $(INITRAMFS_GZ) $(FS_DIR)/boot/
 	grub-mkrescue -o $(ISO) $(FS_DIR) --xorriso /usr/bin/xorriso
 
@@ -94,8 +94,8 @@ run-installer:
 clean:
 	rm -f rootfs/filesystem/etc/repro.car
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
-	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/linuxImage redrose_linux.qcow2
-	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/linuxImage
+	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/vmlinuz-6.19.2 redrose_linux.qcow2
+	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/vmlinuz-6.19.2
 	rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh.
 clean-downloads:
 	rm -f $(INITRAMFS_DIR)/bin/sgdisk

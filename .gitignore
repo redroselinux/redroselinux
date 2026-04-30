@@ -3,7 +3,8 @@ rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 rootfs/filesystem/lib*
 rootfs/filesystem/var
-linuxImage
+linux-6.19.2
+vmlinuz-6.19.2
 *.tar.zst
 strap_packages
 libcp
