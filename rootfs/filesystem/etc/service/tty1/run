@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sleep 0.05
+exec </dev/tty1 >/dev/tty1 2>&1
 printf "\033[96m*\033[0m Starting \033[97mgetty\033[0m\n"
 printf "\n\e[1;92mWelcome\e[0m to Redrose Linux!"
 

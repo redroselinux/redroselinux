@@ -412,6 +412,9 @@ int propriertary_(char*) {
 // we will listup after network sooo it will
 // fail silently but in this case we want it
 int init_car(char* kajbwefhbgbgr) {
+    set_text_color(YELLOW);
+    printf("THIS IS SUPPOSED TO FAIL. DO NOT MIND THE ERROR MESSAGES.\n");
+    set_text_color(RESET);
     system("busybox yes 1 | busybox chroot /mnt /bin/sh -c '/bin/car init'");
     return 0;
 }
