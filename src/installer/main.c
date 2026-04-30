@@ -4,6 +4,7 @@
 #include "common.h"
 #include "tui.c"
 #include "backend.c"
+#include "drive_uuid.h"
 
 // this file is the main file of the installer.
 // it exports the other functions from tui.c and
@@ -125,13 +126,14 @@ int main() {
         }
         fputs("\n", stdout);
         if (run_installation_step(install_grub, drive, "Installing GRUB!", 0) < 0) { success = 0; goto cleanup; }
-        if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
         if (propriertary == 0)
             if (run_installation_step(propriertary_, "", "Enabling propriertary software!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(init_car, "", "Initializing Car!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(install_busybox, "", "Installing BusyBox!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(regenerate_initramfs, "", "Regenerating initramfs!", 0) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(uuid_drive, "/mnt", "Assigning UUID to drive!", 0) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(patch, drive, "Running patches!", 0) < 0) { success = 0; goto cleanup; }
 cleanup:
         enable_echo();
         if (!success) return 0;

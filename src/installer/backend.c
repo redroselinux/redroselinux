@@ -8,6 +8,7 @@
 #include <sys/mount.h>
 
 #include "common.h"
+#include "drive_uuid.h"
 #include <unistd.h>
 
 // backend for installer.
@@ -255,9 +256,35 @@ int install_grub(char* drive) {
 }
 
 int patch(char* drive) {
-    // some patches
     chmod("/mnt/etc/init.d/rcS", 0755);
-    return 0;
+    chmod("/mnt/bin/su", 4755);
+
+    printf("  \e[3mnot finished - for now uses drive instead of uuid\e[0m\n");
+    // not finished - for now uses drive instead of uuid
+    /* char uuid_cmd[256];
+    char uuid[64] = {0};
+    char *drive_ = get_partition(drive, 3);
+
+    snprintf(uuid_cmd, sizeof(uuid_cmd),
+        "/bin/busybox blkid %s | /bin/busybox grep -o 'UUID=\"[^\"]*\"' | /bin/busybox cut -d'\"' -f2",
+        drive_);
+    printf("Running: %s\n", uuid_cmd);
+
+    FILE *fp = popen(uuid_cmd, "r");
+    if (!fp) { printf("popen failed\n"); return 1; }
+    if (!fgets(uuid, sizeof(uuid), fp)) { printf("blkid returned nothing\n"); pclose(fp); return 1; }
+    pclose(fp);
+    uuid[strcspn(uuid, "\n")] = 0;
+    printf("UUID: '%s'\n", uuid);
+    */
+    char sed_cmd[512];
+    snprintf(sed_cmd, sizeof(sed_cmd),
+        "/bin/busybox sed -i 's|root=/dev/sda3|root=%s|g' /mnt/boot/grub/grub.cfg",
+        get_partition(drive, 3));
+    printf("  Running: %s\n", sed_cmd);
+    int r = system(sed_cmd);
+    printf("  sed exit: %d\n", r);
+    return r;
 }
 
 int localhost(char *name) {
