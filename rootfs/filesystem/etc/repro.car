@@ -21,4 +21,5 @@ sed
 tar
 util-linux-libs-only
 xz
+zlib
 zstd

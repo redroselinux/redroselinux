@@ -64,6 +64,7 @@ squash-root: strip-bins dep
 	while IFS= read -r line; do \
 	    echo "$$line" | python3 strap.py; \
 	done < rootfs/rootfs_strap_packages
+	mv rootfs/filesystem/usr/bin/tar rootfs/filesystem/bin/tar
 	test -f rootfs/filesystem/bin/car || ( \
 		curl -s -L -o rootfs/filesystem/bin/car https://github.com/redroselinux/car/releases/latest/download/car && \
 		chmod +x rootfs/filesystem/bin/car \
