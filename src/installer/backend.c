@@ -418,3 +418,21 @@ int init_car(char* kajbwefhbgbgr) {
     system("busybox yes 1 | busybox chroot /mnt /bin/sh -c '/bin/car init'");
     return 0;
 }
+
+int regenerate_initramfs(char*) {
+    return system(
+        "mount --bind /proc /mnt/proc && "
+        "mount --bind /sys /mnt/sys && "
+        "mount --bind /dev /mnt/dev && "
+        "busybox mkdir -p /mnt/tmp && "
+        "mount -t tmpfs tmp /mnt/tmp && "
+        "busybox chroot /mnt /bin/sh -c "
+            "'export LD_LIBRARY_PATH=/usr/lib:/lib:/lib64:/usr/local/lib && "
+            "export PATH=/usr/bin:/bin:/sbin && "
+            "/usr/bin/nullinitrd' ; "
+        "busybox umount /mnt/dev ; "
+        "busybox umount /mnt/sys ; "
+        "busybox umount /mnt/proc ; "
+        "busybox umount /mnt/tmp"
+    );
+}

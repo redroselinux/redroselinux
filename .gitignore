@@ -3,6 +3,7 @@ rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 rootfs/filesystem/lib*
 rootfs/filesystem/var
+rootfs/filesystem/etc/nullinitrd
 vmlinuz-6.19.2
 *.tar.zst
 strap_packages
@@ -15,5 +16,5 @@ redrose_linux.qcow2
 rootfs/filesystem/etc/dbus*
 rootfs/filesystem/etc/rpc
 rootfs/filesystem/etc/slsh.rc
-rootfs/filesystem/etc/repro.car
+repro.car
 rootfs/filesystem/etc/ld.so.cache

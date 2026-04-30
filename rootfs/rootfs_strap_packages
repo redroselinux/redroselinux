@@ -15,6 +15,7 @@ newt
 nm
 nss
 nspr
+nullinitrd
 openssl
 pcre2
 sed

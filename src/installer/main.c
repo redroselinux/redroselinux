@@ -131,6 +131,7 @@ int main() {
         if (run_installation_step(localhost, host_name, "Setting hostname!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(init_car, "", "Initializing Car!", 0) < 0) { success = 0; goto cleanup; }
         if (run_installation_step(install_busybox, "", "Installing BusyBox!", 0) < 0) { success = 0; goto cleanup; }
+        if (run_installation_step(regenerate_initramfs, "", "Regenerating initramfs!", 0) < 0) { success = 0; goto cleanup; }
 cleanup:
         enable_echo();
         if (!success) return 0;
