@@ -14,7 +14,7 @@ This is an independent distro from Europe (slovakia). This distro is kind of opi
 > Redrose Linux is under active development and is **not ready for daily use**.
 
 - **Docs**: https://redroselinux.miraheze.org
-- **Website**: https://redroselinux.is-a.software
+- **Website**: https://redroselinux.org/
 - **Dev branch**: https://github.com/mostypc123/redroselinux
 
 <div align="center">

@@ -61,7 +61,7 @@ initramfs: dep squash-root
 
 squash-root: strip-bins dep
 	while IFS= read -r line; do \
-	    echo "$$line" | python3 strap.py; \
+		echo "$$line" | python3 strap.py; \
 	done < rootfs/rootfs_strap_packages
 	mv rootfs/filesystem/usr/bin/tar rootfs/filesystem/bin/tar
 
