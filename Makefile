@@ -51,7 +51,7 @@ initramfs: dep squash-root
 	cd $(INITRAMFS_DIR) && find . -print0 | cpio --null -ov -H newc > ../$(INITRAMFS_CPIO)
 	gzip -f $(INITRAMFS_CPIO)
 
-strip-bins: dep
+strip-bins: dep install-packages
 	find rootfs/filesystem/bin rootfs/filesystem/*/bin rootfs/filesystem/*/lib* -type f -exec file {} \; | \
 	grep -E 'ELF .* (executable|shared object)' | \
 	cut -d: -f1 | \
@@ -60,11 +60,14 @@ strip-bins: dep
 		strip --strip-unneeded "$$f" || true; \
 	done
 
-squash-root: strip-bins dep
+install-packages: dep
 	while IFS= read -r line; do \
 	    echo "$$line" | python3 strap.py; \
 	done < rootfs/rootfs_strap_packages
-	mv rootfs/filesystem/usr/bin/tar rootfs/filesystem/bin/tar
+
+squash-root: strip-bins install-packages dep
+	# TODO: symlink full /usr paths
+	ln -sf rootfs/filesystem/bin/tar rootfs/filesystem/usr/bin/tar
 	test -f rootfs/filesystem/bin/car || ( \
 		curl -s -L -o rootfs/filesystem/bin/car https://github.com/redroselinux/car/releases/latest/download/car && \
 		chmod +x rootfs/filesystem/bin/car \
@@ -75,8 +78,10 @@ squash-root: strip-bins dep
 	mkdir -p rootfs/filesystem/usr/
 	mkdir -p rootfs/filesystem/usr/lib
 	mkdir -p rootfs/filesystem/usr/lib/grub
-	cp linux-6.19.2 rootfs/filesystem/boot/vmlinuz-6.19.2
-	cp linux-6.19.2 filesystem/boot/vmlinuz-6.19.2
+	cp linux-7.0.3 rootfs/filesystem/boot/vmlinuz-7.0.3
+	ln -sf vmlinuz-7.0.3 rootfs/filesystem/boot/vmlinuz
+	cp linux-7.0.3 filesystem/boot/vmlinuz-7.0.3
+	ln -sf vmlinuz-7.0.3 filesystem/boot/vmlinuz
 	fakeroot tar -cpf initramfs/rootfs.tar -C rootfs filesystem
 	 gzip -f initramfs/rootfs.tar
 	 rm -f initramfs/rootfs.tar
@@ -95,8 +100,8 @@ run-installer:
 clean:
 	rm -f rootfs/filesystem/etc/repro.car
 	rm -f $(INITRAMFS_CPIO) $(INITRAMFS_GZ) $(ISO)
-	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/vmlinuz-6.19.2 redrose_linux.qcow2
-	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/vmlinuz-6.19.2
+	rm -f initramfs/bin/install filesystem/boot/initramfs.cpio.gz filesystem/boot/vmlinuz-7.0.3 redrose_linux.qcow2
+	rm -f rootfs/filesystem/boot/initramfs_rootfs.cpio.gz rootfs/filesystem/boot/vmlinuz-7.0.3
 	rm -f initramfs_rootfs.cpio.gz initramfs_rootfs.cpio initramfs/rootfs.sqsh.
 clean-downloads:
 	rm -f $(INITRAMFS_DIR)/bin/sgdisk
@@ -105,10 +110,10 @@ clean-all: clean clean-downloads
 bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
-installed-vm:
+installed-vm: ./redrose_linux.qcow2
 	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
-vm: redrose_linux.iso
+vm: iso
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 

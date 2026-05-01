@@ -6,7 +6,7 @@ printf "\033[96m*\033[0m \033[97mMounting essential filesystems\033[0m\n" || som
 
 busybox mkdir -p /proc /sys /dev /tmp /run /dev/pts || some_failed=1
 
-busybox mount | busybox grep -q 'on /proc ' || { mount -t proc proc /proc \
+{ mount -t proc proc /proc \
     && printf "  /proc mounted successfully\n" \
     || { printf "\033[91m*\033[0m \033[97mFailed to mount /proc\n"; some_failed=1; }; }
 
@@ -31,8 +31,6 @@ busybox mount | busybox grep -q 'on /dev/pts ' || { mount -t devpts devpts /dev/
     || { printf "\033[91m*\033[0m \033[97mFailed to mount /dev/pts\n"; some_failed=1; }
 }
 
-printf "\033[96m*\033[0m Making sure services are executable\n" || some_failed=1
 busybox chmod 755 /etc/service/*/* || some_failed=1
 printf "\033[96m*\033[0m Starting services\n" || some_failed=1
-
 exec runsvdir -P /etc/service
