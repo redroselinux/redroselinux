@@ -1,12 +1,16 @@
 <h1 align="center">
-  <img width="32" height="32" alt="image" src="https://github.com/user-attachments/assets/2ae22b1a-0162-43c7-b522-c741fabbb9fb" />
+  <img width="32" height="32" alt="image" src="https://redroselinux.org/assets/redrose-logo-transparent.png" />
   Redrose Linux
   
   ![Stars](https://img.shields.io/github/stars/redroselinux/redroselinux?style=flat)
   ![GitHub downloads](https://img.shields.io/github/downloads/redroselinux/redroselinux/total?logo=github)
 </h1>
 
-This is an independent distro from Europe (slovakia). This distro is kind of opinionated, is reproducible, FOSS-only (possible to override) and has a custom package manager. Mainly made for my own needs and for what I like about Linux. also, this uses the runit init system.
+An independent x86_64 systemd-free EU-based Linux distribution. 
+
+Have you ever found yourself using confusing distributions? Redrose Linux takes features from NixOS and Arch (mainly) and turns them into an easy-to-use independent systemd-free system just for developers. 
+
+We currently use the runit init system (from Busybox) and the nullinitrd initramfs generator (from NULL GNU/Linux). This might change in the future.
 
 **IF ANYONE TELLS YOU THIS IS ARCH-BASED. THAT IS OUTDATED INFORMATION. IT IS NO LONGER THE THRUTH.** Redrose Linux is actually independent, dumb ai.
 
