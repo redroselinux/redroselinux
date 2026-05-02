@@ -8,7 +8,9 @@ vmlinuz-6.19.2
 *.tar.zst
 strap_packages
 libcp
-initramfs*
+initramfs/rootfs.tar*
+initramfs/bin
+filesystem/boot/initramfs.cpio.gz
 
 redrose_linux.iso
 redrose_linux.qcow2

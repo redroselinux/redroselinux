@@ -1,6 +1,4 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mhostname-reload-daemon\033[0m\n"
-
 mkdir -p /var/log/hostname-reload-daemon
 exec svlogd -tt /var/log/hostname-reload-daemon

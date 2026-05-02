@@ -1,0 +1,3 @@
+#!/bin/sh
+printf "\033[96m*\033[0m Starting \033[97mdbus\033[0m\n" > /dev/console
+exec dbus-launch --exit-with-session sleep infinity

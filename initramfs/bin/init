@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Mount essential filesystems
-echo "[*] Mounting essential filesystems"
+echo "\033[96m*\033[0m Mounting essential filesystems"
 mkdir -p /proc
 mkdir -p /run
 mount -t proc none /proc
@@ -10,9 +10,10 @@ mount -t sysfs none /sys
 mount -t devtmpfs none /dev
 
 # Set up PATH
-echo "[*] Setting up PATH"
+echo "\033[96m*\033[0m Setting up PATH"
 export PATH=/bin
 
+mdev -s
+
 # Launch installer
-/bin/install
-exec /bin/sh
+exec /bin/install
