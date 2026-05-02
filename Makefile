@@ -92,7 +92,6 @@ iso: squash-root initramfs
 
 installer: dep
 	$(CC) src/installer/main.c -o initramfs/bin/install -static 2>&1
-	$(CC) src/welcome/main.c -o rootfs/filesystem/bin/welcome
 
 run-installer:
 	initramfs/bin/install

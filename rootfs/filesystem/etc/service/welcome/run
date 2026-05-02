@@ -1,8 +1,0 @@
-#!/bin/sh
-
-echo "#!/bin/sh" > /etc/service/welcome/run
-chvt 9
-exec </dev/tty9 >/dev/tty9 2>&1
-/bin/welcome
-chvt 1
-exec sleep infinity
