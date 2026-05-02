@@ -71,6 +71,7 @@ squash-root: strip-bins install-packages dep
 	# TODO: symlink full /usr paths
 	chmod 4755 rootfs/filesystem/bin/busybox # for su
 	ln -sf rootfs/filesystem/bin/tar rootfs/filesystem/usr/bin/tar
+	ln -sf /proc/mounts rootfs/filesystem/etc/mtab
 	test -f rootfs/filesystem/bin/car || ( \
 		curl -s -L -o rootfs/filesystem/bin/car https://github.com/redroselinux/car/releases/latest/download/car && \
 		chmod +x rootfs/filesystem/bin/car \
