@@ -1,7 +1,7 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mdhcp\033[0m\n" > /dev/console
+printf "\033[96m*\033[0m Starting \033[97mdhcp\033[0m\n"
 
 ip link set eth0 up
-exec 2>&1
-exec udhcpc -i eth0 -f -S
+mkdir -p /var/log/dhcp
+exec udhcpc -i eth0 -f -S > /var/log/dhcp/current 2>&1

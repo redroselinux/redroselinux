@@ -35,8 +35,6 @@ if [ $some_failed -eq 1 ]; then
     exec /bin/sh
 fi
 
-ldconfig > /dev/null 2>&1
-
 busybox mkdir -p /var/log
 busybox chmod 755 /etc/service/*/* || some_failed=1
 busybox chmod 755 /etc/service/*/*/* || some_failed=1

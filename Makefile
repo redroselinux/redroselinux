@@ -52,8 +52,6 @@ initramfs: dep squash-root
 	gzip -f $(INITRAMFS_CPIO)
 
 strip-bins: dep install-packages
-	cp -a rootfs/filesystem/usr/local/. rootfs/filesystem/usr/
-	rm -rf rootfs/filesystem/usr/local
 	find rootfs/filesystem/bin rootfs/filesystem/*/bin rootfs/filesystem/*/lib* -type f -exec file {} \; | \
 	grep -E 'ELF .* (executable|shared object)' | \
 	cut -d: -f1 | \
@@ -69,7 +67,6 @@ install-packages: dep
 
 squash-root: strip-bins install-packages dep
 	# TODO: symlink full /usr paths
-	chmod 4755 rootfs/filesystem/bin/busybox # for su
 	ln -sf rootfs/filesystem/bin/tar rootfs/filesystem/usr/bin/tar
 	ln -sf /proc/mounts rootfs/filesystem/etc/mtab
 	test -f rootfs/filesystem/bin/car || ( \
@@ -113,10 +110,10 @@ clean-all: clean clean-downloads
 bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
-installed-vm: ./redrose_linux.qcow2 ./redrose_linux.iso
+installed-vm: ./redrose_linux.qcow2
 	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
-vm: ./redrose_linux.iso
+vm: iso
 	qemu-img create -f qcow2 redrose_linux.qcow2 1G
 	qemu-system-x86_64 -cdrom $(ISO) -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 

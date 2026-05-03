@@ -1,4 +1,0 @@
-#!/bin/sh
-
-mkdir -p /var/log/klogd
-exec svlogd -tt /var/log/klogd

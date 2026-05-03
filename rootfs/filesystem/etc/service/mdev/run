@@ -1,6 +1,6 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mmdev\033[0m\n" > /dev/console
+printf "\033[96m*\033[0m Starting \033[97mmdev\033[0m\n"
 busybox mdev -s -S
 
 exec sleep infinity

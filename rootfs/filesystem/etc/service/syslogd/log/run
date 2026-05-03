@@ -1,4 +1,5 @@
 #!/bin/sh
+printf "\033[96m*\033[0m Starting \033[97msyslogd\033[0m\n"
 
 mkdir -p /var/log/syslog
 exec svlogd -tt /var/log/syslog

@@ -1,4 +1,6 @@
 #!/bin/sh
 
+printf "\033[96m*\033[0m Starting \033[97mdhcp\033[0m\n"
+
 mkdir -p /var/log/dhcp
 exec svlogd -tt /var/log/dhcp
