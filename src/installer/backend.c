@@ -26,7 +26,7 @@ char* get_partition(const char* drive, int partnum) {
     return buf;
 }
 
-static void no_drives_repl(void) {
+static inline void no_drives_repl(void) {
     set_text_color(RED);
     printf("- no drives found!\n");
     set_text_color(RESET);
@@ -224,7 +224,7 @@ int makefs(char* drive) {
 int copy_root(char* drive) {
     printf("  Mounting %s\n", get_partition(drive, 3));
     mount(get_partition(drive, 3), "/mnt", "ext2", 0, 0);
-    printf("> gzip -dc rootfs.tar.gz | tar -xf - -C /mnt --strip-components=1\n");
+    printf("  Extracting /rootfs.tar.gz to /mnt. This may take a while...\n");
     return system("busybox gzip -dc rootfs.tar.gz | busybox tar -xf - -C /mnt --strip-components=1");
 }
 
@@ -256,10 +256,13 @@ int install_grub(char* drive) {
 }
 
 int patch(char* drive) {
+    printf("  Fixing permissions for some files\n");
     chmod("/mnt/etc/init.d/rcS", 0755);
     chmod("/mnt/bin/su", 4755);
+    chmod("/mnt/bin/busybox", 4755);
 
-    printf("  \e[3mnot finished - for now uses drive instead of uuid\e[0m\n");
+    printf("  Patching GRUB config to change root= entry\n");
+    printf("  not finished - for now uses drive instead of uuid\n");
     // not finished - for now uses drive instead of uuid
     /* char uuid_cmd[256];
     char uuid[64] = {0};
@@ -294,7 +297,63 @@ int localhost(char *name) {
     if (name[0] == '\n' || name[0] == '\0') {
         hostname = (char *)default_name;
     } else {
-        name[strcspn(name, "\n")] = '\0';
+        int issues = 0;
+        char *cursor = name;
+        while (*cursor) {
+            if (*cursor == '.') {
+                set_text_color(YELLOW);
+                printf("  No dots are allowed in a hostname. Changing to -.\n");
+                set_text_color(RESET);
+
+                issues++;
+                *cursor = '-';
+            // this is looped through every time because we edit it
+            } else if (cursor == name && *cursor == '-') {
+                set_text_color(YELLOW);
+                printf("  A hostname cannot start with '-'.\n");
+                set_text_color(RESET);
+
+                memmove(name, name + 1, strlen(name));
+                issues++;
+            } else if (*(cursor + 1) == '\0' && *cursor == '-') {
+                set_text_color(YELLOW);
+                printf("  A hostname cannot end with '-'.\n");
+                set_text_color(RESET);
+                
+                hostname[strlen(hostname) - 1] = '\0';
+                issues++;
+            } else if (*cursor == '_') {
+                set_text_color(YELLOW);
+                printf("  Underscores are not allowed. Changing to -.\n");
+                set_text_color(RESET);
+
+                *cursor = '-';
+                issues++;
+            } else if (*cursor == '!' || *cursor == '@' || *cursor == '#' || *cursor == '$' ||
+                       *cursor == '%' || *cursor == '^' || *cursor == '&' || *cursor == '*' ||
+                       *cursor == '(' || *cursor == ')' || *cursor == '_' || *cursor == '=' ||
+                       *cursor == '+' || *cursor == '[' || *cursor == ']' || *cursor == '{' ||
+                       *cursor == '}' || *cursor == '|' || *cursor == '\\' || *cursor == ':' ||
+                       *cursor == ';' || *cursor == '"' || *cursor == '\'' || *cursor == '<' ||
+                       *cursor == '>' || *cursor == ',' || *cursor == '?' || *cursor == '/' ||
+                       *cursor == '`' || *cursor == '~') {
+                set_text_color(YELLOW);
+                printf("  A hostname cannot contain special characters as %c. Changing to -.\n", *cursor);
+                set_text_color(RESET);
+
+                issues++;
+                *cursor = '-';
+            }
+
+            cursor++;
+        }
+
+        if (issues > 0) {
+            printf("  The installer had to alter your hostname to fix %d issues.\n  This is the result: %s\n", issues, hostname);
+            getchar();    
+        }
+        
+        hostname[strcspn(hostname, "\n")] = '\0';
     }
 
     FILE *f = fopen("/mnt/etc/hostname", "w");
@@ -302,7 +361,6 @@ int localhost(char *name) {
         perror("fopen");
         return -1;
     }
-
     fprintf(f, "%s\n", hostname);
     fclose(f);
 
