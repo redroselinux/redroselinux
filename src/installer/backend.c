@@ -315,7 +315,8 @@ int localhost(char *name) {
 
                 memmove(name, name + 1, strlen(name));
                 issues++;
-            } else if (*(cursor + 1) == '\0' && *cursor == '-') {
+            // 2 because of newline
+            } else if (*(cursor + 2) == '\0' && *cursor == '-') {
                 set_text_color(YELLOW);
                 printf("  A hostname cannot end with '-'.\n");
                 set_text_color(RESET);
@@ -349,7 +350,9 @@ int localhost(char *name) {
         }
 
         if (issues > 0) {
-            printf("  The installer had to alter your hostname to fix %d issues.\n  This is the result: %s\n", issues, hostname);
+            printf("  The installer had to alter your hostname to fix %d issues.\n  This is the result: %s\n"
+                   "\e[91m*\e[0m Press ENTER to continue..."
+                   , issues, hostname);
             getchar();    
         }
         
