@@ -1,10 +1,13 @@
 rootfs/filesystem/etc/repro.car
+rootfs/filesystem/etc/car/saves
 rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 rootfs/filesystem/lib*
 rootfs/filesystem/var
 rootfs/filesystem/etc/nullinitrd
 vmlinuz-6.19.2
+rootfs/filesystem/boot/vmlinuz-7.0.3
+filesystem/boot/vmlinuz-7.0.3
 *.tar.zst
 strap_packages
 libcp
