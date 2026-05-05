@@ -1,4 +1,3 @@
-rootfs/filesystem/etc/repro.car
 rootfs/filesystem/etc/car/saves
 rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
