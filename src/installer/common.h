@@ -37,3 +37,5 @@ char *get_partition(const char *drive, int partnum);
 int wipe_drive(char *drive);
 int makefs(char *drive);
 int install_grub(char *drive);
+void enable_echo(void);
+void disable_echo(void);

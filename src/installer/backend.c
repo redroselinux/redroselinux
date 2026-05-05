@@ -145,6 +145,19 @@ int list_dev() {
 
 // this is not vulnerable as theres a ui to pick from preselected drives
 int wipe_drive(char* drive) {
+    printf("Type 'yes' to confirm erasing %s: ", drive);
+    char confirmation[10];
+    enable_echo();
+    fgets(confirmation, sizeof(confirmation), stdin);
+    if (strncmp(confirmation, "yes", 3) != 0) {
+        printf("Press ENTER to restart installer.\n");
+        getchar();
+        execv("/bin/install", NULL);
+        perror("execv");
+        printf("Press ENTER to continue erasing.\n");
+        getchar();
+    }
+    disable_echo();
     char command[256];
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
     printf("> %s\n", command);
@@ -320,7 +333,7 @@ int localhost(char *name) {
                 set_text_color(YELLOW);
                 printf("  A hostname cannot end with '-'.\n");
                 set_text_color(RESET);
-                
+
                 hostname[strlen(hostname) - 1] = '\0';
                 issues++;
             } else if (*cursor == '_') {
@@ -353,9 +366,9 @@ int localhost(char *name) {
             printf("  The installer had to alter your hostname to fix %d issues.\n  This is the result: %s\n"
                    "\e[91m*\e[0m Press ENTER to continue..."
                    , issues, hostname);
-            getchar();    
+            getchar();
         }
-        
+
         hostname[strcspn(hostname, "\n")] = '\0';
     }
 

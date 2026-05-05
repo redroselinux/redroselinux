@@ -20,4 +20,5 @@ rootfs/filesystem/etc/dbus*
 rootfs/filesystem/etc/rpc
 rootfs/filesystem/etc/slsh.rc
 repro.car
+rootfs/filesystem/etc/repro.car
 rootfs/filesystem/etc/ld.so.cache
