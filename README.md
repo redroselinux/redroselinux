@@ -19,7 +19,7 @@ We currently use the runit init system (from Busybox) and the nullinitrd initram
 
 - **Docs**: https://redroselinux.miraheze.org
 - **Website**: https://redroselinux.org/
-- **Dev branch**: https://github.com/mostypc123/redroselinux
+- **Dev branch**: develop
 
 <div align="center">
   <img width="400" alt="image" src="https://github.com/user-attachments/assets/6cb85ab3-102f-48c1-a394-1d1006459e78" />
