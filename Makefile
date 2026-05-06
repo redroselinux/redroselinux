@@ -110,7 +110,7 @@ clean-all: clean clean-downloads
 bare-build: installer squash-root initramfs iso
 no-clean: installer squash-root initramfs iso vm
 
-installed-vm: ./redrose_linux.qcow2 ./redrose_linux.iso
+installed-vm: ./redrose_linux.qcow2
 	qemu-system-x86_64 -drive file=redrose_linux.qcow2,format=qcow2 -m 2048 -boot c -enable-kvm -smp $$(nproc) -display gtk
 
 vm: ./redrose_linux.iso
