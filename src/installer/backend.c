@@ -293,7 +293,6 @@ int patch(char* drive) {
 int localhost(char *name) {
     const char *default_name = "iuseredrosebtw";
     char *hostname = name;
-
     if (name[0] == '\n' || name[0] == '\0') {
         hostname = (char *)default_name;
     } else {
@@ -304,7 +303,6 @@ int localhost(char *name) {
                 set_text_color(YELLOW);
                 printf("  No dots are allowed in a hostname. Changing to -.\n");
                 set_text_color(RESET);
-
                 issues++;
                 *cursor = '-';
             // this is looped through every time because we edit it
@@ -312,22 +310,20 @@ int localhost(char *name) {
                 set_text_color(YELLOW);
                 printf("  A hostname cannot start with '-'.\n");
                 set_text_color(RESET);
-
                 memmove(name, name + 1, strlen(name));
                 issues++;
-            // 2 because of newline
+            // minus 2 because of newline (tui.c: hostname(void))
             } else if (*(cursor + 2) == '\0' && *cursor == '-') {
                 set_text_color(YELLOW);
                 printf("  A hostname cannot end with '-'.\n");
                 set_text_color(RESET);
-
-                hostname[strlen(hostname) - 1] = '\0';
+                *cursor = '\0'; // truncate at the hyphen itself, not at the newline before the null terminator
                 issues++;
+                break; // stop iterating, the string is now shorter
             } else if (*cursor == '_') {
                 set_text_color(YELLOW);
                 printf("  Underscores are not allowed. Changing to -.\n");
                 set_text_color(RESET);
-
                 *cursor = '-';
                 issues++;
             } else if (*cursor == '!' || *cursor == '@' || *cursor == '#' || *cursor == '$' ||
@@ -341,24 +337,19 @@ int localhost(char *name) {
                 set_text_color(YELLOW);
                 printf("  A hostname cannot contain special characters as %c. Changing to -.\n", *cursor);
                 set_text_color(RESET);
-
                 issues++;
                 *cursor = '-';
             }
-
             cursor++;
         }
-
         if (issues > 0) {
             printf("  The installer had to alter your hostname to fix %d issues.\n  This is the result: %s\n"
                    "\e[91m*\e[0m Press ENTER to continue..."
                    , issues, hostname);
             getchar();
         }
-
         hostname[strcspn(hostname, "\n")] = '\0';
     }
-
     FILE *f = fopen("/mnt/etc/hostname", "w");
     if (!f) {
         perror("fopen");
@@ -366,7 +357,6 @@ int localhost(char *name) {
     }
     fprintf(f, "%s\n", hostname);
     fclose(f);
-
     return 0;
 }
 
