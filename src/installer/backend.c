@@ -145,19 +145,6 @@ int list_dev() {
 
 // this is not vulnerable as theres a ui to pick from preselected drives
 int wipe_drive(char* drive) {
-    printf("Type 'yes' to confirm erasing %s: ", drive);
-    char confirmation[10];
-    enable_echo();
-    fgets(confirmation, sizeof(confirmation), stdin);
-    if (strncmp(confirmation, "yes", 3) != 0) {
-        printf("Press ENTER to restart installer.\n");
-        getchar();
-        execv("/bin/install", NULL);
-        perror("execv");
-        printf("Press ENTER to continue erasing.\n");
-        getchar();
-    }
-    disable_echo();
     char command[256];
     snprintf(command, sizeof(command), "sgdisk --zap-all %s", drive);
     printf("> %s\n", command);
