@@ -31,6 +31,7 @@ mkfstab
 openssl
 pcre2
 readline
+redrose-runit
 sed
 tar
 -- TODO: use full util-linux
