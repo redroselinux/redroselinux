@@ -29,41 +29,12 @@ char* get_partition(const char* drive, int partnum) {
 }
 
 // runs when no drive found
-//
-// TODO: replace with a fork and wait for /bin/sh and create the commands in /bin
 static inline void no_drives_repl(void) {
     set_text_color(RED);
-    printf("- no drives found!\n");
+    printf("- no drives found! ");
     set_text_color(RESET);
-    printf("enter exit to remove this shell and bypass the warning. enter docs if you believe you do have a drive. otherwise, you can repair through commands.\n");
-    while (1) {
-        set_text_color(GREEN);
-        printf("\n> ");
-        set_text_color(RESET);
-        char command[4096];
-
-        if (!fgets(command, sizeof(command), stdin))
-            break;
-
-        command[strcspn(command, "\n")] = 0;
-
-        if (strcmp(command, "exit") == 0) {
-            break;
-        } else if (strcmp(command, "docs") == 0) {
-            printf("If you believe a drive is present, follow these steps:\n\n");
-
-            printf("1) Firmware / BIOS checks:\n");
-            printf("   - Reboot into firmware setup (BIOS/UEFI).\n");
-            printf("   - Ensure the drive is detected by the firmware.\n");
-            printf("   - Disable Intel RST / RAID / VMD and use AHCI mode.\n");
-            printf("   - For NVMe systems, disable VMD if enabled.\n\n");
-
-            printf("2) Virtual machines:\n");
-            printf("   - Ensure a virtual disk is attached to the VM.\n");
-        } else {
-            system(command);
-        }
-    }
+    printf("starting a recovery shell");
+    system("/bin/sh");
 }
 
 int list_devices(char *drives[64], int max) {
