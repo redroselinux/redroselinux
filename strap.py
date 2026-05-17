@@ -36,6 +36,7 @@ currently_at_package = False
 version = ""
 install_to = "rootfs/filesystem"
 package = input()
+open("rootfs/filesystem/etc/redrose-strap", "a").write(package + "\n")
 if package == "":
     exit(0)
 elif package.startswith("--"):

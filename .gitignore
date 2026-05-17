@@ -33,3 +33,4 @@ rootfs/filesystem/*bin
 rootfs/filesystem/lib*
 rootfs/filesystem/var
 rootfs/filesystem/etc/nullinitrd
+rootfs/filesystem/etc/redrose-strap
