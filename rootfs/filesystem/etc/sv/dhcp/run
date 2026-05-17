@@ -1,7 +1,6 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mdhcp\033[0m\n" > /dev/console
-
+chmod +x /etc/udhcpc/script.sh
 ip link set eth0 up
 mkdir -p /var/log/dhcp
-exec udhcpc -i eth0 -f -S 2>&1
+exec udhcpc -i eth0 -f -S -s /etc/udhcpc/script.sh &2>1

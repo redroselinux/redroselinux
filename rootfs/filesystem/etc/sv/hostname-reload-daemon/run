@@ -1,4 +1,3 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97mhostname-reload-daemon\033[0m\n"
 exec /sbin/reload-hostname-daemon

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-printf "\033[36m*\033[0m Seeding kernel randomness\n"
 
 if [ -f /var/lib/random-seed ]; then
     cat /var/lib/random-seed > /dev/urandom

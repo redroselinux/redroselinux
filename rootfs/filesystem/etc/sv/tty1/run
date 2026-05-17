@@ -1,6 +1,5 @@
 #!/bin/sh
 
 sleep 0.1
-printf "\033[92m*\033[0m Starting \033[97mgetty\033[0m\n"
 
 exec busybox getty -L tty1 115200 vt100 -l /bin/login

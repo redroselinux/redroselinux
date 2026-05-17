@@ -1,4 +1,3 @@
 #!/bin/sh
-printf "\033[96m*\033[0m Starting \033[97mklogd\033[0m\n" > /dev/console
 
 exec busybox klogd -n 2>&1

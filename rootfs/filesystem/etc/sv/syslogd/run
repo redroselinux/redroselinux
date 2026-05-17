@@ -1,5 +1,4 @@
 #!/bin/sh
 
-printf "\033[96m*\033[0m Starting \033[97msyslogd\033[0m\n" > /dev/console
 mkdir -p /var/log
 exec busybox syslogd -n -O /var/log/messages 2>&1
