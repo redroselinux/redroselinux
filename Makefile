@@ -8,7 +8,6 @@ INITRAMFS_CPIO = $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ = $(OUTPUT_DIR)/initramfs.cpio.gz
 ISO = $(OUTPUT_DIR)/redrose_linux.iso
 QCOW2_IMG = redrose_linux.qcow2
-KERNEL = linux-7.0.3
 
 FEDORA := $(shell grep -q 'ID=fedora' /etc/os-release 2>/dev/null && echo 1 || echo 0)
 
@@ -124,11 +123,6 @@ squash-root: dep
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib/grub
-	@echo "=> Copying kernel image"
-	@cp $(KERNEL) $(ROOTFS_FS_DIR)/boot/vmlinuz-$(KERNEL:linux-%=%)
-	@ln -sf vmlinuz-$(KERNEL:linux-%=%) $(ROOTFS_FS_DIR)/boot/vmlinuz
-	@cp $(KERNEL) $(FS_DIR)/boot/vmlinuz-$(KERNEL:linux-%=%)
-	@ln -sf vmlinuz-$(KERNEL:linux-%=%) $(FS_DIR)/boot/vmlinuz
 	@echo "=> Running ldconfig"
 	@ldconfig -r rootfs/filesystem
 	@echo "=> Creating rootfs tgz..."

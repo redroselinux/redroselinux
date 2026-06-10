@@ -22,6 +22,8 @@ libcap
 libffi
 libslang
 libidn2
+linux
+linux:filesystem/
 lz4
 nano
 ncurses
@@ -35,6 +37,8 @@ mkfstab
 openssl
 pcre2
 readline
+-- This package fails to install..
+-- Works when manual build and manual unpacking
 redrose-runit
 sed
 tar

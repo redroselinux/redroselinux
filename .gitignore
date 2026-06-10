@@ -1,7 +1,11 @@
 # kernel files
-vmlinuz-*
 rootfs/filesystem/boot/vmlinuz-*
-filesystem/boot/vmlinuz-*
+filesystem/boot/vmlinuz*
+filesystem/boot/System.map*
+filesystem/etc
+filesystem/lib
+filesystem/boot/lib/*
+rootfs/filesystem/boot/System.map*
 
 # build artifacts
 redrose_linux.iso
