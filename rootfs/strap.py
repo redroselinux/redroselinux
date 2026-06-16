@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 import fix_usr_local
@@ -51,12 +52,16 @@ if ":" in package:
     install_to = parts[1]
 
     if package == "remove":
-        package = parts[1]
+        package = re.sub(r'[^a-zA-Z0-9._+\-]', '', os.path.basename(parts[1]))
+        if not package:
+            print("  ==> Error: invalid package name")
+            exit(1)
         print(f"=> Uninstalling {package}")
 
         # read the save file
         save = ""
-        with open(f"rootfs/filesystem/etc/car/saves/{package}", "r") as f:
+        safe_save_path = os.path.join("rootfs/filesystem/etc/car/saves", package)
+        with open(safe_save_path, "r") as f:
             save = f.read()
 
         # delete all the files
@@ -73,6 +78,10 @@ if ":" in package:
             compress = True
         if parts[2] == "recompress":
             recompress = True
+
+if not re.match(r'^[a-zA-Z0-9._+\-]+$', package):
+    print("  ==> Error: invalid package name")
+    exit(1)
 
 os.makedirs("strap_packages", exist_ok=True)
 os.makedirs(install_to, exist_ok=True)
