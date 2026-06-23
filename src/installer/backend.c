@@ -478,13 +478,28 @@ int regenerate_initramfs_fstab(char*) {
 /* Patches and fixes.
  * Currently does:
  * - fixes perms
- * - edits grub config */
+ * - edits grub config
+ * - dbus stuff */
 int patch(char* drive) {
     sanitize_input(drive);
     printf("  Fixing permissions for some files\n");
     chmod("/mnt/etc/init.d/rcS", 0755);
     chmod("/mnt/bin/su", 4755);
     chmod("/mnt/bin/busybox", 4755);
+
+    // This is pretty much literal glue, but the installer will be rewritten after alpha-0.6 so
+    // I think it is pretty much fine to include such a trash horrible piece of code.
+    if (system(
+        "busybox chroot /mnt /bin/sh -c"
+        " 'touch /etc/group && busybox addgroup -S nogroup"
+        " && busybox addgroup -S messagebus"
+        " && busybox adduser -S -H -s /usr/bin/nologin -G messagebus messagebus"
+        " && busybox chown root:messagebus /usr/libexec/dbus-daemon-launch-helper"
+        " && busybox chmod 4750 /usr/libexec/dbus-daemon-launch-helper'"
+    ) != 0) {
+        printf("Failed to create dbus user and setuid dbus\n");
+        return 1;
+    }
 
     printf("  Patching GRUB config to change root= entry\n");
     printf("  not finished - for now uses drive instead of uuid\n");
@@ -516,6 +531,7 @@ int patch(char* drive) {
     int r = system(sed_cmd);
     if (DEBUG == 1)
         printf("  sed exit: %d\n", r);
+
     return r;
 }
 

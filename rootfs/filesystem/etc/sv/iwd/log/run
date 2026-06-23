@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mkdir -p /var/log/iwd
+exec busybox svlogd -tt /var/log/iwd

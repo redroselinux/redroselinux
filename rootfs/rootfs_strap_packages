@@ -48,6 +48,7 @@ readline
 redrose-runit
 sed
 tar
+wireless-regdb
 wget2
 -- TODO: use full util-linux
 --       [also libpam]
