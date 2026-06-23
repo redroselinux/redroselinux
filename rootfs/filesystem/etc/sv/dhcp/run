@@ -1,6 +1,6 @@
 #!/bin/sh
 
-chmod +x /etc/udhcpc/script.sh
-ip link set eth0 up
-mkdir -p /var/log/dhcp
+chmod +x /etc/udhcpc/script.sh 2>&1
+ip link set eth0 up 2>&1
+mkdir -p /var/log/dhcp 2>&1
 exec udhcpc -i eth0 -f -S -s /etc/udhcpc/script.sh 2>&1
