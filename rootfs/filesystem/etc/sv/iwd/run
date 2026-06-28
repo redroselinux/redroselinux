@@ -8,4 +8,4 @@ modprobe libarc4 2>&1 || true
 modprobe cfg80211 2>&1 || true
 modprobe mac80211 2>&1 || true
 
-exec /usr/libexec/iwd -n 2>&1
+exec /usr/libexec/iwd 2>&1

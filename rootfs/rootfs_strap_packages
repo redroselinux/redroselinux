@@ -14,6 +14,7 @@ attr
 binutils
 curl
 dbus
+e2fsprogs
 expat
 fastfetch
 gcc-libs
@@ -27,6 +28,7 @@ kmod
 libcap
 libffi
 libslang
+libidn
 libidn2
 linux
 linux:filesystem/
@@ -40,6 +42,7 @@ nspr
 nullinitrd
 nghttp2
 mkfstab
+openldap
 openssl
 pcre2
 readline
@@ -48,6 +51,7 @@ readline
 redrose-runit
 sed
 tar
+terminus-font
 wireless-regdb
 wget2
 -- TODO: use full util-linux

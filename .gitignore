@@ -38,6 +38,7 @@ rootfs/filesystem/lib*
 rootfs/filesystem/var
 rootfs/filesystem/etc/nullinitrd
 rootfs/filesystem/etc/redrose-strap
+!rootfs/filesystem/usr/share/dbus-1/system.d/net.connman.iwd.conf
 initramfs/etc
 initramfs/include
 initramfs/lib
