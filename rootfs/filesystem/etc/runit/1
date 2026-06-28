@@ -4,27 +4,30 @@ mount_failed=0
 
 mkdir -p /proc /dev /sys
 echo -e "\e[94m::\e[0m Mounting pseudo-filesystems"
-echo -e " \e[94m*\e[0m /proc [proc]"
+echo -e "  \e[94m*\e[0m /proc [proc]"
 mount -t proc proc /proc || mount_failed=1
-echo -e " \e[94m*\e[0m /dev [devtmpfs]"
+echo -e "  \e[94m*\e[0m /dev [devtmpfs]"
 mount -t devtmpfs devtmpfs /dev || mount_failed=1
-echo -e " \e[94m*\e[0m /sys [sysfs]"
+echo -e "  \e[94m*\e[0m /sys [sysfs]"
 mount -t sysfs sys /sys || mount_failed=1
 mkdir -p /dev/pts /dev/shm /tmp /run
-echo -e " \e[94m*\e[0m /dev/pts [devpts]"
+echo -e "  \e[94m*\e[0m /dev/pts [devpts]"
 mount -t devpts devpts /dev/pts || mount_failed=1
-echo -e " \e[94m*\e[0m /dev/shm [tmpfs]"
+echo -e "  \e[94m*\e[0m /dev/shm [tmpfs]"
 mount -t tmpfs tmpfs /dev/shm || mount_failed=1
-echo -e " \e[94m*\e[0m /tmp [tmpfs]"
+echo -e "  \e[94m*\e[0m /tmp [tmpfs]"
 mount -t tmpfs tmpfs /tmp || mount_failed=1
-echo -e " \e[94m*\e[0m /run [tmpfs]"
+echo -e "  \e[94m*\e[0m /run [tmpfs]"
 mount -t tmpfs tmpfs /run || mount_failed=1
 
 if [ "$mount_failed" -eq 1 ]; then
-  echo -e "  \e[91m*\e[0m Critical error: mounting a pseudo-filesystem failed"
-  echo "  * Starting a rescue shell"
+  echo -e "   \e[91m*\e[0m Critical error: mounting a pseudo-filesystem failed"
+  echo "   * Starting a rescue shell"
   exec /bin/sh
 fi
+
+echo -e "\e[94m::\e[0m Setting font"
+setfont -C /dev/console /usr/share/consolefonts/ter-m16n.psf.gz || ( echo -e "  \e[91m*\e[0m Failed to set font." ; sleep 1 )
 
 chmod +x /etc/runit/2
 exec /etc/runit/2
