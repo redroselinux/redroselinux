@@ -9,15 +9,23 @@ busybox mkdir -p /sys
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev
 
+# Set font
+# Extract from rootfs and set
+echo -e "\033[96m*\033[0m Setting consolefont"
+busybox tar -xzf /rootfs.tar.gz filesystem/usr/share/consolefonts/ter-m16n.psf.gz -C / --strip-components=4 || sleep 1
+busybox setfont -C /dev/console ter-m16n.psf.gz || sleep 1
+
 # Set up PATH
 echo -e "\033[96m*\033[0m Setting up PATH"
-export PATH=/bin
+export PATH=/bin # believe it or not this system is minimal enough for this
 
 busybox mdev -s
 
 # Launch installer
 exec /bin/install
+echo "failed to boot installer, trying sh"
 exec /bin/sh
 cp /bin/busybox /bin/sh && exec /bin/sh
 
 echo -e "\033[91mFailed to exec. Tried install and sh.\033[0m"
+exec busybox sleep infinity
