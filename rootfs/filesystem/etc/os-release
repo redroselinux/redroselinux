@@ -1,9 +1,9 @@
 NAME="Redrose Linux"
-VERSION="Alpha 0.5.1 (Thorns)"
+VERSION="Alpha 0.6 (Welcome)"
 ID=redrose
-VERSION_CODENAME=thorns
-PRETTY_NAME="Redrose Linux Alpha 0.5.1 (Thorns)"
-VERSION_ID="alpha-0.5.1"
+VERSION_CODENAME=Welcome
+PRETTY_NAME="Redrose Linux Alpha 0.6 (Welcome)"
+VERSION_ID="alpha-0.6"
 HOME_URL="https://redroselinux.org/"
 SUPPORT_URL="https://docs.redroselinux.org"
 BUG_REPORT_URL="https://github.com/redroselinux/redroselinux/issues"

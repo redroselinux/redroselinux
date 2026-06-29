@@ -169,7 +169,7 @@ void main_header(void) {
 
     printf(
         "Welcome to the Redrose Linux Installer!\n"
-        "Please note that Redrose is still in alpha (alpha-0.5.1).\n"
+        "Please note that Redrose is still in alpha (alpha-0.6).\n"
         "You can report bugs at "
     );
     set_text_color(BLUE);
