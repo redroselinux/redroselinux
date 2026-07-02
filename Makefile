@@ -99,8 +99,6 @@ squash-root: dep
 	@ln -s usr/sbin  $(ROOTFS_FS_DIR)/sbin
 	@ln -s usr/lib   $(ROOTFS_FS_DIR)/lib
 	@ln -s usr/lib64 $(ROOTFS_FS_DIR)/lib64
-	@echo "=> Symlinking /proc/mounts to /etc/mtab"
-	@ln -sf /proc/mounts $(ROOTFS_FS_DIR)/etc/mtab
 	@echo "=> Installing car"
 	@test -f $(ROOTFS_FS_DIR)/bin/car || ( \
 		echo "  -> $(ROOTFS_FS_DIR)/bin/car" && \

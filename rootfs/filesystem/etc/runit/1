@@ -29,5 +29,8 @@ fi
 echo -e "\e[94m::\e[0m Setting font"
 setfont -C /dev/console /usr/share/consolefonts/ter-m16n.psf.gz || ( echo -e "  \e[91m*\e[0m Failed to set font." ; sleep 1 )
 
+echo -e "\e[94m::\e[0m Symlinking some paths"
+ln -sf /proc/mounts /etc/mtab
+ln -sf /run /var/run
+
 chmod +x /etc/runit/2
-exec /etc/runit/2
