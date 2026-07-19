@@ -55,3 +55,6 @@ rootfs/filesystem/etc/ssl/
 
 # some stuff ive been working on lately
 src/new-installer/
+
+# ignore filesystem inside of the docker folder
+docker/filesystem
