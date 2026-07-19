@@ -20,6 +20,7 @@ GRUB := $(shell command -v grub2-mkrescue >/dev/null 2>&1 && echo grub2-mkrescue
 
 all: dep clean installer install-packages squash-root initramfs iso vm
 no-vm: dep clean installer squash-root initramfs iso
+docker: dep clean installer install-packages squash-root docker-image
 
 help:
 	@echo "=> Run 'make' to compile"
@@ -132,6 +133,14 @@ squash-root: dep
 	@$(GZIP_PATH) -f $(INITRAMFS_DIR)/rootfs.tar
 	@rm -f $(INITRAMFS_DIR)/rootfs.tar
 	@echo "  -> $(INITRAMFS_DIR)/rootfs.tar.gz"
+
+docker-image: squash-root
+	@echo "=> Uncompressing rootfs.tar.gz archive to docker/"
+	@tar -xf $(INITRAMFS_DIR)/rootfs.tar.gz -C docker/
+	@echo "=> Building docker image..."
+	@docker build -t redrose-linux -f docker/Dockerfile docker/
+	@echo "=> Running Image"
+	@docker run --rm -it redrose-linux /bin/sh
 
 iso: squash-root initramfs
 	@echo "=> Building ISO..."
