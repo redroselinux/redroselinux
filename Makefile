@@ -141,7 +141,7 @@ docker-image: squash-root
 	@docker build -t redrose-linux -f docker/Dockerfile docker/
 	@echo "=> Running Image"
 	@docker run --rm -it redrose-linux /bin/sh
-
+	
 iso: squash-root initramfs
 	@echo "=> Building ISO..."
 	@echo "  ==> Copying initramfs"
