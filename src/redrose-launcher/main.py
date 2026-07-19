@@ -9,6 +9,7 @@ or  curl -sSSL https://raw.githubusercontent.com/redroselinux/redroselinux/refs/
 
 import threading
 import gi
+import sys
 
 try:
     import requests
@@ -24,7 +25,8 @@ except ImportError:
     os.system('sudo emerge dev-python/requests')
     os.system('pip install requests --break-system-packages')
     os.system('pip3 install requests --break-system-packages')
-    print('Restart the script if requests was successfully installed')
+    print('Restart the script if requests was successfully installed.')
+    sys.exit(1)
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Rsvg', '2.0')
@@ -32,6 +34,7 @@ from gi.repository import GLib, Gtk
 
 ISO_DIR = f"{os.environ.get('HOME')}/.cache"
 VERSIONS = {
+    "alpha-0.6": "https://github.com/redroselinux/redroselinux/releases/download/alpha0.6/redrose_linux.iso",
 	"alpha-0.5.1": "https://github.com/redroselinux/redroselinux/releases/download/alpha0.5.1/redrose_linux.iso",
     "alpha-0.5": "https://github.com/redroselinux/redroselinux/releases/download/alpha0.5/redrose_linux.iso",
     "alpha-0.4.2": "https://github.com/redroselinux/redroselinux/releases/download/alpha0.4.2/redrose_linux.iso",
