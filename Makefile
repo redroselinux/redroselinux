@@ -18,6 +18,8 @@ FEDORA := $(shell grep -q 'ID=fedora' /etc/os-release 2>/dev/null && echo 1 || e
 
 GRUB := $(shell command -v grub2-mkrescue >/dev/null 2>&1 && echo grub2-mkrescue || echo grub-mkrescue)
 
+DOCKER_PRE_CMD := 
+
 all: dep clean installer install-packages squash-root initramfs iso vm
 no-vm: dep clean installer squash-root initramfs iso
 docker: dep clean installer install-packages squash-root docker-image
@@ -136,9 +138,9 @@ squash-root: dep
 
 docker-image: install-packages squash-root
 	@echo "=> Building docker image..."
-	@docker build -t redrose-linux -f Dockerfile .
+	@$(DOCKER_PRE_CMD) docker build -t redrose-linux -f Dockerfile .
 	@echo "=> Running Image"
-	@docker run --rm -it redrose-linux /bin/sh
+	@$(DOCKER_PRE_CMD) docker run --rm -it redrose-linux /bin/sh
 	
 iso: squash-root initramfs
 	@echo "=> Building ISO..."
