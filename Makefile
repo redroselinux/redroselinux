@@ -136,7 +136,7 @@ squash-root: dep
 
 docker-image: install-packages squash-root
 	@echo "=> Building docker image..."
-	@docker build -t redrose-linux -f docker/Dockerfile .
+	@docker build -t redrose-linux -f Dockerfile .
 	@echo "=> Running Image"
 	@docker run --rm -it redrose-linux /bin/sh
 	
