@@ -60,6 +60,18 @@ make
 
 This does all the magic, and even runs it in a VM. Fedora is detected automatically.
 
+## Build a Docker image
+
+```bash
+make docker
+```
+
+If your docker needs sudo, do:
+
+```bash
+make docker DOCKER_PRE_CMD="sudo"
+```
+
 <div align=center>
 Wilted rose:<br>
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/dcd60471-917b-49dd-a7a1-b658e9207fb2" />
