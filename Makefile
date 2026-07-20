@@ -134,13 +134,9 @@ squash-root: dep
 	@rm -f $(INITRAMFS_DIR)/rootfs.tar
 	@echo "  -> $(INITRAMFS_DIR)/rootfs.tar.gz"
 
-docker-image: squash-root
-	@echo "=> Uncompressing rootfs.tar.gz archive to docker/"
-	@tar -xf $(INITRAMFS_DIR)/rootfs.tar.gz -C docker/
+docker-image: install-packages squash-root
 	@echo "=> Building docker image..."
-	@docker build -t redrose-linux -f docker/Dockerfile docker/
-	@echo "=> Removing uncompressed filesystem from docker/"
-	@rm -rf docker/filesystem
+	@docker build -t redrose-linux -f docker/Dockerfile .
 	@echo "=> Running Image"
 	@docker run --rm -it redrose-linux /bin/sh
 	
