@@ -7,7 +7,7 @@ ROOTFS_FS_DIR = $(ROOTFS_DIR)/$(FS_DIR)
 GZIP_PATH := gzip
 GZIP_PLAIN_COMMAND := $(word 1,$(GZIP_PATH))
 CC := gcc
-CCFLAGS :=
+CCFLAGS := -std=c23 -O3 -Wall -Wextra -Werror
 
 INITRAMFS_CPIO := $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ := $(OUTPUT_DIR)/initramfs.cpio.gz
@@ -18,7 +18,7 @@ FEDORA := $(shell grep -q 'ID=fedora' /etc/os-release 2>/dev/null && echo 1 || e
 
 GRUB := $(shell command -v grub2-mkrescue >/dev/null 2>&1 && echo grub2-mkrescue || echo grub-mkrescue)
 
-DOCKER_PRE_CMD := 
+DOCKER_PRE_CMD :=
 
 all: dep clean installer install-packages squash-root initramfs iso vm
 no-vm: dep clean installer squash-root initramfs iso
@@ -141,7 +141,7 @@ docker-image: install-packages squash-root
 	@$(DOCKER_PRE_CMD) docker build -t redrose-linux -f Dockerfile .
 	@echo "=> Running Image"
 	@$(DOCKER_PRE_CMD) docker run --rm -it redrose-linux /bin/sh
-	
+
 iso: squash-root initramfs
 	@echo "=> Building ISO..."
 	@echo "  ==> Copying initramfs"
@@ -151,7 +151,7 @@ iso: squash-root initramfs
 	@echo "  -> $(ISO)"
 
 installer: dep
-	@$(CC) src/installer/main.c src/installer/tui.c src/installer/backend.c $(CCFLAGS) -o $(INITRAMFS_DIR)/bin/install -static 2>&1
+	@$(CC) src/installer/*.c $(CCFLAGS) -o $(INITRAMFS_DIR)/bin/install -static 2>&1
 	@echo "  -> $(INITRAMFS_DIR)/bin/install"
 
 run-installer:

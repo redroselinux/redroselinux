@@ -1,0 +1,6 @@
+-static
+-std=c23
+-Wall
+-Wextra
+-Werror
+-O3
