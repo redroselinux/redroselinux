@@ -115,6 +115,7 @@ void print_result(InstallStepResult* result) {
       sync();
       reboot(RB_AUTOBOOT);
     }
+    free(confirm);
   }
 }
 
@@ -336,12 +337,24 @@ int create_file(const char* path, const char* content) {
   return 0;
 }
 
+void sanitize_shell_chars(char *s) {
+  static const char *metachars = ";&|()<>$`\\\"'*?[]{}~#!\n";
+  for (char *p = s; *p; p++) {
+    if (strchr(metachars, *p)) {
+      *p = '.';
+      warn("Replacing shell metacharacter with '.'!");
+    }
+  }
+}
+
 InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   char* user = step->args[0];
   char* password = step->args[1];
   char* root_password = step->args[2];
 
-  // TODO: add input sanitization
+  sanitize_shell_chars(user);
+  sanitize_shell_chars(password);
+  sanitize_shell_chars(root_password);
 
   if (create_file("/mnt/etc/group", "") != 0) {
     return mkresult(0, "Failed to create /etc/group");
