@@ -1,3 +1,6 @@
+# This is the worst Makefile I ever wrote.
+# Please wait the tiny bit of time before I make a proper builder like archiso.
+
 ROOTFS_DIR = rootfs
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs

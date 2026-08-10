@@ -74,3 +74,15 @@ char* ask_blkdev() {
   free_arr(blkdevs);
   return result;
 }
+
+/* Get the partition device file from the drive.
+ * Takes the drive and partition number, returns the partition device file. */
+char* get_partition(const char* drive, int partnum) {
+    static __thread char buf[64];
+    if (strncmp(drive, "/dev/nvme", 9) == 0 || strncmp(drive, "/dev/mmcblk", 11) == 0) {
+        snprintf(buf, sizeof(buf), "%sp%d", drive, partnum);
+    } else {
+        snprintf(buf, sizeof(buf), "%s%d", drive, partnum);
+    }
+    return buf;
+}
