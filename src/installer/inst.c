@@ -111,9 +111,11 @@ InstallStepResult mkresult(int success, char* message) {
 
 void print_result(InstallStepResult* result) {
   if (result->success) {
-    printf("\033[92m→\033[0m \033[1m%s\033[0m\n\n", result->message);
+    if (result->message)
+      printf("\033[92m→\033[0m \033[1m%s\033[0m\n\n", result->message);
   } else {
-    printf("\033[91mx\033[0m \033[1m%s\033[0m\n", result->message);
+    if (result->message)
+      printf("\033[91mx\033[0m \033[1m%s\033[0m\n", result->message);
     char* confirm = ask_with_default("Do you want to continue to the next step anyway? [y/N]", "N");
     if (confirm[0] == 'N' || confirm[0] == 'n') {
       info("Press ENTER to reboot");
@@ -168,14 +170,14 @@ InstallStepResult make_partitions_func(struct InstallStep* step) {
   // /dev/...2: EFI/BIOS boot partition
 
   if (efi_or_bios()) {
-    const char* prefix = "sgdisk --new=2:0:+512M /dev/";
+    const char* prefix = "sgdisk --new=2:0:+512M -t 2:ef01 /dev/";
     char command[strlen(step->args[0]) + strlen(prefix) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, step->args[0]);
     if (exec_no_shell(command) != 0) {
       result = mkresult(0, "Failed to create EFI boot partition!");
     }
   } else {
-    const char* prefix = "sgdisk --new=2:0:+1M /dev/";
+    const char* prefix = "sgdisk --new=2:0:+1M -t 2:ef02 /dev/";
     char command[strlen(step->args[0]) + strlen(prefix) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, step->args[0]);
     if (exec_no_shell(command) != 0) {
@@ -301,6 +303,43 @@ int run_in_chroot_shell(const char* cmd_str) {
   );
 }
 
+/* Simple wrapper of run_in_chroot_shell with bind mounts. */
+int run_in_chroot_shell_with_bind_mnt(const char* cmd_str) {
+  int print_command = 1;
+  if (!exec_funcs_print_command) {
+    print_command = 0;
+  }
+
+  if (print_command) {
+    printf(" \033[93mbmnt chroot\033[0m \033[2m→ %s\033[0m\n", cmd_str);
+  }
+
+  const char* bind_mount_commands =
+    "busybox mkdir -p /mnt/proc && mount --bind /proc /mnt/proc && "
+    "busybox mkdir -p /mnt/sys  && mount --bind /sys /mnt/sys && "
+    "busybox mkdir -p /mnt/dev  && mount --bind /dev /mnt/dev";
+  if (system(bind_mount_commands) != 0) {
+    error("Failed to bind-mount /proc, /sys and /dev.");
+    return -1;
+  }
+
+  // supress the print of the whole, huge command.
+  exec_funcs_print_command = 0;
+  int result = run_in_chroot_shell(cmd_str);
+  exec_funcs_print_command = print_command; //old value
+
+  const char* binds_umount_commands =
+    "busybox umount /mnt/dev && "
+    "busybox umount /mnt/sys && "
+    "busybox umount /mnt/proc";
+  if (system(binds_umount_commands) != 0) {
+    error("Failed to umount /mnt/proc, /mnt/sys and /mnt/dev.");
+    return -1;
+  }
+
+  return result;
+}
+
 /* Install coreutils from one of the tarballs. To be used with an InstallStep. */
 InstallStepResult install_coreutils_func(struct InstallStep* step) {
   InstallStepResult result;
@@ -391,9 +430,9 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   if (run_in_chroot_shell(command) != 0) {
     return mkresult(0, "Failed to add user!");
   }
-  
-  warn("Not printing commands that are ran to set password for security!");
 
+  warn("Not printing commands that are ran to set password for security!");
+  // you can delete the below line for debugging the commnds
   exec_funcs_print_command = 0;
 
   snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd", user, password);
@@ -423,10 +462,50 @@ InstallStepResult init_car_func(struct InstallStep* step) {
   (void)step;
 
   result.success = run_in_chroot_shell("car installer-init") == 0;
+
+  char* confirm = ask_with_default("Do you want to disable SHA256 checks in Car? [N/y]", "N");
+  if (!(confirm[0] == 'y' || confirm[0] == 'Y')) {
+    if (create_file("/mnt/etc/car/sha256-enable", "") != 0) {
+      return mkresult(0, "Failed to create /mnt/etc/car/sha256-enable.");
+    }
+  }
+  free(confirm);
+
   result = mkresult(
     result.success,
-    result.success ? "Initialized Car succesfully!" : "Failed to initialize Car!"    
+    result.success ? "Initialized Car succesfully!" : "Failed to initialize Car!"
   );
 
   return result;
+}
+
+/* Helper to install grub. To be used with an InstallStep.
+ * InstallStep args:
+ *   0: drive
+ */
+InstallStepResult grub_install_func(struct InstallStep* step) {
+  const char* drive = step->args[0];
+  const char sdev[] = "/dev/";
+  char full_dev[strlen(sdev) + strlen(drive) + 1];
+  snprintf(full_dev, sizeof(full_dev), "%s%s", sdev, drive);
+
+  const char* prefix = "grub-install ";
+  char command[strlen(prefix) + strlen(full_dev) + 1];
+  snprintf(command, sizeof(command), "%s%s", prefix, full_dev);
+
+  sanitize_shell_chars(full_dev);
+
+  int grub_result = run_in_chroot_shell_with_bind_mnt(command);
+  if (grub_result == -1) {
+    return mkresult(0, NULL);
+  } else if (grub_result != 0) {
+    return mkresult(0, "Failed to execute command to install GRUB.");
+  }
+
+  grub_result = run_in_chroot_shell_with_bind_mnt("grub-mkconfig -o /boot/grub/grub.cfg");
+  if (grub_result != 0) {
+    return mkresult(0, "Failed to create GRUB config.");
+  }
+
+  return mkresult(1, "Successfully installed GRUB.");
 }

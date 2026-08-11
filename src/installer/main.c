@@ -143,6 +143,15 @@ body:
   }
 
   {
+    InstallStep install_grub = {
+      .message = "Installing GRUB!",
+      .func = grub_install_func,
+      .args = (char*[]){drive, NULL},
+    };
+    step(&install_grub);
+  }
+
+  {
     InstallStep init_car = {
       .message = "Initializing Car!",
       .func = init_car_func,
