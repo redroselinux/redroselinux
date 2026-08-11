@@ -30,3 +30,5 @@ InstallStepResult copy_rootfs_func(struct InstallStep* step);
 InstallStepResult install_coreutils_func(struct InstallStep* step);
 InstallStepResult add_user_and_pwds_func(struct InstallStep* step);
 InstallStepResult set_hostname_func(struct InstallStep* step);
+InstallStepResult init_car_func(struct InstallStep* step);
+

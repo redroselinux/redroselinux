@@ -15,13 +15,18 @@
 #include <sys/mount.h>
 #include "mem.h"
 
+// Set to 0 if you do not want exec_* functions to write the command to be exec'd
+static int exec_funcs_print_command = 1;
+
 int exec_shell(const char* cmd_str) {
-  printf(" \033[2m→ %s\033[0m\n", cmd_str);
+  if (exec_funcs_print_command)
+    printf(" \033[2m→ %s\033[0m\n", cmd_str);
   return system(cmd_str);
 }
 
 int exec_no_shell(const char* cmd_str) {
-  printf(" \033[2m→ %s\033[0m\n", cmd_str);
+  if (exec_funcs_print_command)
+    printf(" \033[2m→ %s\033[0m\n", cmd_str);
 
   char* cmd = strdup(cmd_str);
   int cap = 8, count = 0;
@@ -56,23 +61,25 @@ int exec_no_shell(const char* cmd_str) {
 }
 
 int exec_no_shell_arr(char* const argv[]) {
-  printf(" \033[2m→");
-  int one_disable = 0;
-  for (int i = 0; argv[i]; i++) {
-    if (!strcmp(argv[i], "/bin/sh") || !strcmp(argv[i], "chroot")) {
-      one_disable = 1; // skip -c
-      continue;
+  if (exec_funcs_print_command) {
+    printf(" \033[2m→");
+    int one_disable = 0;
+    for (int i = 0; argv[i]; i++) {
+      if (!strcmp(argv[i], "/bin/sh") || !strcmp(argv[i], "chroot")) {
+        one_disable = 1; // skip -c
+        continue;
+      }
+
+      if (
+        strcmp(argv[i], "busybox") != 0 &&
+        !one_disable
+      )
+        printf(" %s", argv[i]);
+
+      if (one_disable) one_disable = 0;
     }
-
-    if (
-      strcmp(argv[i], "busybox") != 0 &&
-      !one_disable
-    )
-      printf(" %s", argv[i]);
-
-    if (one_disable) one_disable = 0;
+    printf("\033[0m\n");
   }
-  printf("\033[0m\n");
 
   pid_t pid = fork();
   if (pid < 0) {
@@ -285,8 +292,13 @@ InstallStepResult copy_rootfs_func(struct InstallStep* step) {
 
 /* Simple helper to run a shell command in a chroot to /mnt. */
 int run_in_chroot_shell(const char* cmd_str) {
-  fputs(" \033[33mchroot\033[0m", stdout);
-  return exec_no_shell_arr((char* const[]){"busybox", "chroot", "/mnt", "/bin/sh", "-c", (char*)cmd_str, NULL});
+  if (exec_funcs_print_command)
+    fputs(" \033[33mchroot\033[0m", stdout);
+
+  return exec_no_shell_arr(
+    (char* const[]){"busybox", "chroot", "/mnt",
+    "/bin/sh", "-c", (char*)cmd_str, NULL}
+  );
 }
 
 /* Install coreutils from one of the tarballs. To be used with an InstallStep. */
@@ -379,6 +391,10 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   if (run_in_chroot_shell(command) != 0) {
     return mkresult(0, "Failed to add user!");
   }
+  
+  warn("Not printing commands that are ran to set password for security!");
+
+  exec_funcs_print_command = 0;
 
   snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd", user, password);
   if (run_in_chroot_shell(command) != 0) {
@@ -390,6 +406,8 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
     return mkresult(0, "Failed to set root password!");
   }
 
+  exec_funcs_print_command = 1;
+
   return mkresult(1, "User and passwords set successfully!");
 }
 
@@ -398,4 +416,17 @@ InstallStepResult set_hostname_func(struct InstallStep* step) {
     return mkresult(0, "Failed to set hostname");
   }
   return mkresult(1, "Set hostname successfully!");
+}
+
+InstallStepResult init_car_func(struct InstallStep* step) {
+  InstallStepResult result;
+  (void)step;
+
+  result.success = run_in_chroot_shell("car installer-init") == 0;
+  result = mkresult(
+    result.success,
+    result.success ? "Initialized Car succesfully!" : "Failed to initialize Car!"    
+  );
+
+  return result;
 }

@@ -85,6 +85,9 @@ initramfs: dep squash-root
 	@echo "  -> $(INITRAMFS_GZ)"
 
 install-packages: dep
+	@# Pretty hacky but works: remove the copied glibc so the installed one takes over                                 || true
+	@# This and a lot of other skill issues of this Makefile will be fixed after we make a real ISO builder.           || true
+	@rm -f rootfs/filesystem/usr/lib/libc.so.6
 	@echo "==> Installing packages..."
 	@rm -f $(ROOTFS_FS_DIR)/etc/redrose-strap
 	@while IFS= read -r line; do \

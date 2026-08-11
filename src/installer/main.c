@@ -142,6 +142,15 @@ body:
     step(&set_hostname);
   }
 
+  {
+    InstallStep init_car = {
+      .message = "Initializing Car!",
+      .func = init_car_func,
+      .args = (char*[]){NULL},
+    };
+    step(&init_car);
+  }
+
   free(user);
   free(drive);
   free(hostname);
