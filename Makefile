@@ -58,7 +58,6 @@ dep:
 	done
 	@echo ""
 	@echo "  => Running $(ROOTFS_DIR)/copy_syslibs.py"
-	@python3 $(ROOTFS_DIR)/copy_syslibs.py
 
 initramfs: dep squash-root
 	@echo "==> Building initramfs..."
