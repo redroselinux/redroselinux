@@ -18,12 +18,14 @@
 // Set to 0 if you do not want exec_* functions to write the command to be exec'd
 static int exec_funcs_print_command = 1;
 
+/* Wrapper of system() that also prints the command to run. */
 int exec_shell(const char* cmd_str) {
   if (exec_funcs_print_command)
     printf(" \033[2m→ %s\033[0m\n", cmd_str);
   return system(cmd_str);
 }
 
+/* Execute a comand without a shell wihout the mess of fork and arrays for argv. */
 int exec_no_shell(const char* cmd_str) {
   if (exec_funcs_print_command)
     printf(" \033[2m→ %s\033[0m\n", cmd_str);
@@ -60,6 +62,7 @@ int exec_no_shell(const char* cmd_str) {
   return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 }
 
+/* The same function as above but it takes a NULL terminated array. */
 int exec_no_shell_arr(char* const argv[]) {
   if (exec_funcs_print_command) {
     printf(" \033[2m→");
@@ -102,6 +105,7 @@ InstallStepResult run_step(InstallStep* step) {
   return step->func(step);
 }
 
+/* Simple helper to return an InstallStepResult with values. */
 InstallStepResult mkresult(int success, char* message) {
   InstallStepResult result;
   result.success = success;
@@ -109,6 +113,9 @@ InstallStepResult mkresult(int success, char* message) {
   return result;
 }
 
+/* Print data from an InstallStepResult.
+ * Takes a pointer; prefix the argument with &.
+ */
 void print_result(InstallStepResult* result) {
   if (result->success) {
     if (result->message)
