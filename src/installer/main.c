@@ -177,7 +177,7 @@ body:
     char* confirm = ask_with_default("Do you want to chroot to the newly installed system? [y/N]", "N");
 
     if (confirm[0] == 'y' || confirm[0] == 'Y') {
-      run_in_chroot_shell("/bin/sh"); 
+      run_in_chroot_shell_with_bind_mnt("/bin/sh"); 
     }
 
     free(confirm);

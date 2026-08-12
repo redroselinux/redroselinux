@@ -16,6 +16,7 @@ int efi_or_bios();
 int exec_no_shell_arr(char* const argv[]);
 int exec_no_shell(const char* cmd_str);
 int run_in_chroot_shell(const char* cmd_str);
+int run_in_chroot_shell_with_bind_mnt(const char* cmd_str);
 
 InstallStepResult run_step(InstallStep* step);
 InstallStepResult mkresult(int success, char* message);
