@@ -38,6 +38,7 @@ libidn2
 libunistring
 linux
 linux:filesystem/
+lvm2
 lz4
 nano
 ncurses

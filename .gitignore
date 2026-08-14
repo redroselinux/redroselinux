@@ -34,6 +34,7 @@ rootfs/filesystem/etc/rpc
 rootfs/filesystem/etc/slsh.rc
 rootfs/filesystem/etc/ld.so.cache
 rootfs/filesystem/etc/cron.d/*
+rootfs/filesystem/etc/lvm
 rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 !rootfs/filesystem/usr/sbin/hostname-reload-daemon

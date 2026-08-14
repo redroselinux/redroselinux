@@ -33,4 +33,6 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step);
 InstallStepResult set_hostname_func(struct InstallStep* step);
 InstallStepResult init_car_func(struct InstallStep* step);
 InstallStepResult grub_install_func(struct InstallStep* step);
+InstallStepResult nullinitrd_regen_func(struct InstallStep* step);
+InstallStepResult mkfstab_regen_func(struct InstallStep* step);
 

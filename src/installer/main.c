@@ -143,6 +143,24 @@ body:
   }
 
   {
+    InstallStep init_car = {
+      .message = "Initializing Car!",
+      .func = init_car_func,
+      .args = (char*[]){NULL},
+    };
+    step(&init_car);
+  }
+
+  {
+    InstallStep regen_initramfs = {
+      .message = "Generating initramfs!",
+      .func = nullinitrd_regen_func,
+      .args = (char*[]){NULL}, 
+    };
+    step(&regen_initramfs);
+  }
+
+  {
     InstallStep install_grub = {
       .message = "Installing GRUB!",
       .func = grub_install_func,
@@ -152,12 +170,12 @@ body:
   }
 
   {
-    InstallStep init_car = {
-      .message = "Initializing Car!",
-      .func = init_car_func,
+    InstallStep regen_fstab = {
+      .message = "Generating fstab!",
+      .func = mkfstab_regen_func,
       .args = (char*[]){NULL},
     };
-    step(&init_car);
+    step(&regen_fstab);
   }
 
   free(user);
@@ -169,7 +187,7 @@ body:
   free(keyboard);
   free(coreutils_type);
 
-  (void)ask(NULL);
+  (void)getchar();
 
   print_installed(window);
 

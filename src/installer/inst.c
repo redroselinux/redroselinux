@@ -516,3 +516,33 @@ InstallStepResult grub_install_func(struct InstallStep* step) {
 
   return mkresult(1, "Successfully installed GRUB.");
 }
+
+InstallStepResult nullinitrd_regen_func(InstallStep* step) {
+  InstallStepResult result;
+  (void)step;
+
+  result.success = run_in_chroot_shell_with_bind_mnt(
+    "nullinitrd"
+  ) == 0;
+  result = mkresult(
+    result.success,
+    result.success ?
+      "Succesfully generated initramfs!" :
+      "Failed to generate initramfs!"    
+  );
+
+  return result;
+} 
+
+InstallStepResult mkfstab_regen_func(InstallStep* step) {
+  InstallStepResult result;
+  (void)step;
+
+  result.success = run_in_chroot_shell_with_bind_mnt("mkfstab /") == 0;
+  result = mkresult(
+    result.success,
+    result.success ? "Generated fstab!" : "Failed to generate fstab!"    
+  );
+
+  return result;
+}
