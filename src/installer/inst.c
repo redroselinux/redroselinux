@@ -426,6 +426,11 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
     return mkresult(0, "Failed to create home directory!");
   }
 
+  if (mkdir("/mnt/root", 0755) != 0) {
+    perror("mkdir");
+    return mkresult(0, "Failed to create root directory!");
+  }
+
   // why not reuse the buffer for the home dir :fire:
   snprintf(command, sizeof(command), "/mnt/home/%s", user);
   if (mkdir(command, 0755) != 0) {
