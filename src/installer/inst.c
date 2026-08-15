@@ -491,6 +491,20 @@ InstallStepResult init_car_func(struct InstallStep* step) {
  *   0: drive
  */
 InstallStepResult grub_install_func(struct InstallStep* step) {
+  // grub sucks; i had to do this
+  // symlinks vmlinuz to vmlinuz-linux and initrd.img to initramfs-linux.img
+  // so that it detects 'linux' as a version and we do not have to fight
+  // grub-mkconfig. kernel-switch handles kernel switching so nothing is
+  // required to be done about kernel switching in grub itself.
+  info("Symlinking kernel and initramfs so GRUB works");
+  int symlink_result = run_in_chroot_shell(
+    "ln -sf /boot/vmlinuz /boot/vmlinuz-linux && "
+    "ln -sf /boot/initrd.img /boot/initramfs-linux.img"
+  );
+  if (symlink_result != 0)
+    return mkresult(0, "Failed to symlink for GRUB compatibility!");
+  // fun fact: grub made me go insane - mostypc123 at august 14th 2026 20:18
+
   const char* drive = step->args[0];
   const char sdev[] = "/dev/";
   char full_dev[strlen(sdev) + strlen(drive) + 1];
@@ -546,3 +560,25 @@ InstallStepResult mkfstab_regen_func(InstallStep* step) {
 
   return result;
 }
+
+InstallStepResult dbus_setup_func(struct InstallStep* step) {
+  InstallStepResult result;
+  (void)step;
+
+  result.success = run_in_chroot_shell(
+    "addgroup -S nogroup && "
+    "addgroup -S messagebus && "
+    "adduser -S -H -s /usr/bin/nologin -G messagebus messagebus && "
+    "chown root:messagebus /usr/libexec/dbus-daemon-launch-helper && "
+    "chmod 4750 /usr/libexec/dbus-daemon-launch-helper"
+  ) == 0;
+  result = mkresult(
+    result.success,
+    result.success ?
+      "Succesfully set up D-Bus!" :
+      "Failed to set up D-Bus!"    
+  );
+
+  return result;
+}
+

@@ -105,13 +105,17 @@ squash-root: dep
 	@[ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib64"
 	@[ -d $(ROOTFS_FS_DIR)/lib64 ] && cp -a $(ROOTFS_FS_DIR)/lib64/* $(ROOTFS_FS_DIR)/usr/lib64/ >/dev/null 2>&1 || true
+	@echo "  ==> Copying /usr/etc"
+	@# in this case the /usr path is the symlink
+	@[ -d $(ROOTFS_FS_DIR)/etc ] && cp -a $(ROOTFS_FS_DIR)/usr/etc/* $(ROOTFS_FS_DIR)/etc/ >/dev/null 2>&1 || true
 	@echo "  ==> Removing original / paths"
-	@rm -rf $(ROOTFS_FS_DIR)/bin $(ROOTFS_FS_DIR)/sbin $(ROOTFS_FS_DIR)/lib $(ROOTFS_FS_DIR)/lib64
+	@rm -rf $(ROOTFS_FS_DIR)/bin $(ROOTFS_FS_DIR)/sbin $(ROOTFS_FS_DIR)/lib $(ROOTFS_FS_DIR)/lib64 $(ROOTFS_FS_DIR)/usr/etc
 	@echo "  ==> Symlinking new /usr paths"
 	@ln -s usr/bin   $(ROOTFS_FS_DIR)/bin
 	@ln -s usr/sbin  $(ROOTFS_FS_DIR)/sbin
 	@ln -s usr/lib   $(ROOTFS_FS_DIR)/lib
 	@ln -s usr/lib64 $(ROOTFS_FS_DIR)/lib64
+	@ln -s ../etc $(ROOTFS_FS_DIR)/usr/etc
 	@echo "=> Installing car"
 	@test -f $(ROOTFS_FS_DIR)/bin/car || ( \
 		echo "  -> $(ROOTFS_FS_DIR)/bin/car" && \

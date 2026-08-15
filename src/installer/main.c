@@ -56,6 +56,28 @@ body:
   char* password = password_ask("User password [redrose]", "redrose");
   char* root_password = password_ask("Root password [redrose]", "redrose");
   char* coreutils_type = ask_with_default("Coreutils to install? [gnu] (gnu/uutils/busybox)", "gnu");
+  int install_grub = 1; // 2 if user used ? to ask what this question means
+  
+  do {
+    char* confirm = ask_with_default("Do you want to install GRUB? [Y/n/?]", "Y");
+
+    if (confirm[0] == 'N' || confirm[0] == 'n') {
+      install_grub = 0;
+    } else if (confirm[0] == 'y' || confirm[0] == 'Y') {
+      install_grub = 1; // the var is already initialized, but this is used in
+                        // case the user entered ? so we dont loop forever
+    } else if (confirm[0] == '?') {
+      install_grub = 2;
+
+      info("You should only choose not to install GRUB if you are dual-booting and");
+      info("you want the other operating system to handle booting Redrose Linux.");
+      puts("");
+      info("However, you should only do this if you know what you are doing. You");
+      info("probably want to install GRUB if you do not know what this all means.");
+    }
+
+    free(confirm);
+  } while (install_grub == 2);
 
   print_installing(window);
   char* confirm = ask("Confirm installation? [Y/n]");
@@ -160,13 +182,17 @@ body:
     step(&regen_initramfs);
   }
 
-  {
+  if (install_grub) {
     InstallStep install_grub = {
       .message = "Installing GRUB!",
       .func = grub_install_func,
       .args = (char*[]){drive, NULL},
     };
     step(&install_grub);
+  } else {
+    puts("");
+    warn("Not installing GRUB as of user's preference!");
+    puts("");
   }
 
   {
@@ -176,6 +202,17 @@ body:
       .args = (char*[]){NULL},
     };
     step(&regen_fstab);
+  }
+
+  puts(
+    "This step is temporary until alpha-0.8 where the ISO builder will be rewritten"
+  ); {
+    InstallStep dbus_user_setup = {
+      .message = "Setting up D-Bus!",
+      .func = dbus_setup_func,
+      .args = (char*[]){NULL},
+    };
+    step(&dbus_user_setup);
   }
 
   free(user);

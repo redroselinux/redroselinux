@@ -35,6 +35,12 @@ rootfs/filesystem/etc/slsh.rc
 rootfs/filesystem/etc/ld.so.cache
 rootfs/filesystem/etc/cron.d/*
 rootfs/filesystem/etc/lvm
+rootfs/filesystem/etc/bash_completion.d/
+rootfs/filesystem/etc/e2scrub.conf
+rootfs/filesystem/etc/grub.d/
+rootfs/filesystem/etc/mke2fs.conf
+rootfs/filesystem/etc/openldap/
+rootfs/filesystem/etc/xattr.conf
 rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 !rootfs/filesystem/usr/sbin/hostname-reload-daemon
