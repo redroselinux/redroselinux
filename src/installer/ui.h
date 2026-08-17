@@ -22,15 +22,13 @@
 "   █    █▀  █  █   ▀    █    ▀   █    █      █    █▀  █   █▀  ▀\n" \
 "   █    █   █   ▀▀▀▄    █    ▄▀▀▀█    █      █    █▀▀▀▀   █    \n" \
 " ▄▄█▄▄  █   █  ▀▄▄▄▀    ▀▄▄  ▀▄▄▀█    ▀▄▄    ▀▄▄  ▀█▄▄▀   █\n\n\033[0m"
-#define SETTINGS_HEADER \
-"\033[2J\033[H\033[91m\033[95m" \
-"  ▄▄▄▄           ▄      ▄      ▀\n" \
-" █▀   ▀  ▄▄▄   ▄▄█▄▄  ▄▄█▄▄  ▄▄▄    ▄ ▄▄    ▄▄▄▄   ▄▄▄\n" \
-" ▀█▄▄▄  █▀  █    █      █      █    █▀  █  █▀ ▀█  █   ▀\n" \
-"     ▀█ █▀▀▀▀    █      █      █    █   █  █   █   ▀▀▀▄\n" \
-" ▀▄▄▄█▀ ▀█▄▄▀    ▀▄▄    ▀▄▄  ▄▄█▄▄  █   █  ▀█▄▀█  ▀▄▄▄▀\n" \
-"                                            ▄  █\n" \
-"                                             ▀▀\n\033[0m"
+#define INSTALL_TO_HEADER \
+"\033[2J\033[H\033[33m" \
+" ▄▄▄▄▄                  ▄           ▀▀█    ▀▀█       ▄          \n" \
+"   █    ▄ ▄▄    ▄▄▄   ▄▄█▄▄   ▄▄▄     █      █     ▄▄█▄▄   ▄▄▄  \n" \
+"   █    █▀  █  █   ▀    █    ▀   █    █      █       █    █▀ ▀█ \n" \
+"   █    █   █   ▀▀▀▄    █    ▄▀▀▀█    █      █       █    █   █ \n" \
+" ▄▄█▄▄  █   █  ▀▄▄▄▀    ▀▄▄  ▀▄▄▀█    ▀▄▄    ▀▄▄     ▀▄▄  ▀█▄█▀ \033[0m\n\n"
 #define INSTALLED_BANNER \
 "\033[2J\033[H\033[92m" \
 " ▄▄▄▄▄                  ▄           ▀▀█    ▀▀█               █\n" \
@@ -47,10 +45,37 @@
 " ▄▄█▄▄  █   █  ▀▄▄▄▀    ▀▄▄  ▀▄▄▀█    ▀▄▄    ▀▄▄  ▄▄█▄▄  █   █  ▀█▄▀█\n" \
 "                                                                 ▄  █\n" \
 "                                                                  ▀▀\n\033[0m"
+#define LOCALIZE \
+"\033[2J\033[H\033[92m" \
+" ▄                           ▀▀█      ▀                 \n" \
+" █       ▄▄▄    ▄▄▄    ▄▄▄     █    ▄▄▄    ▄▄▄▄▄   ▄▄▄  \n" \
+" █      █▀ ▀█  █▀  ▀  ▀   █    █      █       ▄▀  █▀  █ \n" \
+" █      █   █  █      ▄▀▀▀█    █      █     ▄▀    █▀▀▀▀ \n" \
+" █▄▄▄▄▄ ▀█▄█▀  ▀█▄▄▀  ▀▄▄▀█    ▀▄▄  ▄▄█▄▄  █▄▄▄▄  ▀█▄▄▀  \n\033[0m"
+#define USER_SETUP_HEADER \
+"\033[2J\033[H\033[94m" \
+" ▄    ▄                                        ▄                 \n" \
+" █    █  ▄▄▄    ▄▄▄    ▄ ▄▄     ▄▄▄    ▄▄▄   ▄▄█▄▄  ▄   ▄  ▄▄▄▄  \n" \
+" █    █ █   ▀  █▀  █   █▀ ▀    █   ▀  █▀  █    █    █   █  █▀ ▀█ \n" \
+" █    █  ▀▀▀▄  █▀▀▀▀   █        ▀▀▀▄  █▀▀▀▀    █    █   █  █   █ \n" \
+" ▀▄▄▄▄▀ ▀▄▄▄▀  ▀█▄▄▀   █       ▀▄▄▄▀  ▀█▄▄▀    ▀▄▄  ▀▄▄▀█  ██▄█▀ \n" \
+"                                                           █     \n" \
+"                                                           ▀     \n\033[0m"
+#define ADVANCED_HEADER \
+"\033[2J\033[H\033[31m" \
+"                                                        \n" \
+"   ▄▄       █                                         █ \n" \
+"   ██    ▄▄▄█  ▄   ▄   ▄▄▄   ▄ ▄▄    ▄▄▄    ▄▄▄    ▄▄▄█ \n" \
+"  █  █  █▀ ▀█  ▀▄ ▄▀  ▀   █  █▀  █  █▀  ▀  █▀  █  █▀ ▀█ \n" \
+"  █▄▄█  █   █   █▄█   ▄▀▀▀█  █   █  █      █▀▀▀▀  █   █ \n" \
+" █    █ ▀█▄██    █    ▀▄▄▀█  █   █  ▀█▄▄▀  ▀█▄▄▀  ▀█▄██ \n\n\033[0m"
 
 char* ask(char* prompt);
 void print_welcome(struct winsize w);
-void print_settings_header(struct winsize window);
+void print_localize_header(struct winsize window);
+void print_usersetup_header(struct winsize window);
+void print_advanced_header(struct winsize window);
+void print_inst_to_header(struct winsize window);
 void print_installing(struct winsize window);
 void print_installed(struct winsize window);
 char* ask_with_default(char* prompt, char* default_input);

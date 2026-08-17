@@ -111,13 +111,32 @@ void print_welcome(struct winsize window) {
   }
 }
 
-void print_settings_header(struct winsize window) {
+void print_usersetup_header(struct winsize window) {
+  if (window.ws_col <= 70 || window.ws_row <= 8) {
+    // screen too small
+    warn("Screen is too small, showing small header");
+    info("\033[1mUser setup\033[0m");
+  } else {
+    puts(USER_SETUP_HEADER);
+  }
+}
+
+void print_advanced_header(struct winsize window) {
+  if (window.ws_col <= 70 || window.ws_row <= 8) {
+    // screen too small
+    warn("Screen is too small, showing small header");
+    info("\033[1mUser setup\033[0m");
+  } else {
+    puts(ADVANCED_HEADER);
+  }
+}
+void print_inst_to_header(struct winsize window) {
   if (window.ws_col <= 50 || window.ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
-    info("\033[1mSettings\033[0m");
+    info("\033[1mInstall to\033[0m");
   } else {
-    puts(SETTINGS_HEADER);
+    puts(INSTALL_TO_HEADER);
   }
 }
 

@@ -98,13 +98,13 @@ squash-root: dep
 	@echo "=> Merging /usr paths"
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/bin $(ROOTFS_FS_DIR)/usr/sbin $(ROOTFS_FS_DIR)/usr/lib $(ROOTFS_FS_DIR)/usr/lib64
 	@echo "  ==> Copying /bin"
-	@[ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /sbin"
-	@[ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib"
-	@[ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib64"
-	@[ -d $(ROOTFS_FS_DIR)/lib64 ] && cp -a $(ROOTFS_FS_DIR)/lib64/* $(ROOTFS_FS_DIR)/usr/lib64/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/lib64 ] && cp -a $(ROOTFS_FS_DIR)/lib64/* $(ROOTFS_FS_DIR)/usr/lib64/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /usr/etc"
 	@# in this case the /usr path is the symlink
 	@[ -d $(ROOTFS_FS_DIR)/etc ] && cp -a $(ROOTFS_FS_DIR)/usr/etc/* $(ROOTFS_FS_DIR)/etc/ >/dev/null 2>&1 || true

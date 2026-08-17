@@ -46,15 +46,21 @@ body:
 
   free(input);
 
-  print_settings_header(window);
+  print_inst_to_header(window);
 
   char* drive = ask_blkdev();
+  
+
   char* timezone = ask_with_default("Timezone (Region/City) [Europe/London]", "Europe/London");
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
-  char* hostname = ask_with_default("Hostname [iuseredrosebtw]", "iuseredrosebtw");
+  
+  print_usersetup_header(window);
   char* user = ask_with_default("Username [redrose]", "redrose");
   char* password = password_ask("User password [redrose]", "redrose");
   char* root_password = password_ask("Root password [redrose]", "redrose");
+  char* hostname = ask_with_default("Hostname [iuseredrosebtw]", "iuseredrosebtw");
+
+  print_advanced_header(window);
   char* coreutils_type = ask_with_default("Coreutils to install? [gnu] (gnu/uutils/busybox)", "gnu");
   int install_grub = 1; // 2 if user used ? to ask what this question means
   
