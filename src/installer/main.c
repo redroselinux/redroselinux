@@ -20,6 +20,7 @@
   free(password); \
   free(root_password); \
   free(keyboard); \
+  free(coreutils_type); \
 } while(0)
 
 // rewriting, this time without memory leaks :fire: - mostypc123 on Aug 3 2026 20:54 UTC+2
@@ -54,6 +55,7 @@ body:
   char* drive = ask_blkdev();
   
   print_localize_header(&window);
+  warn("Redrose Linux currently does not support setting timezone and keyboard layout.");
   char* timezone = ask_with_default("Timezone (Region/City) [Europe/London]", "Europe/London");
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
   
@@ -148,6 +150,13 @@ body:
   }
 
   print_installing(&window);
+
+  char grub[8]; // without\0 or with\0
+  if (install_grub) strncpy(grub, "with", 8);
+  if (!install_grub) strncpy(grub, "without", 8);
+  printf("  Installing to /dev/%s %s GRUB.\n", drive, grub);
+  printf("  Using %s coreutils.\n\n", coreutils_type);
+
   char* confirm = ask("Confirm installation? [Y/n]");
   if (!(confirm[0] == 'y' || confirm[0] == 'Y' || confirm[0] == '\0')) {
     error("Installation cancelled.");
@@ -283,14 +292,7 @@ body:
     step(&dbus_user_setup);
   }
 
-  if (free_user) free(user);
-  free(drive);
-  free(hostname);
-  free(timezone);
-  free(password);
-  free(root_password);
-  free(keyboard);
-  free(coreutils_type);
+  FREE_ALL();
 
   if (debug) (void)getchar();
 

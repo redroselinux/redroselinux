@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "mem.h"
 #include "log.h"
 #include "ui.h"
@@ -45,11 +46,31 @@ char* ask_blkdev() {
   info("Available installation drives:");
   char **p = blkdevs;
   while (*p) {
+    // skip partitions
+    char part_path[strlen("/sys/class/block/") + strlen(*p) + strlen("/partition") + 1];
+    snprintf(part_path, sizeof(part_path), "/sys/class/block/%s/partition", *p);
+    if (access(part_path, F_OK) == 0) {
+      p++;
+      continue;
+    }
+
     // skip loop devs
     if (
       strlen(*p) >= 4 &&
-      (*p)[0] == 'l' && (*p)[1] == 'o' && (*p)[2] == 'o' && (*p)[3]
+      (*p)[0] == 'l' && (*p)[1] == 'o' && (*p)[2] == 'o' && (*p)[3] == 'p'
     ) {
+      p++;
+      continue;
+    }
+
+    if (
+      strlen(*p) >= 4 &&
+      (*p)[0] == 'n' && (*p)[1] == 'v' && (*p)[2] == 'm' && (*p)[3] == 'e'
+    ) {
+      const char* suffix = " (nvme drives currently unsupported)";
+      char msg[strlen(*p) + strlen(suffix) + 1];
+      snprintf(msg, sizeof(msg), "%s%s", *p, suffix);
+      warn(msg);
       p++;
       continue;
     }
