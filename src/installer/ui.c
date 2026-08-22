@@ -101,8 +101,8 @@ body:
   return result;
 }
 
-void print_welcome(struct winsize window) {
-  if (window.ws_col <= 63 || window.ws_row <= 19) {
+void print_welcome(const struct winsize* window) {
+  if (window->ws_col <= 63 || window->ws_row <= 19) {
     // screen too small
     warn("Screen is too small, showing small header");
     info("\033[1mRedrose Linux Installer\033[0m");
@@ -111,8 +111,8 @@ void print_welcome(struct winsize window) {
   }
 }
 
-void print_usersetup_header(struct winsize window) {
-  if (window.ws_col <= 70 || window.ws_row <= 8) {
+void print_usersetup_header(const struct winsize* window) {
+  if (window->ws_col <= 70 || window->ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
     info("\033[1mUser setup\033[0m");
@@ -121,8 +121,8 @@ void print_usersetup_header(struct winsize window) {
   }
 }
 
-void print_advanced_header(struct winsize window) {
-  if (window.ws_col <= 70 || window.ws_row <= 8) {
+void print_advanced_header(const struct winsize* window) {
+  if (window->ws_col <= 70 || window->ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
     info("\033[1mUser setup\033[0m");
@@ -130,8 +130,8 @@ void print_advanced_header(struct winsize window) {
     puts(ADVANCED_HEADER);
   }
 }
-void print_inst_to_header(struct winsize window) {
-  if (window.ws_col <= 50 || window.ws_row <= 8) {
+void print_inst_to_header(const struct winsize* window) {
+  if (window->ws_col <= 50 || window->ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
     info("\033[1mInstall to\033[0m");
@@ -140,8 +140,18 @@ void print_inst_to_header(struct winsize window) {
   }
 }
 
-void print_installed(struct winsize window) {
-  if (window.ws_col <= 61 || window.ws_row <= 6) {
+void print_localize_header(const struct winsize* window) {
+  if (window->ws_col <= 56 || window->ws_row <= 8) {
+    // screen too small
+    warn("Screen is too small, showing small header");
+    info("\033[1mLocalize\033[0m");
+  } else {
+    puts(LOCALIZE);
+  }
+}
+
+void print_installed(const struct winsize* window) {
+  if (window->ws_col <= 61 || window->ws_row <= 6) {
     // screen too small
     warn("Screen is too small, showing small header");
     done("\033[1mInstalled\033[0m");
@@ -150,8 +160,8 @@ void print_installed(struct winsize window) {
   }
 }
 
-void print_installing(struct winsize window) {
-  if (window.ws_col <= 69 || window.ws_row <= 8) {
+void print_installing(const struct winsize* window) {
+  if (window->ws_col <= 69 || window->ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
     info("\033[1mInstalling\033[0m");

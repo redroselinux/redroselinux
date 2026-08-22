@@ -47,21 +47,24 @@ The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did 
 
 ## Development
 
-When compiling, the Makefile copies your system libraries. Note that not all of them are copied, since _most_ of the packages are bootstrapped using our package manager - car. You need to build them yourself if you do not want the system ones.
-If you wish to edit the installer code, run from source tree:
-
-```bash
-python3 enable_debug.py
-```
-
-Now in the Redrose directory, run:
+Simply run:
 
 ```
 make
 ```
 
-This does all the magic, and even runs it in a VM. Fedora is detected automatically.
+This does all the magic, and even runs it in a VM.
 
+>[!IMPORTANT]
+> `-j` does not work with our Makefile!
+
+>[!NOTE]
+> We will make a build system for ISOs after alpha-0.7 releases. 
+
+>[!TIP]
+> You can use `GZIP_PATH` to set the gzip command, for example:
+> `make GZIP_PATH="pigz -p 4000"` 
+ 
 ## Build a Docker image
 
 ```bash

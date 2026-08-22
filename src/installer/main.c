@@ -24,6 +24,7 @@
 // first segfault - Aug 3 2026 22:12
 // second segfault - Aug 3 2026 ~21:20
 // six segfaults so far - Aug 10 2026 0:24
+// back from a trip, almost done - Aug 22 2026 14:37
 
 int main() {
   goto body;
@@ -32,7 +33,7 @@ body:
   struct winsize window;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
-  print_welcome(window);
+  print_welcome(&window);
 
   puts("Welcome to the Redrose Linux alpha-0.7 installer! It was recently rewritten.");
 
@@ -46,21 +47,20 @@ body:
 
   free(input);
 
-  print_inst_to_header(window);
-
+  print_inst_to_header(&window);
   char* drive = ask_blkdev();
   
-
+  print_localize_header(&window);
   char* timezone = ask_with_default("Timezone (Region/City) [Europe/London]", "Europe/London");
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
   
-  print_usersetup_header(window);
+  print_usersetup_header(&window);
   char* user = ask_with_default("Username [redrose]", "redrose");
   char* password = password_ask("User password [redrose]", "redrose");
   char* root_password = password_ask("Root password [redrose]", "redrose");
   char* hostname = ask_with_default("Hostname [iuseredrosebtw]", "iuseredrosebtw");
 
-  print_advanced_header(window);
+  print_advanced_header(&window);
   char* coreutils_type = ask_with_default("Coreutils to install? [gnu] (gnu/uutils/busybox)", "gnu");
   int install_grub = 1; // 2 if user used ? to ask what this question means
   
@@ -85,7 +85,7 @@ body:
     free(confirm);
   } while (install_grub == 2);
 
-  print_installing(window);
+  print_installing(&window);
   char* confirm = ask("Confirm installation? [Y/n]");
   if (!(confirm[0] == 'y' || confirm[0] == 'Y' || confirm[0] == '\0')) {
     error("Installation cancelled.");
@@ -96,7 +96,7 @@ body:
   }
   free(confirm);
 
-  print_installing(window);
+  print_installing(&window);
 
   {
     InstallStep wipe = {
@@ -142,7 +142,7 @@ body:
     };
     step(&copy_rootfs_tgz);
   }
-
+  
   {
     InstallStep install_coreutils = {
       .message = "Installing coreutils!",
@@ -232,7 +232,7 @@ body:
 
   (void)getchar();
 
-  print_installed(window);
+  print_installed(&window);
 
   {
     char* confirm = ask_with_default("Do you want to chroot to the newly installed system? [y/N]", "N");
@@ -244,7 +244,7 @@ body:
     free(confirm);
   }
 
-  print_installed(window);
+  print_installed(&window);
 
   done("Installation finished. Press ENTER to reboot.");
   (void)getchar();

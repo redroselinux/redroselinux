@@ -63,7 +63,6 @@
 "                                                           ▀     \n\033[0m"
 #define ADVANCED_HEADER \
 "\033[2J\033[H\033[31m" \
-"                                                        \n" \
 "   ▄▄       █                                         █ \n" \
 "   ██    ▄▄▄█  ▄   ▄   ▄▄▄   ▄ ▄▄    ▄▄▄    ▄▄▄    ▄▄▄█ \n" \
 "  █  █  █▀ ▀█  ▀▄ ▄▀  ▀   █  █▀  █  █▀  ▀  █▀  █  █▀ ▀█ \n" \
@@ -71,12 +70,12 @@
 " █    █ ▀█▄██    █    ▀▄▄▀█  █   █  ▀█▄▄▀  ▀█▄▄▀  ▀█▄██ \n\n\033[0m"
 
 char* ask(char* prompt);
-void print_welcome(struct winsize w);
-void print_localize_header(struct winsize window);
-void print_usersetup_header(struct winsize window);
-void print_advanced_header(struct winsize window);
-void print_inst_to_header(struct winsize window);
-void print_installing(struct winsize window);
-void print_installed(struct winsize window);
+void print_welcome(const struct winsize* w);
+void print_localize_header(const struct winsize* window);
+void print_usersetup_header(const struct winsize* window);
+void print_advanced_header(const struct winsize* window);
+void print_inst_to_header(const struct winsize* window);
+void print_installing(const struct winsize* window);
+void print_installed(const struct winsize* window);
 char* ask_with_default(char* prompt, char* default_input);
 char* password_ask(char* prompt, char* default_input);
