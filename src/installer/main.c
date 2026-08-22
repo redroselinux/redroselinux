@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ui.h"
+#include "mem.h"
 #include "log.h"
 #include "drive.h"
 #include "inst.h"
@@ -12,7 +13,7 @@
 #include <unistd.h>
 
 #define FREE_ALL() do { \
-  free(user); \
+  if (free_user) free(user); \
   free(drive); \
   free(hostname); \
   free(timezone); \
@@ -26,6 +27,7 @@
 // second segfault - Aug 3 2026 ~21:20
 // six segfaults so far - Aug 10 2026 0:24
 // back from a trip, almost done - Aug 22 2026 14:37
+// eight segfaults so far - Aug 22 2026 18:37
 
 int main() {
   goto body;
@@ -58,6 +60,7 @@ body:
   print_usersetup_header(&window);
 
   char* user;
+  _Bool free_user = 1;
   do {
     user = ask_with_default("Username [redrose]", "redrose");
     if (!strcmp(user, "root")) {
@@ -65,7 +68,9 @@ body:
       char* confirm = ask_with_default("Do you only want to use the root account? [y/N]", "N");
 
       if (confirm[0] == 'y' || confirm[0] == 'Y') {
-        user = "__.do_not_create_user.__";
+        free(user);
+        user = (char*)"__.do_not_create_user.__";
+        free_user = 0;
         // it was meant to be <--__.!__do__not__create__user__!.__--> this aint that bad
       } else {
         free(user);
@@ -75,7 +80,7 @@ body:
       free(confirm);
     }
 
-    const size_t user_len = strlen(user);
+    const size_t user_len = user ? strlen(user) : 0;
     if (user_len > 32 && user_len < 256) {
       warn("Username is longer than 32 characters, which many utilities cannot handle.");
       warn("You should set the username to a shorter one, or retype it if you're sure.");
@@ -97,7 +102,11 @@ body:
     puts("yo if you see this tell me lol :3");
   } 
 
-  char* password = password_ask("User password [redrose]", "redrose");
+  char* password = alloc(1); password[0] = '\0'; 
+  if (free_user) {
+    free(password);
+    password = password_ask("User password [redrose]", "redrose");
+  }
   char* root_password = password_ask("Root password [redrose]", "redrose");
   char* hostname = ask_with_default("Hostname [iuseredrosebtw]", "iuseredrosebtw");
 
@@ -274,7 +283,7 @@ body:
     step(&dbus_user_setup);
   }
 
-  free(user);
+  if (free_user) free(user);
   free(drive);
   free(hostname);
   free(timezone);

@@ -182,14 +182,14 @@ InstallStepResult make_partitions_func(struct InstallStep* step) {
     char command[strlen(step->args[0]) + strlen(prefix) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, step->args[0]);
     if (exec_no_shell(command) != 0) {
-      result = mkresult(0, "Failed to create EFI boot partition!");
+      return mkresult(0, "Failed to create EFI boot partition!");
     }
   } else {
     const char* prefix = "sgdisk --new=2:0:+1M -t 2:ef02 /dev/";
     char command[strlen(step->args[0]) + strlen(prefix) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, step->args[0]);
     if (exec_no_shell(command) != 0) {
-      result = mkresult(0, "Failed to create BIOS boot partition!");
+      return mkresult(0, "Failed to create BIOS boot partition!");
     }
   }
 
@@ -198,13 +198,13 @@ InstallStepResult make_partitions_func(struct InstallStep* step) {
     char command[strlen(step->args[0]) + strlen(prefix) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, step->args[0]);
     if (exec_no_shell(command) != 0) {
-      result = mkresult(0, "Failed to create root partition!");
+      return mkresult(0, "Failed to create root partition!");
     }
   }
 
   /* probe parts */ {
     if (exec_no_shell("busybox partprobe") != 0) {
-      result = mkresult(0, "Failed to probe partitions!");
+      return mkresult(0, "Failed to probe partitions!");
     }
   }
 
@@ -234,7 +234,7 @@ InstallStepResult make_filesystems_func(struct InstallStep* step) {
     char command[strlen(prefix) + strlen(bios_efi) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, bios_efi);
     if (exec_no_shell(command) != 0) {
-      result = mkresult(0, "Failed to create EFI/BIOS boot partition!");
+      return mkresult(0, "Failed to create EFI/BIOS boot partition!");
     }
   }
 
@@ -244,7 +244,7 @@ InstallStepResult make_filesystems_func(struct InstallStep* step) {
     snprintf(command, sizeof(command), "%s%s", prefix, root);
     fflush(stdout);
     if (exec_no_shell(command) != 0) {
-      result = mkresult(0, "Failed to create root partition!");
+      return mkresult(0, "Failed to create root partition!");
     }
   }
 
