@@ -56,6 +56,10 @@ initramfs/sbin
 initramfs/usr
 initramfs/share
 rootfs/filesystem/etc/ssl/
+filesystem/bin/
+filesystem/usr/
+filesystem/boot/vmlinuz/
+rootfs/filesystem/boot/vmlinuz
 
 # python
 *__pycache__
