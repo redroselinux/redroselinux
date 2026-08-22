@@ -127,7 +127,7 @@ void print_advanced_header(const struct winsize* window) {
   if (window->ws_col <= 70 || window->ws_row <= 8) {
     // screen too small
     warn("Screen is too small, showing small header");
-    info("\033[1mUser setup\033[0m");
+    info("\033[1mAdvanced\033[0m");
   } else {
     puts(ADVANCED_HEADER);
   }
