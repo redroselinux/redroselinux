@@ -96,6 +96,8 @@ body:
       free(confirm);
       goto body;
     }
+  } else {
+    puts("");
   }
 
   return result;
