@@ -1,5 +1,6 @@
 #define _DEFAULT_SOURCE
 
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "ui.h"
@@ -55,15 +56,55 @@ body:
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
   
   print_usersetup_header(&window);
-  char* user = ask_with_default("Username [redrose]", "redrose");
+
+  char* user;
+  do {
+    user = ask_with_default("Username [redrose]", "redrose");
+    if (!strcmp(user, "root")) {
+      warn("Your username cannot be 'root'.");
+      char* confirm = ask_with_default("Do you only want to use the root account? [y/N]", "N");
+
+      if (confirm[0] == 'y' || confirm[0] == 'Y') {
+        user = "__.do_not_create_user.__";
+        // it was meant to be <--__.!__do__not__create__user__!.__--> this aint that bad
+      } else {
+        free(user);
+        user = NULL;
+      }
+
+      free(confirm);
+    }
+
+    const size_t user_len = strlen(user);
+    if (user_len > 32 && user_len < 256) {
+      warn("Username is longer than 32 characters, which many utilities cannot handle.");
+      warn("You should set the username to a shorter one, or retype it if you're sure.");
+      free(user);
+      user = NULL;
+    } else if (user_len > 256) {
+      error("Usernames cannot be longer than 256 characters.");
+      free(user);
+      user = NULL;
+    }
+    
+  } while (user == NULL);
+
+  if (!strcmp("lea", user)) {
+    puts("hi :3");
+  } else if (!strcmp("mostypc123", user)) {
+    puts("am i insane to write code that greets myself?");
+  } else if (!strcmp("neo", user)) {
+    puts("yo if you see this tell me lol :3");
+  } 
+
   char* password = password_ask("User password [redrose]", "redrose");
   char* root_password = password_ask("Root password [redrose]", "redrose");
   char* hostname = ask_with_default("Hostname [iuseredrosebtw]", "iuseredrosebtw");
 
   print_advanced_header(&window);
   char* coreutils_type = ask_with_default("Coreutils to install? [gnu] (gnu/uutils/busybox)", "gnu");
-  int install_grub = 1; // 2 if user used ? to ask what this question means
   
+  int8_t install_grub = 1; // 2 if user used ? to ask what this question means
   do {
     char* confirm = ask_with_default("Do you want to install GRUB? [Y/n/?]", "Y");
 
@@ -84,6 +125,18 @@ body:
 
     free(confirm);
   } while (install_grub == 2);
+
+  _Bool debug = 0;
+  
+  {
+    char* confirm = ask_with_default("Do you want to use development mode? [y/N]", "N");
+
+    if (confirm[0] == 'Y' || confirm[0] == 'y') {
+      debug = 1;
+    }
+
+    free(confirm);
+  }
 
   print_installing(&window);
   char* confirm = ask("Confirm installation? [Y/n]");
@@ -230,7 +283,7 @@ body:
   free(keyboard);
   free(coreutils_type);
 
-  (void)getchar();
+  if (debug) (void)getchar();
 
   print_installed(&window);
 
@@ -239,6 +292,16 @@ body:
 
     if (confirm[0] == 'y' || confirm[0] == 'Y') {
       run_in_chroot_shell_with_bind_mnt("/bin/sh"); 
+    }
+
+    free(confirm);
+  }
+
+  {
+    char* confirm = ask_with_default("Do you want to run a shell in the live enviroment? [y/N]", "N");
+
+    if (confirm[0] == 'y' || confirm[0] == 'Y') {
+      exec_no_shell_arr((char* const[]){"sh", NULL});
     }
 
     free(confirm);

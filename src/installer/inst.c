@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/mount.h>
+#include <errno.h>
 #include "mem.h"
 
 // Set to 0 if you do not want exec_* functions to write the command to be exec'd
@@ -238,7 +239,7 @@ InstallStepResult make_filesystems_func(struct InstallStep* step) {
   }
 
   /* root partition */ {
-    const char* prefix = "mkfs.ext4 ";
+    const char* prefix = "mkfs.ext4 -F ";
     char command[strlen(prefix) + strlen(root) + 1];
     snprintf(command, sizeof(command), "%s%s", prefix, root);
     fflush(stdout);
@@ -414,6 +415,8 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   sanitize_shell_chars(password);
   sanitize_shell_chars(root_password);
 
+  const _Bool create_user = strcmp(user, "__.do_not_create_user.__");
+
   if (create_file("/mnt/etc/group", "") != 0) {
     return mkresult(0, "Failed to create /etc/group");
   }
@@ -422,34 +425,46 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
 
   // create dirs
   if (mkdir("/mnt/home", 0755) != 0) {
-    perror("mkdir");
-    return mkresult(0, "Failed to create home directory!");
+    if (errno != EEXIST) {
+      perror("mkdir");
+      return mkresult(0, "Failed to create home directory!");
+    }
   }
 
   if (mkdir("/mnt/root", 0755) != 0) {
-    perror("mkdir");
-    return mkresult(0, "Failed to create root directory!");
+    if (errno != EEXIST) {
+      perror("mkdir");
+      return mkresult(0, "Failed to create root directory!");
+    }
   }
 
-  // why not reuse the buffer for the home dir :fire:
-  snprintf(command, sizeof(command), "/mnt/home/%s", user);
-  if (mkdir(command, 0755) != 0) {
-    perror("mkdir");
-    return mkresult(0, "Failed to create home directory for user!");
-  }
+  if (create_user) {
+    // why not reuse the buffer for the home dir :fire:
+    snprintf(command, sizeof(command), "/mnt/home/%s", user);
+    if (mkdir(command, 0755) != 0) {
+      if (errno != EEXIST) {
+        perror("mkdir");
+        return mkresult(0, "Failed to create home directory for user!");
+      }
+    }
 
-  snprintf(command, sizeof(command), "adduser -D %s", user);
-  if (run_in_chroot_shell(command) != 0) {
-    return mkresult(0, "Failed to add user!");
+    snprintf(command, sizeof(command), "adduser -D %s", user);
+    if (run_in_chroot_shell(command) != 0) {
+      return mkresult(0, "Failed to add user!");
+    }
+  } else {
+    warn("Not creating user other than root!");
   }
 
   warn("Not printing commands that are ran to set password for security!");
   // you can delete the below line for debugging the commnds
   exec_funcs_print_command = 0;
 
-  snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd", user, password);
-  if (run_in_chroot_shell(command) != 0) {
-    return mkresult(0, "Failed to set password for user!");
+  if (create_user) {
+    snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd", user, password);
+    if (run_in_chroot_shell(command) != 0) {
+      return mkresult(0, "Failed to set password for user!");
+    }
   }
 
   snprintf(command, sizeof(command), "echo 'root:%s' | chpasswd", root_password);
