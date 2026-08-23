@@ -54,8 +54,15 @@ body:
   print_inst_to_header(&window);
   char* drive = ask_blkdev();
   
+  if (!drive) {
+    info("Press ENTER to restart the installer");
+    (void)getchar();
+    goto body;
+  }
+
   print_localize_header(&window);
   warn("Redrose Linux currently does not support setting timezone and keyboard layout.");
+  warn("This is left as a template for future work.");
   char* timezone = ask_with_default("Timezone (Region/City) [Europe/London]", "Europe/London");
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
   

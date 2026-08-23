@@ -39,9 +39,14 @@ char **get_blkdevs(void) {
 }
 
 /* Ask the user to pick a block device.
- * User must free the result by themselves. */
+ * User must free the result by themselves.
+ * Returns NULL on failure. */
 char* ask_blkdev() {
   char** blkdevs = get_blkdevs();
+  if (!blkdevs) {
+    error("get_blkdevs() returned NULL, cannot continue.");
+    return NULL;
+  }
 
   info("Available installation drives:");
   char **p = blkdevs;
