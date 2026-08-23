@@ -39,6 +39,10 @@ This uses the latest **release**.
 
 Otherwise, download from the Releases tab.
 
+### Docker image
+
+https://docs.redroselinux.org/#/docker-img
+
 ## Hardware Requirements
 
 **This was tested on alpha 0.2** 
@@ -64,18 +68,6 @@ This does all the magic, and even runs it in a VM.
 >[!TIP]
 > You can use `GZIP_PATH` to set the gzip command, for example:
 > `make GZIP_PATH="pigz -p 4000"` 
- 
-## Build a Docker image
-
-```bash
-make docker
-```
-
-If your docker needs sudo, do:
-
-```bash
-make docker DOCKER_PRE_CMD="sudo"
-```
 
 <div align=center>
 Wilted rose:<br>
