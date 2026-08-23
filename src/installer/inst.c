@@ -260,12 +260,13 @@ InstallStepResult make_filesystems_func(struct InstallStep* step) {
 InstallStepResult mount_rootfs_func(struct InstallStep* step) {
   InstallStepResult result;
 
-  const char* part = get_partition(step->args[0], 1);
   const char sdev[] = "/dev/";
-  char full_dev[strlen(sdev) + strlen(part) + 1];
-  snprintf(full_dev, sizeof(full_dev), "%s%s", sdev, part);
+  char full_dev[strlen(sdev) + strlen(step->args[0]) + 1];
+  snprintf(full_dev, sizeof(full_dev), "%s%s", sdev, step->args[0]);
 
-  if (mount(full_dev, "/mnt", "ext4", 0, NULL) != 0) {
+  const char* part = get_partition(full_dev, 1);
+
+  if (mount(part, "/mnt", "ext4", 0, NULL) != 0) {
     result.success = 0;
     result.message = "Failed to mount root!";
     perror("mount");
@@ -396,6 +397,7 @@ int create_file(const char* path, const char* content) {
   return 0;
 }
 
+
 void sanitize_shell_chars(char *s) {
   static const char *metachars = ";&|()<>$`\\\"'*?[]{}~#!\n";
   for (char *p = s; *p; p++) {
@@ -525,6 +527,8 @@ InstallStepResult grub_install_func(struct InstallStep* step) {
     return mkresult(0, "Failed to symlink for GRUB compatibility!");
   // fun fact: grub made me go insane - mostypc123 at august 14th 2026 20:18
 
+  sanitize_shell_chars(step->args[0]); // should not be neccesarry but yall will yap abt it
+
   const char* drive = step->args[0];
   const char sdev[] = "/dev/";
   char full_dev[strlen(sdev) + strlen(drive) + 1];
@@ -533,8 +537,6 @@ InstallStepResult grub_install_func(struct InstallStep* step) {
   const char* prefix = "grub-install ";
   char command[strlen(prefix) + strlen(full_dev) + 1];
   snprintf(command, sizeof(command), "%s%s", prefix, full_dev);
-
-  sanitize_shell_chars(full_dev);
 
   int grub_result = run_in_chroot_shell_with_bind_mnt(command);
   if (grub_result == -1) {

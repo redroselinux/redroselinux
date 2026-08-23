@@ -10,6 +10,7 @@
 #include "inst.h"
 #include <sys/ioctl.h>
 #include <sys/reboot.h>
+#include <sys/mount.h>
 #include <unistd.h>
 
 #define FREE_ALL() do { \
@@ -46,6 +47,10 @@ body:
   if (input[0] == 'm') {
     info("Replacing current process with /bin/sh");
     execv("/bin/sh", (char *const[]){"/bin/sh", NULL});
+    error("Failed to execv. Press ENTER to restart the installer.");
+    perror("execv");
+    getchar();
+    goto body;
   }
   // no checks for g, cos g is default anyway and it does nothing in here
 
@@ -331,6 +336,8 @@ body:
   (void)getchar();
 
   sync();
+  if (umount("/mnt") != 0)
+    warn("Failed to unmount /mnt");
   reboot(RB_AUTOBOOT);
 
   // not reached!

@@ -1,7 +1,7 @@
 #include <stdlib.h>
-
 #include <unistd.h>
 #include "log.h"
+#include "mem.h"
 
 /* Allocate memory with a NULL check for safety. */
 void* alloc(size_t size) {
