@@ -21,10 +21,10 @@ We currently use the runit init system (which we customized) and the nullinitrd 
 - **Website**: https://redroselinux.org/
 - **Dev branch**: develop
 
+
 <div align="center">
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/6cb85ab3-102f-48c1-a394-1d1006459e78" />
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/f9183b28-adef-425a-a9ae-16133395aa4c" />
-  <img width="725" alt="image" src="https://github.com/user-attachments/assets/8ca1a5a6-c942-4a5e-9bd8-84d27718cc3e" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/b7489a4d-6f4f-4fa3-a69c-8bbe7d8f4c5d" /> 
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/7dcd2e78-5064-46ec-aab2-da11426c7417" />
 </div>
 
 ## Download
