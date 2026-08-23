@@ -26,6 +26,9 @@ if [ "$mount_failed" -eq 1 ]; then
   exec /bin/sh
 fi
 
+echo -e "\e[94m::\e[0m Remounting / read-write"
+mount -o remount,rw / || ( echo -e "  \e[91m*\e[0m Critical error: remounting / read-write failed" ; echo "  * Starting a rescue shell" ; exec /bin/sh )
+
 echo -e "\e[94m::\e[0m Setting font"
 setfont -C /dev/console /usr/share/consolefonts/ter-m16n.psf.gz || ( echo -e "  \e[91m*\e[0m Failed to set font." ; sleep 1 )
 

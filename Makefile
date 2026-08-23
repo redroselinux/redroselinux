@@ -1,3 +1,6 @@
+# This is the worst Makefile I ever wrote.
+# Please wait the tiny bit of time before I make a proper builder like archiso.
+
 ROOTFS_DIR = rootfs
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs
@@ -7,7 +10,7 @@ ROOTFS_FS_DIR = $(ROOTFS_DIR)/$(FS_DIR)
 GZIP_PATH := gzip
 GZIP_PLAIN_COMMAND := $(word 1,$(GZIP_PATH))
 CC := gcc
-CCFLAGS :=
+CCFLAGS := -std=c23 -O3 -Wall -Wextra -Werror
 
 INITRAMFS_CPIO := $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ := $(OUTPUT_DIR)/initramfs.cpio.gz
@@ -18,7 +21,7 @@ FEDORA := $(shell grep -q 'ID=fedora' /etc/os-release 2>/dev/null && echo 1 || e
 
 GRUB := $(shell command -v grub2-mkrescue >/dev/null 2>&1 && echo grub2-mkrescue || echo grub-mkrescue)
 
-DOCKER_PRE_CMD := 
+DOCKER_PRE_CMD :=
 
 all: dep clean installer install-packages squash-root initramfs iso vm
 no-vm: dep clean installer squash-root initramfs iso
@@ -54,8 +57,6 @@ dep:
 		fi; \
 	done
 	@echo ""
-	@echo "  => Running $(ROOTFS_DIR)/copy_syslibs.py"
-	@python3 $(ROOTFS_DIR)/copy_syslibs.py
 
 initramfs: dep squash-root
 	@echo "==> Building initramfs..."
@@ -93,20 +94,24 @@ squash-root: dep
 	@echo "=> Merging /usr paths"
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/bin $(ROOTFS_FS_DIR)/usr/sbin $(ROOTFS_FS_DIR)/usr/lib $(ROOTFS_FS_DIR)/usr/lib64
 	@echo "  ==> Copying /bin"
-	@[ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /sbin"
-	@[ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib"
-	@[ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib64"
-	@[ -d $(ROOTFS_FS_DIR)/lib64 ] && cp -a $(ROOTFS_FS_DIR)/lib64/* $(ROOTFS_FS_DIR)/usr/lib64/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/lib64 ] && cp -a $(ROOTFS_FS_DIR)/lib64/* $(ROOTFS_FS_DIR)/usr/lib64/ >/dev/null 2>&1 || true
+	@echo "  ==> Copying /usr/etc"
+	@# in this case the /usr path is the symlink
+	@[ -d $(ROOTFS_FS_DIR)/etc ] && cp -a $(ROOTFS_FS_DIR)/usr/etc/* $(ROOTFS_FS_DIR)/etc/ >/dev/null 2>&1 || true
 	@echo "  ==> Removing original / paths"
-	@rm -rf $(ROOTFS_FS_DIR)/bin $(ROOTFS_FS_DIR)/sbin $(ROOTFS_FS_DIR)/lib $(ROOTFS_FS_DIR)/lib64
+	@rm -rf $(ROOTFS_FS_DIR)/bin $(ROOTFS_FS_DIR)/sbin $(ROOTFS_FS_DIR)/lib $(ROOTFS_FS_DIR)/lib64 $(ROOTFS_FS_DIR)/usr/etc
 	@echo "  ==> Symlinking new /usr paths"
 	@ln -s usr/bin   $(ROOTFS_FS_DIR)/bin
 	@ln -s usr/sbin  $(ROOTFS_FS_DIR)/sbin
 	@ln -s usr/lib   $(ROOTFS_FS_DIR)/lib
 	@ln -s usr/lib64 $(ROOTFS_FS_DIR)/lib64
+	@ln -s ../etc $(ROOTFS_FS_DIR)/usr/etc
 	@echo "=> Installing car"
 	@test -f $(ROOTFS_FS_DIR)/bin/car || ( \
 		echo "  -> $(ROOTFS_FS_DIR)/bin/car" && \
@@ -141,7 +146,7 @@ docker-image: install-packages squash-root
 	@$(DOCKER_PRE_CMD) docker build -t redrose-linux -f Dockerfile .
 	@echo "=> Running Image"
 	@$(DOCKER_PRE_CMD) docker run --rm -it redrose-linux /bin/sh
-	
+
 iso: squash-root initramfs
 	@echo "=> Building ISO..."
 	@echo "  ==> Copying initramfs"
@@ -151,7 +156,7 @@ iso: squash-root initramfs
 	@echo "  -> $(ISO)"
 
 installer: dep
-	@$(CC) src/installer/main.c src/installer/tui.c src/installer/backend.c $(CCFLAGS) -o $(INITRAMFS_DIR)/bin/install -static 2>&1
+	@$(CC) src/installer/*.c $(CCFLAGS) -o $(INITRAMFS_DIR)/bin/install -static 2>&1
 	@echo "  -> $(INITRAMFS_DIR)/bin/install"
 
 run-installer:

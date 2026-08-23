@@ -11,7 +11,6 @@
 
 acl
 attr
-binutils
 brotli
 ca-certificates
 curl
@@ -25,6 +24,7 @@ glib
 glibc
 grep
 groff
+grub-all
 ireallyloverunit
 iwd
 kmod
@@ -38,6 +38,7 @@ libidn2
 libunistring
 linux
 linux:filesystem/
+lvm2
 lz4
 nano
 ncurses

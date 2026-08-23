@@ -17,7 +17,7 @@ busybox setfont -C /dev/console ter-m16n.psf.gz || sleep 1
 
 # Set up PATH
 echo -e "\033[96m*\033[0m Setting up PATH"
-export PATH=/bin # believe it or not this system is minimal enough for this
+export PATH=/bin:/sbin # believe it or not this system is minimal enough for this
 
 busybox mdev -s
 
