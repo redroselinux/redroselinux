@@ -12,8 +12,6 @@ Have you ever found yourself using confusing distributions? Redrose Linux takes 
 
 We currently use the runit init system (which we customized) and the nullinitrd initramfs generator (originally from NULL GNU/Linux). This might change in the future.
 
-**Currently, the installer is being rewritten on the develop branch. We know the current one sucks.**
-
 >[!CAUTION]
 > Redrose Linux is under active development and is **not ready for daily use**.
 
