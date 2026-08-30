@@ -12,8 +12,6 @@ Have you ever found yourself using confusing distributions? Redrose Linux takes 
 
 We currently use the runit init system (which we customized) and the nullinitrd initramfs generator (originally from NULL GNU/Linux). This might change in the future.
 
-**Currently, the installer is being rewritten. We know the current one sucks.**
-
 >[!CAUTION]
 > Redrose Linux is under active development and is **not ready for daily use**.
 
@@ -21,10 +19,10 @@ We currently use the runit init system (which we customized) and the nullinitrd 
 - **Website**: https://redroselinux.org/
 - **Dev branch**: develop
 
+
 <div align="center">
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/6cb85ab3-102f-48c1-a394-1d1006459e78" />
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/f9183b28-adef-425a-a9ae-16133395aa4c" />
-  <img width="725" alt="image" src="https://github.com/user-attachments/assets/8ca1a5a6-c942-4a5e-9bd8-84d27718cc3e" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/b7489a4d-6f4f-4fa3-a69c-8bbe7d8f4c5d" /> 
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/7dcd2e78-5064-46ec-aab2-da11426c7417" />
 </div>
 
 ## Download
@@ -38,6 +36,10 @@ curl https://redroselinux.org/vm_launcher.sh | sh
 This uses the latest **release**.
 
 Otherwise, download from the Releases tab.
+
+### Docker image
+
+https://docs.redroselinux.org/#/docker-img
 
 ## Hardware Requirements
 
@@ -67,15 +69,15 @@ This does all the magic, and even runs it in a VM.
  
 ## Build a Docker image
 
-```bash
-make docker
-```
+>[!IMPORTANT]
+> `-j` does not work with our Makefile!
 
-If your docker needs sudo, do:
+>[!NOTE]
+> We will make a build system for ISOs after alpha-0.7 releases. 
 
-```bash
-make docker DOCKER_PRE_CMD="sudo"
-```
+>[!TIP]
+> You can use `GZIP_PATH` to set the gzip command, for example:
+> `make GZIP_PATH="pigz -p 4000"` 
 
 <div align=center>
 Wilted rose:<br>
