@@ -66,6 +66,18 @@ This does all the magic, and even runs it in a VM.
 >[!TIP]
 > You can use `GZIP_PATH` to set the gzip command, for example:
 > `make GZIP_PATH="pigz -p 4000"` 
+ 
+## Build a Docker image
+
+>[!IMPORTANT]
+> `-j` does not work with our Makefile!
+
+>[!NOTE]
+> We will make a build system for ISOs after alpha-0.7 releases. 
+
+>[!TIP]
+> You can use `GZIP_PATH` to set the gzip command, for example:
+> `make GZIP_PATH="pigz -p 4000"` 
 
 <div align=center>
 Wilted rose:<br>

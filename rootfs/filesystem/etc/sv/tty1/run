@@ -1,5 +1,3 @@
 #!/bin/sh
 
-sleep 0.1
-
-exec busybox getty -L tty1 115200 vt100 -l /bin/login
+exec getty -L tty1 115200 vt100 -l /bin/login
