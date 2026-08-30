@@ -1,4 +1,4 @@
 #!/bin/sh
 
 mkdir -p /var/log
-exec busybox syslogd -n -O /var/log/messages 2>&1
+exec syslogd -n -O /var/log/messages 2>&1
