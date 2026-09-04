@@ -36,4 +36,3 @@ InstallStepResult grub_install_func(struct InstallStep* step);
 InstallStepResult nullinitrd_regen_func(struct InstallStep* step);
 InstallStepResult mkfstab_regen_func(struct InstallStep* step);
 InstallStepResult dbus_setup_func(struct InstallStep* step);
-

@@ -29,13 +29,17 @@ ireallyloverunit
 iwd
 kmod
 less
+libbsd
 libcap
 libffi
+libgcrypt
 libpsl
 libslang
 libidn
 libidn2
 libunistring
+libpam
+libmd
 linux
 linux:filesystem/
 lvm2
@@ -57,13 +61,12 @@ readline
 -- works on manual build and manual unpacking
 redrose-runit
 sed
+shadow
 tar
 terminus-font
 wireless-regdb
 wget2
--- TODO: use full util-linux
---       [also libpam]
-util-linux-libs-only
+util-linux
 xz
 zlib
 zstd

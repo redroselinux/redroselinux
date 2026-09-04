@@ -332,7 +332,7 @@ int run_in_chroot_shell_with_bind_mnt(const char* cmd_str) {
     return -1;
   }
 
-  // supress the print of the whole, huge command.
+  // suppress the print of the whole, huge command.
   exec_funcs_print_command = 0;
   int result = run_in_chroot_shell(cmd_str);
   exec_funcs_print_command = print_command; //old value
@@ -349,15 +349,22 @@ int run_in_chroot_shell_with_bind_mnt(const char* cmd_str) {
   return result;
 }
 
-/* Install coreutils from one of the tarballs. To be used with an InstallStep. */
+/* Install coreutils from one of the tarballs. To be used with an InstallStep.
+ * InstallStep args:
+ *   0 - gnu uutils or busybox
+ *   1 - if 1, do not install busybox (debug mode)
+ *       char* pointer that is actually a _Bool*; DO NOT USE AS A STRING */
 InstallStepResult install_coreutils_func(struct InstallStep* step) {
   InstallStepResult result;
 
-  // TODO: redrose currently requires busybox regardless of what you slap on top
-  // TODO: in alpha-0.9, we will remove ALL busybox unless user selects it here
-  if (run_in_chroot_shell("/bin/busybox --install") != 0) {
-    result = mkresult(0, "Failed to install busybox!");
-    return result;
+  if (!*step->args[1]) {
+    // TODO: redrose currently requires busybox regardless of what you slap on top
+    // TODO: in alpha-0.8, we will remove ALL busybox unless user selects it here
+    // INFO: plans changed; 0.8 is removal of busybox instead of the build stuff
+    if (run_in_chroot_shell("/bin/busybox --install") != 0) {
+      result = mkresult(0, "Failed to install busybox!");
+      return result;
+    }
   }
 
   if (!strcmp(step->args[0], "gnu")) {
@@ -441,16 +448,7 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   }
 
   if (create_user) {
-    // why not reuse the buffer for the home dir :fire:
-    snprintf(command, sizeof(command), "/mnt/home/%s", user);
-    if (mkdir(command, 0755) != 0) {
-      if (errno != EEXIST) {
-        perror("mkdir");
-        return mkresult(0, "Failed to create home directory for user!");
-      }
-    }
-
-    snprintf(command, sizeof(command), "adduser -D %s", user);
+    snprintf(command, sizeof(command), "useradd -mUs /bin/sh %s", user);
     if (run_in_chroot_shell(command) != 0) {
       return mkresult(0, "Failed to add user!");
     }
@@ -459,7 +457,7 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   }
 
   warn("Not printing commands that are ran to set password for security!");
-  // you can delete the below line for debugging the commnds
+  // you can delete the below line for debugging the commands
   exec_funcs_print_command = 0;
 
   if (create_user) {
@@ -502,7 +500,7 @@ InstallStepResult init_car_func(struct InstallStep* step) {
 
   result = mkresult(
     result.success,
-    result.success ? "Initialized Car succesfully!" : "Failed to initialize Car!"
+    result.success ? "Initialized Car successfully!" : "Failed to initialize Car!"
   );
 
   return result;
@@ -563,12 +561,12 @@ InstallStepResult nullinitrd_regen_func(InstallStep* step) {
   result = mkresult(
     result.success,
     result.success ?
-      "Succesfully generated initramfs!" :
-      "Failed to generate initramfs!"    
+      "Successfully generated initramfs!" :
+      "Failed to generate initramfs!"
   );
 
   return result;
-} 
+}
 
 InstallStepResult mkfstab_regen_func(InstallStep* step) {
   InstallStepResult result;
@@ -577,7 +575,7 @@ InstallStepResult mkfstab_regen_func(InstallStep* step) {
   result.success = run_in_chroot_shell_with_bind_mnt("mkfstab /") == 0;
   result = mkresult(
     result.success,
-    result.success ? "Generated fstab!" : "Failed to generate fstab!"    
+    result.success ? "Generated fstab!" : "Failed to generate fstab!"
   );
 
   return result;
@@ -588,9 +586,9 @@ InstallStepResult dbus_setup_func(struct InstallStep* step) {
   (void)step;
 
   result.success = run_in_chroot_shell(
-    "addgroup -S nogroup && "
-    "addgroup -S messagebus && "
-    "adduser -S -H -s /usr/bin/nologin -G messagebus messagebus && "
+    "groupadd -S nogroup && "
+    "groupadd -S messagebus && "
+    "useradd -S -H -s /usr/bin/nologin -G messagebus messagebus && "
     "chown root:messagebus /usr/libexec/dbus-daemon-launch-helper && "
     "chmod 4750 /usr/libexec/dbus-daemon-launch-helper"
   ) == 0;
@@ -598,9 +596,8 @@ InstallStepResult dbus_setup_func(struct InstallStep* step) {
     result.success,
     result.success ?
       "Succesfully set up D-Bus!" :
-      "Failed to set up D-Bus!"    
+      "Failed to set up D-Bus!"
   );
 
   return result;
 }
-
