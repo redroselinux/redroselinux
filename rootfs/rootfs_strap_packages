@@ -40,6 +40,7 @@ libidn2
 libunistring
 libpam
 libmd
+libxcrypt
 linux
 linux:filesystem/
 lvm2
