@@ -57,8 +57,6 @@ openldap
 openssl
 pcre2
 readline
--- redrose-runit fails to install..
--- works on manual build and manual unpacking
 redrose-runit
 sed
 shadow
