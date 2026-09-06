@@ -40,7 +40,7 @@ body:
 
   print_welcome(&window);
 
-  puts("Welcome to the Redrose Linux alpha-0.7 installer! It was recently rewritten.");
+  puts("Welcome to the Redrose Linux alpha-0.7.1 installer! It was recently rewritten.");
 
   char* input = ask("Manual [m] or guided [g] installation? [default: g]");
 
@@ -158,7 +158,7 @@ body:
     if (confirm[0] == 'Y' || confirm[0] == 'y') {
       debug = 1;
     } else if (confirm[0] == 'b') {
-      warn("Alpha 0.8 testing mode enabled (will not install busybox).");
+      warn("Alpha 0.7.1 testing mode enabled (will not install busybox).");
       busybox_debug = 1;
       (void)getchar();
     }
