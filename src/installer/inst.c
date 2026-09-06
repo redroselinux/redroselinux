@@ -584,20 +584,19 @@ InstallStepResult mkfstab_regen_func(InstallStep* step) {
 InstallStepResult dbus_setup_func(struct InstallStep* step) {
   InstallStepResult result;
   (void)step;
-
   result.success = run_in_chroot_shell(
-    "groupadd -S nogroup && "
-    "groupadd -S messagebus && "
-    "useradd -S -H -s /usr/bin/nologin -G messagebus messagebus && "
+    "groupadd -r nogroup && "
+    "groupadd -r messagebus && "
+    "useradd -r -M -s /usr/bin/nologin -g messagebus messagebus && "
     "chown root:messagebus /usr/libexec/dbus-daemon-launch-helper && "
     "chmod 4750 /usr/libexec/dbus-daemon-launch-helper"
   ) == 0;
   result = mkresult(
     result.success,
     result.success ?
-      "Succesfully set up D-Bus!" :
+      "Successfully set up D-Bus!" :
       "Failed to set up D-Bus!"
   );
-
   return result;
 }
+
