@@ -41,6 +41,12 @@ rootfs/filesystem/etc/grub.d/
 rootfs/filesystem/etc/mke2fs.conf
 rootfs/filesystem/etc/openldap/
 rootfs/filesystem/etc/xattr.conf
+rootfs/filesystem/etc/limits
+rootfs/filesystem/etc/login.access
+rootfs/filesystem/etc/login.defs
+rootfs/filesystem/etc/service/pam-namespace
+rootfs/filesystem/etc/sv/pam-namespace/
+rootfs/filesystem/etc/pam.d/vlock
 rootfs/filesystem/usr/*
 rootfs/filesystem/*bin
 !rootfs/filesystem/usr/sbin/hostname-reload-daemon

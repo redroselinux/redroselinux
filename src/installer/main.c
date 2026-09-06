@@ -40,7 +40,7 @@ body:
 
   print_welcome(&window);
 
-  puts("Welcome to the Redrose Linux alpha-0.7 installer! It was recently rewritten.");
+  puts("Welcome to the Redrose Linux alpha-0.7.1 installer! It was recently rewritten.");
 
   char* input = ask("Manual [m] or guided [g] installation? [default: g]");
 
@@ -58,7 +58,7 @@ body:
 
   print_inst_to_header(&window);
   char* drive = ask_blkdev();
-  
+
   if (!drive) {
     info("Press ENTER to restart the installer");
     (void)getchar();
@@ -70,7 +70,7 @@ body:
   warn("This is left as a template for future work.");
   char* timezone = ask_with_default("Timezone (Region/City) [Europe/London]", "Europe/London");
   char* keyboard = ask_with_default("Keyboard layout [us]", "us");
-  
+
   print_usersetup_header(&window);
 
   char* user;
@@ -105,7 +105,7 @@ body:
       free(user);
       user = NULL;
     }
-    
+
   } while (user == NULL);
 
   if (!strcmp("lea", user)) {
@@ -114,9 +114,9 @@ body:
     puts("am i insane to write code that greets myself?");
   } else if (!strcmp("neo", user)) {
     puts("yo if you see this tell me lol :3");
-  } 
+  }
 
-  char* password = alloc(1); password[0] = '\0'; 
+  char* password = alloc(1); password[0] = '\0';
   if (free_user) {
     free(password);
     password = password_ask("User password [redrose]", "redrose");
@@ -126,7 +126,7 @@ body:
 
   print_advanced_header(&window);
   char* coreutils_type = ask_with_default("Coreutils to install? [gnu] (gnu/uutils/busybox)", "gnu");
-  
+
   int8_t install_grub = 1; // 2 if user used ? to ask what this question means
   do {
     char* confirm = ask_with_default("Do you want to install GRUB? [Y/n/?]", "Y");
@@ -150,12 +150,17 @@ body:
   } while (install_grub == 2);
 
   _Bool debug = 0;
-  
+  _Bool busybox_debug = 0;
+
   {
     char* confirm = ask_with_default("Do you want to use development mode? [y/N]", "N");
 
     if (confirm[0] == 'Y' || confirm[0] == 'y') {
       debug = 1;
+    } else if (confirm[0] == 'b') {
+      warn("Alpha 0.7.1 testing mode enabled (will not install busybox).");
+      busybox_debug = 1;
+      (void)getchar();
     }
 
     free(confirm);
@@ -225,12 +230,12 @@ body:
     };
     step(&copy_rootfs_tgz);
   }
-  
+
   {
     InstallStep install_coreutils = {
       .message = "Installing coreutils!",
       .func = install_coreutils_func,
-      .args = (char*[]){coreutils_type, NULL},
+      .args = (char*[]){coreutils_type, /*i hate c*/ (char*)&busybox_debug, NULL},
     };
     step(&install_coreutils);
   }
@@ -266,7 +271,7 @@ body:
     InstallStep regen_initramfs = {
       .message = "Generating initramfs!",
       .func = nullinitrd_regen_func,
-      .args = (char*[]){NULL}, 
+      .args = (char*[]){NULL},
     };
     step(&regen_initramfs);
   }
@@ -314,7 +319,7 @@ body:
     char* confirm = ask_with_default("Do you want to chroot to the newly installed system? [y/N]", "N");
 
     if (confirm[0] == 'y' || confirm[0] == 'Y') {
-      run_in_chroot_shell_with_bind_mnt("/bin/sh"); 
+      run_in_chroot_shell_with_bind_mnt("/bin/sh");
     }
 
     free(confirm);
