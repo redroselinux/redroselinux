@@ -1,11 +1,9 @@
 # kernel files
-rootfs/filesystem/boot/vmlinuz-*
 filesystem/boot/vmlinuz*
 filesystem/boot/System.map*
 filesystem/etc
 filesystem/lib
 filesystem/boot/lib/*
-rootfs/filesystem/boot/System.map*
 
 # build artifacts
 redrose_linux.iso
@@ -19,53 +17,20 @@ initramfs/rootfs.tar*
 strap_packages
 libcp
 repro.car
-rootfs/filesystem/etc/repro.car
-rootfs/filesystem/etc/car/saves
 initramfs/bin
 initramfs/coreutils*
-rootfs/filesystem/etc/car/
-
 
 # package files
-rootfs/filesystem/etc/sv/dbus
-rootfs/filesystem/etc/service/dbus
-rootfs/filesystem/etc/dbus*
-rootfs/filesystem/etc/rpc
-rootfs/filesystem/etc/slsh.rc
-rootfs/filesystem/etc/ld.so.cache
-rootfs/filesystem/etc/cron.d/*
-rootfs/filesystem/etc/lvm
-rootfs/filesystem/etc/bash_completion.d/
-rootfs/filesystem/etc/e2scrub.conf
-rootfs/filesystem/etc/grub.d/
-rootfs/filesystem/etc/mke2fs.conf
-rootfs/filesystem/etc/openldap/
-rootfs/filesystem/etc/xattr.conf
-rootfs/filesystem/etc/limits
-rootfs/filesystem/etc/login.access
-rootfs/filesystem/etc/login.defs
-rootfs/filesystem/etc/service/pam-namespace
-rootfs/filesystem/etc/sv/pam-namespace/
-rootfs/filesystem/etc/pam.d/vlock
-rootfs/filesystem/usr/*
-rootfs/filesystem/*bin
-!rootfs/filesystem/usr/sbin/hostname-reload-daemon
-rootfs/filesystem/lib*
-rootfs/filesystem/var
-rootfs/filesystem/etc/nullinitrd
-rootfs/filesystem/etc/redrose-strap
-!rootfs/filesystem/usr/share/dbus-1/system.d/net.connman.iwd.conf
+rootfs/filesystem
 initramfs/etc
 initramfs/include
 initramfs/lib
 initramfs/sbin
 initramfs/usr
 initramfs/share
-rootfs/filesystem/etc/ssl/
 filesystem/bin/
 filesystem/usr/
 filesystem/boot/vmlinuz/
-rootfs/filesystem/boot/vmlinuz
 
 # python
 *__pycache__

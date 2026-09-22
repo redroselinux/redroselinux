@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mkdir -p /var/log/dbus
+exec svlogd -tt /var/log/dbus

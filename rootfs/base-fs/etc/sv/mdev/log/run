@@ -1,0 +1,5 @@
+#!/bin/sh
+
+
+mkdir -p /var/log/mdev
+exec svlogd -tt /var/log/mdev

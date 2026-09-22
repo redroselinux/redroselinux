@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mdev -s -S -f -d 2>&1
+exec sleep infinity

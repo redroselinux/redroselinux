@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mkdir -p /var/log
+exec syslogd -n -O /var/log/messages 2>&1

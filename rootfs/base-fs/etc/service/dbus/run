@@ -1,0 +1,5 @@
+#!/bin/sh
+
+printf "\033[96m*\033[0m Starting \033[97mdbus\033[0m\n" > /dev/console
+LD_LIBRARY_PATH=/usr/lib:/lib:/lib64:/usr/lib64 dbus-launch > /dev/null
+exec sleep infinity

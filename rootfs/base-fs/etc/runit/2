@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Make sure all services are executable
+chmod +x /etc/sv/*/*
+chmod +x /etc/sv/*/log/*
+
+echo -e "\e[94m::\e[0m Starting services"
+exec runsvdir -P /etc/sv
+if mount_failed == 1; then
+  echo -e "  \e[91m*\e[0m Critical error: exec runsvdir failed"
+  echo "                                Maybe you removed runsvdir? Check PATH."
+  echo "  * Starting a rescue shell"
+  exec /bin/sh
+fi

@@ -32,6 +32,9 @@ help:
 
 dep:
 	@echo "=> Checking dependencies..."
+	@rm -rf $(ROOTFS_FS_DIR)
+	@mkdir -p $(ROOTFS_FS_DIR)
+	@cp -a $(ROOTFS_DIR)/base-fs/. $(ROOTFS_FS_DIR)/
 	@mkdir -p $(ROOTFS_FS_DIR)/lib64
 	@mkdir -p $(ROOTFS_FS_DIR)/lib
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/

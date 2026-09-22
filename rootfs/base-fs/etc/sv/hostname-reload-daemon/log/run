@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mkdir -p /var/log/hostname-reload-daemon
+exec svlogd -tt /var/log/hostname-reload-daemon

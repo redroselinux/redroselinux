@@ -1,0 +1,11 @@
+#!/bin/sh
+
+while ! [ -S /run/dbus/system_bus_socket ]; do
+    sleep 0.5
+done
+
+modprobe libarc4 2>&1 || true
+modprobe cfg80211 2>&1 || true
+modprobe mac80211 2>&1 || true
+
+exec /usr/libexec/iwd -d 2>&1
