@@ -20,6 +20,7 @@ dbus
 e2fsprogs
 expat
 fastfetch
+file
 gcc-libs
 glib
 glibc
@@ -44,6 +45,7 @@ libunistring
 libpam
 libmd
 libxcrypt
+libseccomp
 linux
 linux:filesystem/
 lvm2
