@@ -35,5 +35,5 @@ filesystem/boot/vmlinuz/
 # python
 *__pycache__
 
-# some stuff ive been working on lately
-src/new-installer/
+# where i put stuff that i dont push :shrug:
+.ignored
