@@ -1,9 +1,9 @@
 NAME="Redrose Linux"
-VERSION="Alpha 0.7 (Bloom)"
+VERSION="Alpha 0.7.1 (Upgrade)"
 ID=redrose
-VERSION_CODENAME=Bloom
-PRETTY_NAME="Redrose Linux Alpha 0.7 (Bloom)"
-VERSION_ID="alpha-0.7"
+VERSION_CODENAME=Upgrade
+PRETTY_NAME="Redrose Linux Alpha 0.7.1 (Upgrade)"
+VERSION_ID="alpha-0.7.1"
 HOME_URL="https://redroselinux.org/"
 SUPPORT_URL="https://docs.redroselinux.org"
 BUG_REPORT_URL="https://github.com/redroselinux/redroselinux/issues"
