@@ -6,11 +6,11 @@ filesystem/lib
 filesystem/boot/lib/*
 
 # build artifacts
-redrose_linux.iso
 redrose_linux.qcow2
-initramfs.cpio.gz
 filesystem/boot/initramfs.cpio.gz
+initramfs.cpio.gz
 initramfs/rootfs.tar*
+dist/
 
 # bootstrapping
 *.tar.zst

@@ -4,7 +4,8 @@
 ROOTFS_DIR = rootfs
 FS_DIR = filesystem
 INITRAMFS_DIR = initramfs
-OUTPUT_DIR = .
+OUTPUT_DIR := .
+DIST_DIR := $(OUTPUT_DIR)/dist
 ROOTFS_FS_DIR = $(ROOTFS_DIR)/$(FS_DIR)
 
 GZIP_PATH := gzip
@@ -14,7 +15,8 @@ CCFLAGS := -std=c23 -O3 -Wall -Wextra -Werror
 
 INITRAMFS_CPIO := $(OUTPUT_DIR)/initramfs.cpio
 INITRAMFS_GZ := $(OUTPUT_DIR)/initramfs.cpio.gz
-ISO := $(OUTPUT_DIR)/redrose_linux.iso
+ISO := $(DIST_DIR)/redrose_linux.iso
+ROOTFS := $(DIST_DIR)/rootfs.tar.zst
 QCOW2_IMG := redrose_linux.qcow2
 
 FEDORA := $(shell grep -q 'ID=fedora' /etc/os-release 2>/dev/null && echo 1 || echo 0)
@@ -31,16 +33,22 @@ help:
 	@echo "=> Run 'make' to compile"
 
 dep:
-	@echo "=> Checking dependencies..."
 	@rm -rf $(ROOTFS_FS_DIR)
 	@mkdir -p $(ROOTFS_FS_DIR)
-	@cp -a $(ROOTFS_DIR)/base-fs/. $(ROOTFS_FS_DIR)/
+	@mkdir -p $(DIST_DIR)
+	@mkdir -p strap_packages
+	@echo "=> Creating rootfs package..."
+	@tar -C $(ROOTFS_DIR) -I zstd -cf strap_packages/rootfs.tar.zst base-fs
+	@cp strap_packages/rootfs.tar.zst $(DIST_DIR)/rootfs.tar.zst
 	@mkdir -p $(ROOTFS_FS_DIR)/lib64
 	@mkdir -p $(ROOTFS_FS_DIR)/lib
+	@mkdir -p $(ROOTFS_FS_DIR)/etc
+	@mkdir -p $(ROOTFS_FS_DIR)/etc/car
+	@mkdir -p $(ROOTFS_FS_DIR)/var/cache
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib/grub
-	@cp -p /lib64/ld-linux-x86-64.so.2 $(ROOTFS_FS_DIR)/lib64/
+	@echo "=> Checking dependencies..."
 	@if [ "$(FEDORA)" = "1" ]; then \
 		cmd_list="grub2-mkrescue curl bash $(GZIP_PLAIN_COMMAND) $(CC) qemu-img qemu-system-x86_64 python3 cpio fakeroot xorriso file"; \
 	else \
@@ -195,4 +203,4 @@ vm: $(ISO)
 	@echo "  => Starting VM from ISO..."
 	@qemu-system-x86_64 -cdrom $(ISO) -drive file=$(QCOW2_IMG),format=qcow2 -m 2048 -boot d -enable-kvm -smp $$(nproc) -display gtk
 
-.PHONY: all initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean vm help installed-vm squash-root dep
+.PHONY: all no-vm docker initramfs iso clean vms installer run-installer clean-downloads clean-all bare-build no-clean short-build vm help installed-vm squash-root dep install-packages docker-image

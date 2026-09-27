@@ -9,6 +9,9 @@
 -- remove:package
 -- unless not absolutely required, do not do that in this file.
 
+-- base system
+rootfs
+
 acl
 attr
 brotli
