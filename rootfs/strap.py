@@ -2,8 +2,6 @@ import os
 import subprocess
 import sys
 
-import fix_usr_local
-
 """
 Bootstrap packages into rootfs/filesystem. Basically a very simple version of Car.
 Requires Car to be installed and initialized for the packagelist.
@@ -186,7 +184,6 @@ result = subprocess.run(
   f"| sed 's|^[^/]*/||' | grep -v '/$' > {save_path}",
   shell=True,
 )
-fix_usr_local.check_and_fix()
 if result.returncode != 0:
   print("  ==> Error: failed to unpack " + package)
   exit(1)
