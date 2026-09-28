@@ -105,9 +105,9 @@ squash-root: dep
 	@echo "=> Merging /usr paths"
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/bin $(ROOTFS_FS_DIR)/usr/sbin $(ROOTFS_FS_DIR)/usr/lib $(ROOTFS_FS_DIR)/usr/lib64
 	@echo "  ==> Copying /bin"
-	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/bin ]   && cp -a -n $(ROOTFS_FS_DIR)/bin/* $(ROOTFS_FS_DIR)/usr/bin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /sbin"
-	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
+	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/sbin ]  && cp -a -n $(ROOTFS_FS_DIR)/sbin/* $(ROOTFS_FS_DIR)/usr/sbin/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib"
 	@shopt -s dotglob && [ -d $(ROOTFS_FS_DIR)/lib ]   && cp -a $(ROOTFS_FS_DIR)/lib/* $(ROOTFS_FS_DIR)/usr/lib/ >/dev/null 2>&1 || true
 	@echo "  ==> Copying /lib64"
