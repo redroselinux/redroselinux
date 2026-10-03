@@ -38,6 +38,7 @@ dep:
 	@mkdir -p $(DIST_DIR)
 	@mkdir -p strap_packages
 	@echo "=> Creating rootfs package..."
+	@test -f $(ROOTFS_DIR)/base-fs/etc/shadow && chmod 600 $(ROOTFS_DIR)/base-fs/etc/shadow || true
 	@tar -C $(ROOTFS_DIR) -I zstd -cf strap_packages/rootfs.tar.zst base-fs
 	@cp strap_packages/rootfs.tar.zst $(DIST_DIR)/rootfs.tar.zst
 	@mkdir -p $(ROOTFS_FS_DIR)/lib64
@@ -135,6 +136,8 @@ squash-root: dep
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/lib/grub
+	@echo "=> Adding libcrypt.so.2 compat soname"
+	@test -f $(ROOTFS_FS_DIR)/usr/lib/libcrypt.so.1 && ln -sf libcrypt.so.1 $(ROOTFS_FS_DIR)/usr/lib/libcrypt.so.2 || true
 	@echo "=> Running ldconfig"
 	@ldconfig -r rootfs/filesystem
 	@echo "=> Fetching RepoMirrors"
