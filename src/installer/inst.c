@@ -461,13 +461,13 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   exec_funcs_print_command = 0;
 
   if (create_user) {
-    snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd", user, password);
+    snprintf(command, sizeof(command), "echo '%s:%s' | chpasswd -c SHA512", user, password);
     if (run_in_chroot_shell(command) != 0) {
       return mkresult(0, "Failed to set password for user!");
     }
   }
 
-  snprintf(command, sizeof(command), "echo 'root:%s' | chpasswd", root_password);
+  snprintf(command, sizeof(command), "echo 'root:%s' | chpasswd -c SHA512", root_password);
   if (run_in_chroot_shell(command) != 0) {
     return mkresult(0, "Failed to set root password!");
   }
@@ -599,4 +599,3 @@ InstallStepResult dbus_setup_func(struct InstallStep* step) {
   );
   return result;
 }
-
