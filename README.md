@@ -8,7 +8,7 @@
 
 An independent x86_64 systemd-free EU-based Linux distribution. 
 
-Have you ever found yourself using confusing distributions? Redrose Linux takes features from NixOS and Arch (mainly) and turns them into an easy-to-use independent systemd-free system just for developers. 
+Have you ever found yourself using confusing distributions? Redrose Linux takes features from different distros and turns them into an easy-to-use independent systemd-free system for users like me (us i guess idk). 
 
 We currently use the runit init system (which we customized) and the nullinitrd initramfs generator (originally from NULL GNU/Linux). This might change in the future.
 
@@ -40,12 +40,6 @@ Otherwise, download from the Releases tab.
 ### Docker image
 
 https://docs.redroselinux.org/#/docker-img
-
-## Hardware Requirements
-
-**This was tested on alpha 0.2** 
-
-The installer can run on a potato, litterally, it needs ~131.200005M RAM. I did not do any tests for CPU.
 
 ## Development
 
