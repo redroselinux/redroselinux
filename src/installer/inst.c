@@ -448,7 +448,7 @@ InstallStepResult add_user_and_pwds_func(struct InstallStep* step) {
   }
 
   if (create_user) {
-    snprintf(command, sizeof(command), "useradd -mUs /bin/sh %s", user);
+    snprintf(command, sizeof(command), "busybox adduser -D %s", user);
     if (run_in_chroot_shell(command) != 0) {
       return mkresult(0, "Failed to add user!");
     }
@@ -585,9 +585,9 @@ InstallStepResult dbus_setup_func(struct InstallStep* step) {
   InstallStepResult result;
   (void)step;
   result.success = run_in_chroot_shell(
-    "groupadd -r nogroup && "
-    "groupadd -r messagebus && "
-    "useradd -r -M -s /usr/bin/nologin -g messagebus messagebus && "
+    "addgroup -S nogroup && "
+    "addgroup -S messagebus && "
+    "adduser -S -H -s /usr/bin/nologin -G messagebus messagebus && "
     "chown root:messagebus /usr/libexec/dbus-daemon-launch-helper && "
     "chmod 4750 /usr/libexec/dbus-daemon-launch-helper"
   ) == 0;

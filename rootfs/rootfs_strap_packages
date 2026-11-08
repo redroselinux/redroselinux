@@ -9,9 +9,6 @@
 -- remove:package
 -- unless not absolutely required, do not do that in this file.
 
--- base system
-rootfs
-
 acl
 attr
 brotli
@@ -45,7 +42,6 @@ libslang
 libidn
 libidn2
 libunistring
-libpam
 libmd
 libxcrypt
 libseccomp
@@ -67,13 +63,15 @@ openssl
 pcre2
 readline
 redrose-runit
+rootfs
 sed
-shadow
 tar
 terminus-font
 wireless-regdb
 wget2
-util-linux
+-- TODO: use full util-linux
+--       [also libpam]
+util-linux-libs-only
 xz
 zlib
 zstd

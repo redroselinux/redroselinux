@@ -130,7 +130,7 @@ squash-root: dep
 		curl -s -L -o $(ROOTFS_FS_DIR)/bin/car https://github.com/redroselinux/car/releases/latest/download/car && \
 		chmod +x $(ROOTFS_FS_DIR)/bin/car \
 	)
-	@chmod +x $(ROOTFS_FS_DIR)/sbin/reload-hostname-daemon
+	@chmod +x $(ROOTFS_FS_DIR)/usr/sbin/reload-hostname-daemon
 	@mkdir -p $(ROOTFS_FS_DIR)/lib64
 	@mkdir -p $(ROOTFS_FS_DIR)/lib
 	@mkdir -p $(ROOTFS_FS_DIR)/usr/
